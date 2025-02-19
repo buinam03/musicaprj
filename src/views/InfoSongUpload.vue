@@ -1,0 +1,228 @@
+<template>
+    <div>
+        <Header></Header>
+        <div class="pt-16 notification-container fixed top-0 right-0 mt-2 mr-4" v-if="successMessage">
+            <div class="notification bg-orange-500 text-white px-4 py-2 rounded-sm shadow-lg font-extralight">
+                {{ successMessage }}
+            </div>
+        </div>
+        <div class="pt-16 w-container mx-auto h-auto ">
+            <div class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10">
+                <div class="flex justify-center items-start relative">
+                    <div class="w-[450px] h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto">
+                        <button type="button" class="btn-warning" :class="{ 'cursor-default': isImageUpload }">
+                            <img v-if="imageURL" :src="imageURL" class="w-full h-full p-5 border-[10px]">
+                            <div v-else class="flex flex-col items-center gap-10">
+                                <font-awesome-icon icon="fa-solid fa-upload" class="uploadIcon opacity-50" />
+                                <span class="opacity-50 text-xl">Add new artwork</span>
+                            </div>
+
+                            <input ref="fileInput" type="file" accept=".jpg,.png" @change="handleFileUpload"
+                                :class="{ 'hidden': isImageUpload }">
+                        </button>
+                        <div class="mt-10 h-20">
+                            <div class="flex justify-between">
+                                <div v-if="isImageUpload" @click="replaceImage"
+                                    class="h-20 w-20 border-[1px] border-gray-600 rounded-full flex justify-center items-center opacity-70 hover:scale-110 hover:opacity-90 duration-200 cursor-pointer">
+                                    <div class="scale-150 text-gray-600">
+                                        <font-awesome-icon icon="fa-solid fa-pencil" />
+                                    </div>
+                                </div>
+                                <div v-if="isImageUpload" @click="deleteImage" class="h-20 w-20 border-[1px] border-gray-600 rounded-full flex justify-center items-center opacity-70 
+                                hover:scale-110 duration-200 hover:opacity-90 cursor-pointer">
+                                    <div class="scale-150 text-gray-600">
+                                        <font-awesome-icon icon="fa-solid fa-trash" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold text-sm">
+                            Track title
+                            <div class="text-red-500">*</div>
+                        </div>
+                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4"
+                                :value="fileNameWithoutExtend">
+                        </div>
+                    </div>
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+                            Track link
+                        </div>
+                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4"
+                                value="https://musica.com/shuu_music/vu-tru-co-anh-final-phuong-my-chiphaodtap-eulelia-remix/s-cTuXYLujAMl?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing&si=4b7763f531324a0ca9b617ef11984693"
+                                readonly>
+                        </div>
+                    </div>
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+                            Main Artist(s)
+                            <div class="text-red-500">*</div>
+                        </div>
+                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4">
+                        </div>
+                    </div>
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+                            Genre
+                            <div class="text-red-500">*</div>
+                        </div>
+                        <div class="w-1/2 h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="tel" class="w-full h-full rounded-sm p-4">
+                        </div>
+                    </div>
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+                            Decription
+                        </div>
+                        <div class="w-full h-24 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm pb-10 pl-4 pr-4"
+                                placeholder="Tracks with descriptions tend to get more plays and engagement.">
+                        </div>
+                    </div>
+                    <div class="w-full h-auto">
+                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+                            Track Privacy
+                        </div>
+                        <div class="w-full text-sm flex">
+                            <div class="flex justify-start items-center">
+                                <input type="radio" name="" id="">
+                                <div class="pl-2 font-semibold text-sm">
+                                    Public
+                                </div>
+                            </div>
+                            <div class="flex justify-start items-center ml-10">
+                                <input type="radio" name="" id="">
+                                <div class="pl-2 font-semibold text-sm">
+                                    Private
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full h-8 0 mt-5">
+                        <div @click="uploadMusic" class="flex justify-end items-center h-full">
+                            <div
+                                class="w-28 h-full bg-orange-500 rounded-2xl text-sm text-white flex items-center justify-center font-semibold cursor-pointer hover:bg-orange-400">
+                                Upload
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <Footer></Footer>
+    </div>
+</template>
+
+<script>
+import Footer from '@/components/Footer.vue';
+import Header from '@/components/Header.vue';
+export default {
+    name: 'InfoSongUpload',
+    data() {
+        return {
+            fileName: '',
+            imageURL: null,
+            isImageUpload: false,
+            successMessage: '',
+        }
+    },
+    computed: {
+        fileNameWithoutExtend() {
+            return this.fileName ? this.fileName.split(".").slice(0, -1).join(".") : "";
+        }
+    },
+    components: {
+        Header,
+        Footer
+    },
+    methods: {
+        handleFileUpload(event) {
+            const file = event.target.files[0]; // Lấy file đầu tiên
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.imageURL = e.target.result; // Gán URL ảnh vào `imageUrl`
+                };
+                reader.readAsDataURL(file); // Đọc file dưới dạng DataURL
+                this.isImageUpload = true;
+                event.target.value = null;
+            }
+        },
+        deleteImage() {
+            this.imageURL = null;
+            this.isImageUpload = false;
+        },
+        replaceImage() {
+            this.$refs.fileInput.click();
+        },
+        uploadMusic() {
+
+            this.successMessage = 'Track upload successful!';
+
+            setTimeout(() => {
+                this.successMessage = '';
+                this.$router.push('/home');
+            }, 1500);
+        },
+    },
+    created() {
+        this.fileName = this.$route.params.fileName;
+    }
+}
+</script>
+
+<style scoped>
+.btn-warning {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #000000;
+    background-color: #ffffff;
+    border: 0;
+    transition: 0.2s;
+    overflow: hidden;
+
+}
+
+.btn-warning input[type="file"] {
+    cursor: pointer;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0%;
+    top: 0%;
+    /* transform: scale(3); */
+    opacity: 0;
+}
+
+.uploadIcon {
+    transform: scale(5);
+}
+.notification {
+  animation: fade-in-out 3s ease;
+}
+
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+</style>

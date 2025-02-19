@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Neutra';
+    src: url('@/font/neutra/Neutra.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Forestyland-Regular';
+    src: url('@/font/forestyland/Forestyland-Regular.ttf') format('truetype');
+}
