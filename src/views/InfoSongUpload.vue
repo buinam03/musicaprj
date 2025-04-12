@@ -6,10 +6,10 @@
                 {{ successMessage }}
             </div>
         </div>
-        <div class="pt-16 w-container mx-auto h-auto ">
-            <div class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10">
+        <div class="pt-16 mb-20 w-container mx-auto h-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+            <div class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10 xl:grid-cols-[550px_1fr] lg:grid-cols-[450px_1fr] md:grid-cols-[300px_1fr]">
                 <div class="flex justify-center items-start relative">
-                    <div class="w-[450px] h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto">
+                    <div class="aspect-square h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto xl:h-[450px] lg:h-[350px] md:h-[300px]">
                         <button type="button" class="btn-warning" :class="{ 'cursor-default': isImageUpload }">
                             <img v-if="imageURL" :src="imageURL" class="w-full h-full p-5 border-[10px]">
                             <div v-else class="flex flex-col items-center gap-10">

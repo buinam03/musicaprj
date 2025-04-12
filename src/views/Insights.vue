@@ -1,7 +1,7 @@
 <template>
     <div>
         <Header></Header>
-        <div class="w-container pt-16 mb-16 h-auto m-auto">
+        <div class="w-container pt-16 mb-16 h-auto m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="p-4 font-semibold text-2xl text-left">Insights</div>
             <div class="w-full h-auto flex justify-between items-center mb-10">
                 <div class="text-semibold text-2xl p-4">
@@ -9,8 +9,8 @@
                 </div>
                 <div class="w-auto h-auto ">
                     <select v-model="currentIndexOption"
-                        class="p-3 outline-none border-[1px] border-gray-500  rounded-md" name="" id="">
-                        <option :value="index" v-for="(item, index) in optionDate" :key="index">{{ item.title }}
+                        class="p-3 outline-none border-[1px] border-gray-500  rounded-md xl:p-3 lg:p-2 md:p-1" name="" id="">
+                        <option class="xl:text-base lg:text-sm md:text-xs" :value="index" v-for="(item, index) in optionDate" :key="index">{{ item.title }}
                         </option>
                     </select>
                 </div>
@@ -45,14 +45,14 @@
                             <div v-for="(item, index) in songs" :key="index"
                                 class="h-20 w-full hover:bg-gray-200 cursor-pointer">
                                 <div class="h-20 w-auto flex justify-start items-center">
-                                    <div class="aspect-square w-auto h-4/5 ">
+                                    <div class="aspect-square w-auto h-4/5 xl:h-4/5 lg:h-3/5 md:h-3/5 ">
                                         <img class="object-cover w-full h-full rounded-sm" :src="item.image" alt="">
                                     </div>
                                     <div class="pl-4 text-left w-full">
-                                        <div class="font-semibold text-gray-700 text-base whitespace-nowrap">
+                                        <div class="font-semibold text-gray-700 text-base whitespace-nowrap xl:text-base lg:text-sm md:text-xs">
                                             {{ item.name }}
                                         </div>
-                                        <div class="text-xs text-gray-500 whitespace-nowrap">
+                                        <div class="text-xs text-gray-500 whitespace-nowrap xl:text-base lg:text-sm md:text-xs">
                                             <font-awesome-icon icon="fa-solid fa-play" />
                                             {{ item.plays }}
                                         </div>
@@ -74,15 +74,15 @@
                             </div>                           
                         </div>
                         <div class="w-full h-auto mt-4">
-                            <div class="text-left mb-4 font-semibold">
+                            <div class="text-left mb-4 font-semibold xl:text-base lg:text-sm md:text-xs">
                                 <font-awesome-icon icon="fa-solid fa-play" class="pr-2"/>
                                 Plays in {{ currentTitleOption }} : {{ insightPlays }}
                             </div>
-                            <div class="text-left mb-4 font-semibold ">
+                            <div class="text-left mb-4 font-semibold xl:text-base lg:text-sm md:text-xs">
                                 <font-awesome-icon icon="fa-solid fa-heart" class="pr-2"/>
                                 Likes in {{ currentTitleOption }} : {{ insightPlays }}
                             </div>
-                            <div class="text-left mb-4 font-semibold">
+                            <div class="text-left mb-4 font-semibold xl:text-base lg:text-sm md:text-xs">
                                 <font-awesome-icon icon="fa-solid fa-comment" class="pr-2"/>
                                 Comments in {{ currentTitleOption }} : {{ insightPlays }}
                             </div>

@@ -1,8 +1,8 @@
 <template>
     <Header></Header>
-    <div class="flex items-center justify-center min-h-screen">
+    <div class="flex items-center justify-center min-h-screen xl:min-h-screen lg:min-h-[700px] md:min-h-[500px] ">
         
-        <div class="w-[1200px] h-[700px] pt-16 m-auto">
+        <div class="w-[1200px] h-[700px] pt-16 m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="h-full w-full flex items-center justify-center">
                 <div class="m-auto items-center w-[800px] h-[400px] rounded-md shadow-2xl flex justify-center">
                     <div class="h-[200px] w-full">
@@ -71,13 +71,24 @@ export default {
     overflow: hidden;
 
 }
-
+@media (min-width: 1024px) {
+    .btn-warning{
+        padding: 20px 25px;
+    }
+}
+@media (min-width: 768px) {
+    .btn-warning{
+        padding: 20px 25px;
+    }
+}
 .btn-warning input[type="file"] {
     cursor: pointer;
     position: absolute;
+    width: 100%;
+    height: 100%;
     left: 0%;
     top: 0%;
-    transform: scale(3);
+    /* transform: scale(3); */
     opacity: 0;
 }
 </style>

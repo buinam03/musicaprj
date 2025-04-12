@@ -3,12 +3,14 @@
 
     </HeaderPage>
     <div>
-        <div class="pt-16 pb-16 h-full w-container m-auto ">
+        <div
+            class="pt-16 pb-16 h-full w-container m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="text-left text-3xl py-8">YOUR LASTEST UPLOAD</div>
-            <div class="grid grid-cols-[192px_1fr] gap-10">
-                <div class=" h-48 border-4 border-[#F6E2EC] grid place-items-center ">
+            <div
+                class="grid grid-cols-[192px_1fr] gap-10 xl:w-[1200px] lg:w-[960px] md:w-[700px] lg:grid xl:grid md:block ">
+                <div class=" h-48 border-4 border-[#F6E2EC] grid place-items-center md:hidden lg:grid xl:grid">
 
-                    <div class="w-5/6 h-5/6  relative">
+                    <div class="w-5/6 h-5/6  relative ">
 
                         <div class="rotate absolute w-5 h-2 bg-red-500 rounded-md z-50"
                             :class="{ 'rotate-active': state.isPlaying }">
@@ -54,30 +56,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="pt-4">
-                                <div class="pl-5 ">
-                                    <div class="flex space-x-[15px]">
-                                        <div @click="ButtonGroupToggle"
-                                            class="w-auto flex justify-center items-center border-[1px] text-white cursor-pointer "
-                                            :class="{ 'border-orange-500': isButtonGroupClick, 'text-orange-500': isButtonGroupClick }">
-                                            <font-awesome-icon class="px-2 py-1" icon="fa-solid fa-heart" />
-                                            <div class="px-2 py-1">Like </div>
-                                        </div>
-                                        <div @click="ButtonGroupToggle"
-                                            class="w-auto flex justify-center items-center border-[1px] text-white cursor-pointer "
-                                            :class="{ 'border-orange-500': isButtonGroupClick, 'text-orange-500': isButtonGroupClick }">
-                                            <font-awesome-icon class="px-2 py-1" icon="fa-solid fa-heart" />
-                                            <div class="px-2 py-1">Like </div>
-                                        </div>
-                                        <div @click="ButtonGroupToggle"
-                                            class="w-auto flex justify-center items-center border-[1px] text-white cursor-pointer "
-                                            :class="{ 'border-orange-500': isButtonGroupClick, 'text-orange-500': isButtonGroupClick }">
-                                            <font-awesome-icon class="px-2 py-1" icon="fa-solid fa-heart" />
-                                            <div class="px-2 py-1">Like </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <div class=" h-full place-content-center place-items-center">
                             <img class="place-items-center w-5/6 h-5/6 border-4 border-white"
@@ -97,8 +75,8 @@
 
             </div>
             <div class="pt-5 border-b-gray-200 border-b-[1px]"></div>
-            <div class="pt-5 w-full h-auto grid grid-cols-[1fr_500px]">
-                <div class=" h-full w-[700px]">
+            <div class="pt-5 w-full h-auto ">
+                <div class=" h-full w-full">
                     <div class="text-left pt-4 font-bold">
                         ARTIST YOU SHOULD FOLLOW
                     </div>
@@ -154,57 +132,6 @@
                     </div>
 
 
-                </div>
-                <div class=" h-full">
-
-                    <div class="w-full h-96 border-gray-200 border-[1px] rounded-md">
-                        <div class="flex items-center justify-between border-b-[1px]">
-                            <div class="pl-4 pt-4 pb-4 text-base  ">
-                                Next Up
-                            </div>
-                            <div
-                                class="px-4 py-2 border-[1px] border-gray-400 mr-4 cursor-pointer text-[12px] rounded-sm hover:border-gray-600 hover:text-orange-500 ">
-                                Clear</div>
-                        </div>
-
-                        <div class="overflow-y-auto h-[calc(100%-56px)]">
-                            <div v-for="(item, index) in items" :key="item.id" draggable="true"
-                                @dragstart="onDragStart(index)" @dragover="onDragOver($event)" @drop="onDrop(index)"
-                                class="h-14 w-full mt-2 flex items-center justify-center  hover:bg-gray-200 ">
-                                <div class="w-full h-14 rounded-sm flex items-center  ">
-                                    <div class="1/12 rotate-90 opacity-10 cursor-grab">
-                                        <font-awesome-icon icon="fa-solid fa-grip" />
-                                    </div>
-                                    <div class="ml-2 w-[76px] h-[56px]  flex items-center justify-center">
-                                        <img :src="item.image" class="h-[56px] w-[56px] rounded-lg object-cover" alt="">
-                                    </div>
-                                    <div class="text-left pl-2 w-full ">
-                                        <div class="w-full text-ellipsis overflow-hidden whitespace-nowrap">
-                                            <a href="#">
-                                                {{ item.title }}
-                                            </a>
-                                        </div>
-                                        <div class="text-gray-500 text-sm">
-                                            <a href="#">
-                                                {{ item.artist }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="w-1/6 flex justify-center items-center ">
-                                        <div class="pl-3 cursor-pointer opacity-50"
-                                            :class="{ 'text-orange-500': item.isLike }" @click="LikeToggle(index)">
-                                            <font-awesome-icon icon="fa-solid fa-heart" />
-                                        </div>
-                                        <div @click="removeSongFromPlaylist(index)"
-                                            class="pl-3 cursor-pointer opacity-50">
-                                            <font-awesome-icon icon="fa-solid fa-xmark" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
                 </div>
             </div>
             <div class="text-left pt-4 font-bold">
@@ -264,7 +191,7 @@
                         <!--  -->
                         <div ref="menuContainer" v-for="(item, index) in songs" :key="item.id"
                             class="flex items-center p-2 hover:bg-gray-100">
-                            <div class="h-[70px] w-[70px] relative">
+                            <div class="h-[70px] aspect-square relative xl:h-[70px] lg:h-[60px] md:h-[50px]">
                                 <a href="#">
                                     <img class=" rounded-md w-full h-full object-cover" :src="item.image" alt="Artwork">
                                     <div
@@ -273,14 +200,14 @@
                                     </div>
                                 </a>
                             </div>
-                            <div class="pl-4 flex-grow text-left ">
+                            <div class="pl-4 flex-grow text-left w-24">
                                 <div
                                     class="font-semibold text-black hover:text-gray-600 max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
                                     <a href="#">
                                         {{ item.name }}
                                     </a>
                                 </div>
-                                <div class="flex max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
+                                <div class="flex max-w-[165px]  text-ellipsis whitespace-nowrap overflow-hidden">
                                     <div v-for="(artist, index) in item.artist" :key="artist.id"
                                         class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap ">
                                         <a href="#">{{ index < item.artist.length - 1 ? artist.name + ' ,' : artist.name
@@ -376,19 +303,24 @@ export default {
     },
     mounted() {
         document.addEventListener("click", this.clickOutside);
-        this.currentOffset = 0;
+        
+        this.currentOffset = 320;
+        // this.initCarousel();
+        window.addEventListener("resize", this.updateOffsetBasedOnScreen);
         this.updateTransform();
 
     },
     data() {
         return {
-            currentOffset: 0,
-            cardWidth: 200,
+            currentOffset: 320, // Giá trị ban đầu
+            defaultOffset: 320,
+            cardWidth: 180,
             openMenuIndex: null,
             isMusicPlay: false,
             isButtonGroupClick: false,
             dragIndex: null,
             followState: 'Follow',
+            isUserPressNextOrPre: false,
             songs: [
                 {
                     id: 1,
@@ -547,6 +479,30 @@ export default {
                     followers: 54323,
                     isFollowing: false,
                 },
+                {
+                    id: 7,
+                    name: 'Masew',
+                    image: require('@/image/user-logo/masew.jpg'),
+                    isVerified: true,
+                    followers: 54323,
+                    isFollowing: false,
+                },
+                {
+                    id: 8,
+                    name: 'Masew',
+                    image: require('@/image/user-logo/masew.jpg'),
+                    isVerified: true,
+                    followers: 54323,
+                    isFollowing: false,
+                },
+                {
+                    id: 9,
+                    name: 'Masew',
+                    image: require('@/image/user-logo/masew.jpg'),
+                    isVerified: true,
+                    followers: 54323,
+                    isFollowing: false,
+                },
 
             ],
             items: [
@@ -686,19 +642,64 @@ export default {
             // Kiểm tra giới hạn
             if (this.currentOffset > maxOffset) {
                 this.currentOffset = Math.max(maxOffset, this.currentOffset - this.cardWidth);
+                this.isUserPressNextOrPre = true;
+                // this.updateTransform();
                 this.updateTransform();
             }
         },
         preButton() {
             // Kiểm tra giới hạn
             if (this.currentOffset < 0) {
-                this.currentOffset = Math.min(0, this.currentOffset + this.cardWidth);
+                this.currentOffset = Math.min(this.defaultOffset, this.currentOffset + this.cardWidth);
+                this.isUserPressNextOrPre = true;
+                // this.updateTransform();
                 this.updateTransform();
             }
         },
         updateTransform() {
-            this.$refs.artistList.style.transform = `translateX(${this.currentOffset + 266}px)`;
+            this.$refs.artistList.style.transform = `translateX(${this.currentOffset}px)`;
         },
+        updateOffsetBasedOnScreen() {
+            let newDefaultOffset = 0;
+            if (window.matchMedia("(min-width: 1280px)").matches) {
+                // XL screen
+                newDefaultOffset = 320; // Adjusted to match your default
+            } else if (window.matchMedia("(min-width: 1024px)").matches) {
+                // LG screen
+                newDefaultOffset = 320;
+            } else if (window.matchMedia("(min-width: 768px)").matches) {
+                // MD screen
+                newDefaultOffset = 320;
+            } else {
+                // SM or smaller
+                newDefaultOffset = 240;
+            }
+
+            // Cập nhật giá trị mặc định
+            this.defaultOffset = newDefaultOffset;
+
+            // Chỉ reset currentOffset nếu người dùng chưa tương tác
+            if (!this.isUserPressNextOrPre) {
+                this.currentOffset = this.defaultOffset;
+                this.updateTransform();
+            }
+
+
+        },
+        // resetCarousel() {
+        //     this.currentOffset = 0;
+        //     this.isUserPressNextOrPre = false;
+        //     this.updateTransform();
+        // },
+
+        // // Initialize the carousel
+        // initCarousel() {
+        //     this.currentOffset = 0;
+        //     this.updateTransform();
+
+        //     // Add resize listener
+        //     window.addEventListener('resize', this.resetCarousel);
+        // },
         addToPlaylist(index) {
             this.playlist[index].isAddToPlaylist = !this.playlist[index].isAddToPlaylist;
         },
@@ -731,6 +732,7 @@ export default {
     },
     beforeUnmount() {
         document.removeEventListener("click", this.clickOutside);
+        window.removeEventListener("resize", this.updateOffsetBasedOnScreen);
     }
 }
 </script>

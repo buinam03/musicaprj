@@ -1,7 +1,7 @@
 <template>
     <div>
         <Header></Header>
-        <div class="w-container pt-16 mb-16 h-auto m-auto">
+        <div class="w-container pt-16 mb-16 h-auto m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="p-4 flex justify-between items-center">
                 <div class="text-left font-semibold p-4 text-2xl">
                     Likes by Đen

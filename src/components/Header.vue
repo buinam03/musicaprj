@@ -1,217 +1,234 @@
 <template>
-    <div class="h-16 w-full bg-[#222021] fixed z-50">
-        <div class="w-container mx-auto h-full flex items-center justify-center">
+    <div class="h-16 mx-auto w-full bg-[#222021] fixed z-50 ">
+        <div class=" mx-auto h-full flex items-center justify-center xl:w-[1024px] lg:w-[768px]  md:w-[768px] xl:mx-auto lg:mx-auto md:mx-auto" :class="{'justify-between': state.isLoggedIn === false}">
             <div class=" flex-shrink-0 font-neutra text-4xl text-white"><router-link to="/home">MUSICA</router-link>
             </div>
-            <div  class="flex-grow flex items-center p-3">
-                <div class="nav-left  border-white px-5 text-white" :class="{'invisible' : state.isLoggedIn === false}"><router-link to="/home">Home</router-link></div>
-                <div class="nav-left  border-white px-5 text-white" :class="{'invisible' : state.isLoggedIn === false}"><router-link to="/library">Library</router-link>
-                </div>
-                <div class="px-5 relative" :class="{'invisible' : state.isLoggedIn === false}">
-                    <input v-model="querryToSearch" @keydown.enter="search"
-                        class="no-clear w-80 p-4 h-10 rounded-[4px] cursor-text text-sm " type="search" name="search"
-                        id="" placeholder="Search">
-                    <div class="absolute inset-y-0 right-0 pr-8 flex items-center ">
-                        <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="cursor-pointer text-gray-500"
-                            @click="search" />
+            <div v-if="state.isLoggedIn === true" class="flex-grow flex items-center p-3 xl:w-[1200px] xl:text-[16px] lg:w-[1024px] lg:text-[14px] md:w-[768px] md:text-[12px]" >
+                <div class="flex justify-center items-center" :class="{ 'hidden': state.isLoggedIn === false }">
+                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/home">Home</router-link></div>
+                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/library">Library</router-link>
                     </div>
-                </div>
-                <div class="px-5 text-white" :class="{'invisible' : state.isLoggedIn === false}"><router-link to="/upload">Upload</router-link></div>
-                <div class="nav-left  border-white px-5 text-white" :class="{'invisible' : state.isLoggedIn === false}"><router-link to="/insights">Insights</router-link>
-                </div>
-                <div class="nav-left  border-white px-5 text-white" :class="{'invisible' : state.isLoggedIn === false}"><router-link to="/chart">Chart</router-link></div>
-                <!-- Notification Button -->
-                <div class="nav-left nav-right  border-white px-5 text-white relative" :class="{'invisible' : state.isLoggedIn === false}">
-                    <div @click="ToggleDropdown('bell')">
-                        <a href="#"><font-awesome-icon icon="fa-solid fa-bell" /></a>
+                    <div class="px-5 relative xl:px-4 lg:px-3 md:px-2">
+                        <input v-model="querryToSearch" @keydown.enter="search"
+                            class="no-clear w-80 p-4 h-10 rounded-[4px] cursor-text text-sm xl:w-72 lg:w-72 md:w-52 xl:h-10 lg:h-8 md:h-6  " type="search"
+                            name="search" id="" placeholder="Search">
+                        <div class="absolute inset-y-0 right-0 pr-8 flex items-center ">
+                            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="cursor-pointer text-gray-500"
+                                @click="search" />
+                        </div>
                     </div>
-                </div>
-
-                <!-- Message Button -->
-                <div class=" nav-left nav-right border-white px-5 text-white relative" :class="{'invisible' : state.isLoggedIn === false}">
-                    <div @click="ToggleDropdown('message')">
-                        <a href="#"><font-awesome-icon icon="fa-solid fa-message" /></a>
+                    <div  class="px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/upload">Upload</router-link></div>
+                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
+                            to="/insights">Insights</router-link>
                     </div>
-                </div>
-                <!-- Shared Dropdown -->
-                <div v-if="isDropdownOpen" ref="dropdown"
-                    class="absolute mt-4 h-96 w-noti bg-gray-200 shadow-lg z-50 overflow-y-auto">
-                    <template v-if="dropdownContent === 'bell'">
-                        <div class="h-12 sticky top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
-                            <p class="px-4 py-2 text-black  float-left z-50">Notifications</p>
+                    <div  class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/chart">Chart</router-link>
+                    </div>
+                    <!-- Notification Button -->
+                    <div  class="nav-left nav-right  border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1">
+                        <div @click="ToggleDropdown('bell')">
+                            <a href="#"><font-awesome-icon icon="fa-solid fa-bell" /></a>
                         </div>
-                        <div>
-                            <ul>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                    </div>
 
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
-
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
-
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
-
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
-
-                                        </div>
-                                    </a></li>
-                            </ul>
+                    <!-- Message Button -->
+                    <div  class=" nav-left nav-right border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1">
+                        <div @click="ToggleDropdown('message')">
+                            <a href="#"><font-awesome-icon icon="fa-solid fa-message" /></a>
                         </div>
-                    </template>
-                    <template v-if="dropdownContent === 'message'">
-                        <div class="h-12 sticky top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
-                            <p class="px-4 py-2 text-black  float-left z-50">Messages</p>
-                        </div>
-                        <div>
-                            <ul>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                    </div>
+                    <!-- Shared Dropdown -->
+                    <div v-if="isDropdownOpen" ref="dropdown"
+                        class="absolute mt-4 h-96 w-noti bg-gray-200 shadow-lg z-50 overflow-y-auto xl:w-[400px] lg:w-[300px]  md:w-[200px]">
+                        <template v-if="dropdownContent === 'bell'">
+                            <div class="h-12 sticky top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
+                                <p class="px-4 py-2 text-black  float-left z-50">Notifications</p>
+                            </div>
+                            <div>
+                                <ul class="xl:text-[16px] lg:text-[14px]  md:text-[12px]">
+                                    <li class="border-gray-300 border-b-2 xl:text-[16px] lg:text-[14px]  md:text-[12px]"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                                        </div>
-                                    </a></li>
-                                <li class="border-gray-300 border-b-2"><a href="#" class="block py-2 text-black m-auto">
-                                        <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                            <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                src="@/image/logo/logo.png" alt="" srcset="">
-                                            <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                ipsum dolor, sit amet consectetur adipisicing
-                                                elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                deserunt similique alias atque odio.</div>
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                                        </div>
-                                    </a></li>
-                            </ul>
-                        </div>
-                    </template>
-                </div>
+                                            </div>
+                                        </a></li>
+                                </ul>
+                            </div>
+                        </template>
+                        <template v-if="dropdownContent === 'message'">
+                            <div class="h-12 sticky w-noti top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
+                                <p class="px-4 py-2 text-black  float-left z-50">Messages</p>
+                            </div>
+                            <div>
+                                <ul>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
 
-                <div class=" border-white px-5 text-white relative cursor-pointer">
-                    <template v-if="state.isLoggedIn === true">
-                        <div @click="ToggleLogoDropdown()" class="logo flex items-center">
-                            <img class="w-8 h-8 max-w-8 opacity-100 rounded-full border-[2px] border-white"
-                                src="@/image/logo/denvau.jpg" alt="" />
-                            <span class="ml-3"><font-awesome-icon icon="fa-solid fa-chevron-down" /></span>
-                        </div>
-                        <div v-if="isLogoDropdownOpen" class="absolute left-0 mt-4 w-40 bg-gray-200">
-                            <ul>
-                                <li class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                        to="/profile">Profile</router-link></li>
-                                <li class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                        to="/tracks">Tracks</router-link></li>
-                                <li class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                        to="/likes">Likes</router-link></li>
-                                <li class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                        to="/following">Following</router-link></li>
-                                <li class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                        to="/followers">Followers</router-link></li>
-                                <li @click="signOutClick" class="border-gray-300 border-b-2"><router-link class="block px-4 py-2 text-black"
-                                    to="/discover">Sign Out</router-link></li>
-                            </ul>
-                        </div>
-                    </template>
-                    <template v-if="state.isLoggedIn === false">
-                        <div class="flex gap-4 h-full justify-center items-center">
-                            <div @click="isSignInTemplate" class="h-1/2 text-white px-3 py-1 border border-white rounded text-[12px] flex
-                                justify-center items-center whitespace-nowrap">Sign
-                                In</div>
-                            <div @click="isCreateTemplate"
-                                class="text-white px-3 py-1 bg-orange-500 rounded text-[12px] whitespace-nowrap ">
-                                Create Account</div>
-                        </div>
-                    </template>
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
+
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
+
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
+
+                                            </div>
+                                        </a></li>
+                                    <li class="border-gray-300 border-b-2"><a href="#"
+                                            class="block py-2 text-black m-auto">
+                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
+                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
+                                                    src="@/image/logo/logo.png" alt="" srcset="">
+                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
+                                                    ipsum dolor, sit amet consectetur adipisicing
+                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
+                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
+                                                    deserunt similique alias atque odio.</div>
+
+                                            </div>
+                                        </a></li>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div  class=" border-white px-5 text-white relative cursor-pointer xl:px-4 lg:px-2 md:px-1">
+                        <template v-if="state.isLoggedIn === true">
+                            <div @click="ToggleLogoDropdown()" class="logo flex items-center">
+                                <img class="w-8 h-8 max-w-8 opacity-100 rounded-full border-[2px] border-white"
+                                    src="@/image/logo/denvau.jpg" alt="" />
+                                <span class="ml-3"><font-awesome-icon icon="fa-solid fa-chevron-down" /></span>
+                            </div>
+                            <div v-if="isLogoDropdownOpen" class="absolute left-0 mt-4 w-40 bg-gray-200 xl:w-40 lg:w-28 md:w-24">
+                                <ul>
+                                    <li class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/profile">Profile</router-link></li>
+                                    <li class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/tracks">Tracks</router-link></li>
+                                    <li class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/likes">Likes</router-link></li>
+                                    <li class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/following">Following</router-link>
+                                    </li>
+                                    <li class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/followers">Followers</router-link>
+                                    </li>
+                                    <li @click="signOutClick" class="border-gray-300 border-b-2"><router-link
+                                            class="block px-4 py-2 text-black" to="/discover">Sign Out</router-link>
+                                    </li>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
+            <template  v-if="state.isLoggedIn === false">
+                <div class="flex gap-4 h-full justify-center items-center">
+                    <div @click="isSignInTemplate" class="h-1/2 text-white px-3 py-1 border border-white rounded text-[12px] flex
+                                justify-center items-center whitespace-nowrap cursor-pointer">Sign
+                        In</div>
+                    <div @click="isCreateTemplate"
+                        class="text-white px-3 py-1 bg-orange-500 rounded text-[12px] whitespace-nowrap cursor-pointer">
+                        Create Account</div>
+                </div>
+            </template>
         </div>
     </div>
     <div v-if="this.currentAction === 0"
@@ -219,15 +236,15 @@
         <div class="w-[1000px] h-[550px] bg-white border-[1px] border-gray-400 ">
             <div class="w-full h-full grid grid-cols-2 bg-gradient">
                 <div class=" p-4">
-                    <div class="text-center text-white text-[40px] font-semibold">
+                    <div class="text-center  text-[40px] font-semibold">
                         Sign In
                     </div>
                     <div class="w-full h-16 mt-10">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Your Email" type="text"
+                        <input class="w-full h-full border-gray-400 border-[1px] p-4 outline-none rounded" placeholder="Your Email" type="text"
                             name="" id="">
                     </div>
                     <div class="w-full h-16 mt-10 relative">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Password" type="password"
+                        <input class="w-full h-full border-gray-400 border-[1px] p-4 outline-none rounded" placeholder="Password" type="password"
                             name="" id="password">
                         <img v-if="isShowPass === false" @click="showPassword"
                             class="opacity-50 h-4 w-6 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -237,35 +254,37 @@
                             src="@/image/other/eye-open.png" alt="">
                     </div>
                     <div class="w-full h-auto mt-5">
-                        <div class="text-right text-white cursor-pointer">
+                        <div class="text-right  cursor-pointer hover:underline">
                             Forgot Password?
                         </div>
                     </div>
                     <div class="w-full h-16 mt-5">
                         <router-link to="/home">
                             <div @click="signInClick"
-                            class="w-full h-full border-[1px] cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
-                            Log In
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
-                        </div>
+                                class="w-full h-full border-gray-400 border-[1px] cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
+                                Log In
+                                <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
+                            </div>
                         </router-link>
                     </div>
                     <div class="w-full mt-12 h-auto">
-                        <div class="text-center text-white cursor-pointer">
-                            Don't have an account ? <span @click="isCreateAccount" class="text-white underline">Create Account</span>
+                        <div class="text-center text-gray-600 cursor-pointer">
+                            Don't have an account ? <span @click="isCreateAccount" class="text-gray-600  underline">Create
+                                Account</span>
                         </div>
                     </div>
                 </div>
                 <div class="w-full h-full flex flex-col justify-center items-center p-4 relative">
-                    <div @click="cancelTemplate" class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
-                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl"/>
+                    <div @click="cancelTemplate"
+                        class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
+                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl" />
                     </div>
                     <div class="text-center text-[40px] font-semibold">
-                            Sign in with
-                        </div>
+                        Sign in with
+                    </div>
                     <div
                         class="h-16 hover:bg-gray-100 rounded border-[1px] px-8 flex justify-center items-center cursor-pointer m-auto">
-                       
+
                         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -292,19 +311,19 @@
         <div class="w-[1000px] h-[550px] bg-white border-[1px] border-gray-400 ">
             <div class="w-full h-full grid grid-cols-2 bg-gradient">
                 <div class=" p-4">
-                    <div class="text-center text-white text-[40px] font-semibold">
+                    <div class="text-center text-gray-600  text-[40px] font-semibold">
                         Create Account
                     </div>
                     <div class="w-full h-10 mt-5">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Username" type="text"
-                            name="" id="">
+                        <input class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded" placeholder="Username" type="text" name=""
+                            id="">
                     </div>
                     <div class="w-full h-10 mt-5">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Your Email" type="text"
+                        <input class="w-full h-full p-4 border-[1px] border-gray-500 outline-none rounded" placeholder="Your Email" type="text"
                             name="" id="">
                     </div>
                     <div class="w-full h-10 mt-5 relative">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Password" type="password"
+                        <input class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded" placeholder="Password" type="password"
                             name="" id="password">
                         <img v-if="isShowPass === false" @click="showPassword"
                             class="opacity-50 h-4 w-6 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -314,34 +333,36 @@
                             src="@/image/other/eye-open.png" alt="">
                     </div>
                     <div class="w-full h-10 mt-5 relative">
-                        <input class="w-full h-full p-4 outline-none rounded" placeholder="Re-enter Password" type="password"
-                            name="" id="re-en-password">
+                        <input class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded" placeholder="Re-enter Password"
+                            type="password" name="" id="re-en-password">
                     </div>
                     <div class="w-full h-16 mt-10">
                         <router-link to="/home">
                             <div @click="signInClick"
-                            class="w-full h-full border-[1px] cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
-                            Create Account
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
-                        </div>
+                                class="w-full h-full border-[1px] border-gray-500 cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
+                                Create Account
+                                <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
+                            </div>
                         </router-link>
                     </div>
                     <div class="w-full mt-12 h-auto">
-                        <div class="text-center text-white cursor-pointer">
-                            Already an account ? <span @click="isAlreadyAccount" class="text-white underline">Sign In</span>
+                        <div class="text-center text-gray-600 cursor-pointer">
+                            Already an account ? <span @click="isAlreadyAccount" class="text-gray-600 underline">Sign
+                                In</span>
                         </div>
                     </div>
                 </div>
                 <div class="w-full h-full flex flex-col justify-center items-center p-4 relative">
-                    <div @click="cancelTemplate" class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
-                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl"/>
+                    <div @click="cancelTemplate"
+                        class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
+                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl" />
                     </div>
                     <div class="text-center text-[40px] font-semibold">
-                            Sign in with
-                        </div>
+                        Sign in with
+                    </div>
                     <div
                         class="h-16 hover:bg-gray-100 rounded border-[1px] px-8 flex justify-center items-center cursor-pointer m-auto">
-                       
+
                         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -369,8 +390,8 @@
 import { state } from '@/js/state';
 export default {
     name: 'HeaderPage',
-    setup(){
-        return{
+    setup() {
+        return {
             state,
         }
     },
@@ -439,11 +460,11 @@ export default {
             this.currentAction = 1;
             document.body.style.overflow = this.isEditProfile ? "hidden" : "";
         },
-        isCreateAccount(){
+        isCreateAccount() {
             this.currentAction = 1;
             document.body.style.overflow = this.isEditProfile ? "hidden" : "";
         },
-        isAlreadyAccount(){
+        isAlreadyAccount() {
             this.currentAction = 0;
             document.body.style.overflow = this.isEditProfile ? "hidden" : "";
         },
@@ -454,33 +475,33 @@ export default {
                 password.type = 'text';
                 this.isShowPass = true;
             }
-            else if(password.type === 'password' && this.currentAction == 1 && reenterpassword.type === 'password'){
+            else if (password.type === 'password' && this.currentAction == 1 && reenterpassword.type === 'password') {
                 password.type = 'text';
                 reenterpassword.type = 'text'
                 this.isShowPass = true;
             }
-            else if(password.type === 'text' && this.currentAction == 1 && reenterpassword.type === 'text'){
+            else if (password.type === 'text' && this.currentAction == 1 && reenterpassword.type === 'text') {
                 password.type = 'password';
                 reenterpassword.type = 'password'
                 this.isShowPass = false;
             }
-            else if(password.type === 'text' && this.currentAction == 0) {
+            else if (password.type === 'text' && this.currentAction == 0) {
                 password.type = 'password'
                 this.isShowPass = false;
             }
         },
-        signInClick(){
-            this.$router.push({path: '/home'});
+        signInClick() {
+            this.$router.push({ path: '/home' });
             state.isLoggedIn = true;
-            
+
         },
-        signOutClick(){
+        signOutClick() {
             state.isLoggedIn = false
         },
         createAccountClick() {
 
         },
-        cancelTemplate(){
+        cancelTemplate() {
             this.currentAction = null;
             document.body.style.overflow = "";
         },
@@ -493,10 +514,7 @@ export default {
     border-left: 1px solid #ffffff;
 }
 
-.bg-gradient {
-    background: linear-gradient(to right, #F97316 45%, #ffa500 50%, white 55%);
 
-}
 
 .nav-right {
     border-right: 0px solid #ffffff;
@@ -513,4 +531,5 @@ nav .nav-left .absolute {
 input.no-clear::-webkit-search-cancel-button {
     display: none;
 }
+
 </style>

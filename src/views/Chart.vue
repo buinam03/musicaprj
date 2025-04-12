@@ -1,8 +1,8 @@
 <template>
     <div>
         <Header></Header>
-        <div class="w-full h-auto text-color">
-            <div class="w-container pt-16 mb-16 h-auto m-auto">
+        <div class="w-full h-auto mx-auto text-color ">
+            <div class="w-container pt-16 mb-16 h-auto m-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                 <div class="flex justify-between items-center ">
                     <div class="p-4 text-left font-semibold text-2xl text-white  sticky">
                         #musicachart
@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <div v-for="(item, index) in songs.slice(0, 10)" :key="index"
-                    class="h-16 w-full flex justify-start items-center  border-[1px] hover:bg-gray-300 cursor-pointer text-white">
+                    class="h-16 w-full flex justify-start items-center  border-[1px] hover:bg-gray-300 cursor-pointer text-white xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                     <div class="w-[5%] flex items-center justify-center font-forestyland font-semibold  text-xl">
                         {{ index + 1 }}
                     </div>
@@ -47,17 +47,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="h-10 w-full mt-4">
+                <div class="h-10 w-full mt-4 ">
                     <div
                         class="h-10 w-[240px] mx-auto border-[1px] cursor-pointer rounded-3xl border-white text-white flex justify-center items-center hover:text-black hover:bg-white hover:border-white">
                         Top 100 Musica
                     </div>
                 </div>
-                <div class="mt-4 h-auto">
-                    <div class="p-4 h-auto w-full text-left font-semibold text-2xl text-white">
+                <div class="mt-4 h-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
+                    <div class="p-4 h-auto w-full text-left font-semibold text-2xl text-white xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                         Top artist of the week
                     </div>
-                    <div class="grid grid-cols-2">
+                    <div class="grid grid-cols-2 xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                         <div class="flex justify-center items-end h-[300px] relative">
                             <!-- Silver -->
                             <div class="w-32 h-48 flex flex-col items-center">
@@ -508,6 +508,7 @@ export default {
 
 <style scoped>
 .text-color {
-    background: radial-gradient(50% 124.93% at 95.86% -10%, #3efad9 0, hsla(0, 0%, 100%, 0) 100%), linear-gradient(91.56deg, #ff9357 1.54%, #9100ff 98.71%);
+    /* background: radial-gradient(50% 124.93% at 95.86% -10%, #3efad9 0, hsla(0, 0%, 100%, 0) 100%), linear-gradient(91.56deg, #ff9357 1.54%, #9100ff 98.71%); */
+    background: #222021;
 }
 </style>

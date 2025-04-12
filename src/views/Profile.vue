@@ -1,7 +1,7 @@
 <template>
     <div>
         <Header></Header>
-        <div class="pt-16 w-container mx-auto h-auto mb-16">
+        <div class="pt-16 w-container mx-auto h-auto mb-16 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="h-[300px] w-full bg-gray-700 grid grid-cols-[300px_1fr]">
                 <div class="w-full h-full rounded-full flex justify-center items-center">
                     <div class="h-4/5 w-4/5 rounded-full bg-white flex justify-center items-center relative">
@@ -111,11 +111,11 @@
                 </div>
             </div>
             <div class="w-full h-auto mt-5">
-                <div class="w-full h-auto text-left text-[30px] font-semibold">
+                <div class="w-full h-auto text-left text-[30px] font-semibold xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Your Lastest Upload
                 </div>
-                <div class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm b">
-                    <div class="h-40 w-40 flex-shrink-0 mr-4">
+                <div class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
+                    <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
                         <img class="w-full h-full mx-auto rounded-sm object-cover "
                             src="@/image/artwork/MV-den-vau-nau-an-cho-em-vietnam-nuoi-em-2.jpg" alt="" />
                     </div>
@@ -156,11 +156,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4">
+                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Most-Listened Track
                 </div>
-                <div class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm">
-                    <div class="h-40 w-40 flex-shrink-0 mr-4">
+                <div class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
+                    <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
                         <img class="w-full h-full mx-auto rounded-sm object-cover "
                             src="@/image/artwork/lamgimaphaihot.jpg" alt="" />
                     </div>
@@ -168,7 +168,7 @@
                         <div class="w-1/2 h-1/2 flex justify-between items-center">
                             <div class="text-left">
                                 <div
-                                    class="font-semibold text-xl hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                    class="font-semibold text-xl hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap ">
                                     <a href="#">Làm gì mà phải hốt</a>
                                 </div>
                                 <div
@@ -200,12 +200,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4">
+                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     All Tracks by Đen Vâu
                 </div>
                 <div v-for="(item, index) in pageData" :key="item.id"
-                    class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm ">
-                    <div class="h-20 w-20 flex-shrink-0 mr-4">
+                    class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm  xl:h-20 lg:h-16 md:h-14">
+                    <div class="h-20 aspect-square flex-shrink-0 mr-4  xl:h-20 lg:h-16 md:h-14">
                         <img class="w-full h-full mx-auto rounded-sm object-cover "
                             src="@/image/artwork/lamgimaphaihot.jpg" alt="" />
                     </div>
@@ -213,7 +213,7 @@
                         <div class="w-1/2 h-1/2 flex justify-between items-center">
                             <div class="text-left">
                                 <div
-                                    class="font-semibold text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                    class="font-semibold text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap xl:text-xl lg:text-base md:text-base">
                                     <router-link to="/trackinfo">{{ item.name }}</router-link>
                                 </div>
                                 <div class="flex">
@@ -223,7 +223,7 @@
                                                 }}</a>
                                     </div>
                                 </div>
-                                <div class="text-gray-500 text-sm mt-2">
+                                <div class="text-gray-500 text-sm mt-1">
                                     <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
                                     {{ parseFloat(item.stream / 1000).toFixed(1) }} k
                                 </div>
@@ -273,12 +273,12 @@
                     </ul>
 
                 </div>
-                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4">
+                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Likes by Đen Vâu
                 </div>
                 <div v-for="(item, index) in pageData" :key="item.id"
-                    class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm ">
-                    <div class="h-20 w-20 flex-shrink-0 mr-4">
+                    class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-20 lg:h-16 md:h-14">
+                    <div class="h-20 aspect-square flex-shrink-0 mr-4 xl:h-20 lg:h-16 md:h-14">
                         <img class="w-full h-full mx-auto rounded-sm object-cover "
                             src="@/image/artwork/lamgimaphaihot.jpg" alt="" />
                     </div>
@@ -286,7 +286,7 @@
                         <div class="w-1/2 h-1/2 flex justify-between items-center">
                             <div class="text-left">
                                 <div
-                                    class="font-semibold text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                    class="font-semibold text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap xl:text-xl lg:text-base md:text-base">
                                     <a href="#">{{ item.name }}</a>
                                 </div>
                                 <div class="flex">
@@ -296,7 +296,7 @@
                                                 }}</a>
                                     </div>
                                 </div>
-                                <div class="text-gray-500 text-sm mt-2">
+                                <div class="text-gray-500 text-sm mt-1  ">
                                     <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
                                     {{ parseFloat(item.stream / 1000).toFixed(1) }} k
                                 </div>
@@ -349,7 +349,7 @@
             </div>
         </div>
         <div v-if="isEditProfile" class="fixed inset-0 flex justify-center items-center bg-white bg-opacity-40 w-full  h-auto m-auto z-40">
-            <div class="w-[1000px] h-auto bg-white border-[1px] border-gray-400 p-4 ">
+            <div class="w-[1000px] h-auto bg-white border-[1px] border-gray-400 p-4 xl:w-[1000px] lg:w-[900px] md:w-[700px]">
                 <div class="text-left font-semibold p-4">
                     Edit Your Profile
                 </div>
@@ -420,6 +420,7 @@ export default {
         return {
             streamCount: null,
             currentPage: 1,
+            currentPage2: 1,
             itemPerPage: 5,
             numofpageToShow: 3,
             isEditProfile: false,

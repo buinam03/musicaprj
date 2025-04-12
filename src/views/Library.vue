@@ -1,8 +1,8 @@
 <template>
     <div>
         <Header></Header>
-        <div class="pt-16 w-container mx-auto h-auto ">
-            <div class="flex justify-between items-center w-full border-b-[1px] p-4">
+        <div class="pt-16 w-container mx-auto h-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+            <div class="flex justify-between items-center w-full border-b-[1px] p-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="text-left font-semibold text-2xl flex justify-center items-center">
                     Likes
                 </div>
@@ -11,9 +11,9 @@
                     <font-awesome-icon icon="fa-solid fa-chevron-right" />
                 </div>
             </div>
-            <div class="mt-4">
-                <div class="flex flex-wrap w-full h-auto">
-                    <div v-for="(item, index) in songs.slice(0, 12)" :key="index" class="pr-4 h-[250px] w-1/6">
+            <div class="mt-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+                <div class="flex flex-wrap w-full h-auto ">
+                    <div v-for="(item, index) in songs.slice(0, 12)" :key="index" class="pr-4 h-[250px] w-1/6 xl:h-[250px] lg:h-[200px] md:h-[150px]">
 
                         <div @click="togglePlay(index)" class="w-full aspect-square relative cursor-pointer group">
                             <div
@@ -39,7 +39,7 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between items-center w-full border-b-[1px] p-4">
+            <div class="flex justify-between items-center w-full border-b-[1px] p-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="text-left font-semibold text-2xl flex justify-center items-center">
                     Playlist
                 </div>
@@ -48,9 +48,9 @@
                     <font-awesome-icon icon="fa-solid fa-chevron-right" />
                 </div>
             </div>
-            <div class="mt-4">
-                <div class="flex flex-wrap w-full h-auto">
-                    <div v-for="(item, index) in songs.slice(0, 12)" :key="index" class="pr-4 h-[250px] w-1/6">
+            <div class="mt-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+                <div class="flex flex-wrap w-full h-auto ">
+                    <div v-for="(item, index) in songs.slice(0, 12)" :key="index" class="pr-4 h-[250px] w-1/6 xl:h-[250px] lg:h-[200px] md:h-[150px]">
 
                         <div @click="togglePlay(index)" class="w-full aspect-square relative cursor-pointer group">
                             <div
@@ -76,7 +76,7 @@
                     </div>
                 </div>
             </div>
-            <div class="flex justify-between items-center w-full border-b-[1px] p-4">
+            <div class="flex justify-between items-center w-full border-b-[1px] p-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="text-left font-semibold text-2xl flex justify-center items-center">
                     Following
                 </div>
@@ -85,7 +85,7 @@
                     <font-awesome-icon icon="fa-solid fa-chevron-right" />
                 </div>
             </div>
-            <div class="grid grid-cols-5 gap-4 mb-4 h-[500px]">
+            <div class="grid grid-cols-5 gap-4 mb-20 h-auto xl:w-[1200px] xl:grid-cols-5 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:w-[700px] md:grid-cols-3 xl:mx-auto lg:mx-auto md:mx-auto">
                 <div @mouseover="isHoverUser = index" @mouseleave="isHoverUser = null"
                     v-for="(user, index) in users.slice(0, 5)" :key="index"
                     class=" h-[300px] p-4 bg-white shadow-lg rounded-2xl">
