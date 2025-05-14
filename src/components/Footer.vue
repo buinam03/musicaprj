@@ -1,6 +1,7 @@
     <template>
         <div class="bg-[#FF6347] h-16 w-full fixed bottom-0 z-50 xl:h-16 lg:h-12 md:h-10">
-            <div class="w-container mx-auto h-full flex justify-center items-center xl:w-[1200px] lg:w-[960px]  md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+            <div
+                class="w-container mx-auto h-full flex justify-center items-center xl:w-[1200px] lg:w-[960px]  md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="w-1/6 flex justify-center items-center xl:text-[16px] lg:text-[14px] md:text-[12px]">
                     <div class=" w-1/5">
                         <font-awesome-icon icon="fa-solid fa-backward-step" size="lg" />
@@ -23,34 +24,27 @@
                     </div>
                 </div>
                 <div class="pl-4 h-full w-2/3 flex justify-center items-center xl:scale-100 lg:scale-90 md:scale-90">
-                    <div class="w-1/12 text-white text-xs">0:00</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(state.currentTime) }}</div>
                     <div class="relative w-3/6 h-full ">
-                        <!-- <div class="absolute progress-bar w-1/6 h-full rounded-full">
-                                <div
-                                    class="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-0  h-2 w-2  bg-white rounded-full">
-                                </div>
-                            </div> -->
+
                         <div class="absolute top-1/2 transform -translate-y-1/2 translate-x-0 w-full">
-                            <input @input="updateProgressPlay($event.target.value)" v-model="playVal" min="0" max="100"
+                            <input :style="progressPercentage" @input="updateProgressPlay($event.target.value)"
+                                v-model="state.currentTime" min="0" :max="state.currentSong.duration" step="0.1"
                                 type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
                         </div>
                     </div>
-                    <div class="w-1/12 text-white text-xs">3:59</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(state.currentSong.duration) }}</div>
                     <div class="w-1/3 flex justify-center items-center relative">
-                        <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': volumeState != 0 }">
-                            <font-awesome-icon v-if="volumeState === 0" icon="fa-solid fa-volume-xmark" />
-                        </div>
-
-                        <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': volumeState != 1 }">
-                            <font-awesome-icon v-if="volumeState === 1" icon="fa-solid fa-volume-low" />
+                        <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': state.volume != 0 }">
+                            <font-awesome-icon v-if="state.volume === 0" icon="fa-solid fa-volume-xmark" />
                         </div>
                         <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': volumeState != 2 }">
-                            <font-awesome-icon v-if="volumeState === 2" icon="fa-solid fa-volume-high" />
+                            <font-awesome-icon v-if="state.volume > 0" icon="fa-solid fa-volume-high" />
                         </div>
 
                         <div class="pl-2">
-                            <input v-model="volumeVal" @input="updateProgress($event.target.value)" type="range" min="0"
-                                max="100" class="h-1 block mx-auto cursor-pointer progressVolume">
+                            <input v-model="state.volume" @input="updateVolume($event.target.value)" type="range"
+                                min="0" max="1" step="0.01" class="h-1 block mx-auto cursor-pointer progressVolume">
 
                         </div>
                     </div>
@@ -59,15 +53,17 @@
                 <div class="w-3/12 h-full flex items-center justify-start xl:h-16 lg:h-12 md:h-10">
                     <div class="h-16 w-16 flex items-center justify-center flex-shrink-0  xl:h-16 lg:h-12 md:h-10">
                         <a class="flex items-center justify-center xl:h-16 lg:h-12 md:h-10" href="#"><img
-                                class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded" src="@/image/logo/logo.png"
+                                class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded"
+                                :src="state.currentSong.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
                                 alt=""></a>
                     </div>
-                    <div class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[16px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
+                    <div
+                        class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[16px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
                         <div class="text-white text-left text-ellipsis whitespace-nowrap overflow-hidden ">
-                            <a href="#">vinahouseeeeeeeeeeeeeeeeeeeeeeeeeee</a>
+                            <a href="#">{{ state.currentSong.title }}</a>
                         </div>
                         <div class="text-white text-left text-xs ">
-                            <a href="#" class="">Eulelia</a>
+                            <a href="#" class="">{{ state.currentSong.username }}</a>
                         </div>
                     </div>
                 </div>
@@ -92,7 +88,7 @@
                             </div>
 
                             <div class="overflow-y-auto h-[calc(100%)]">
-                                <div v-for="(item, index) in items" :key="item.id" draggable="true"
+                                <div v-for="(item, index) in state.playlist" :key="item.id" draggable="true"
                                     @dragstart="onDragStart(index)" @dragover="onDragOver($event)" @drop="onDrop(index)"
                                     class="h-14 w-full mt-2 flex items-center justify-center  hover:bg-gray-200 ">
                                     <div class="w-full h-14 rounded-sm flex items-center  ">
@@ -100,7 +96,7 @@
                                             <font-awesome-icon icon="fa-solid fa-grip" />
                                         </div>
                                         <div class="ml-2 w-14 h-14 flex-shrink-0 flex justify-center items-center">
-                                            <img src="@/image/artwork/pixelpig.jpg"
+                                            <img :src="item.artwork ||'http://localhost:8080/images/other/Unknown_person.jpg'"
                                                 class="aspect-square mx-auto w-full h-full object-cover" alt="">
                                         </div>
                                         <div class="text-left pl-2 w-10/12 ">
@@ -112,7 +108,7 @@
                                             </div>
                                             <div class="text-gray-500 text-sm">
                                                 <a href="#">
-                                                    {{ item.artist }}
+                                                    {{ item.username }}
                                                 </a>
                                             </div>
                                         </div>
@@ -121,7 +117,7 @@
                                                 :class="{ 'text-orange-500': item.isLike }" @click="LikeToggle(index)">
                                                 <font-awesome-icon icon="fa-solid fa-heart" />
                                             </div>
-                                            <div @click="removeSongFromPlaylist(index)"
+                                            <div @click="removeSongFromPlaylist(index,item)"
                                                 class="pl-3 cursor-pointer opacity-50 text-gray-500">
                                                 <font-awesome-icon icon="fa-solid fa-xmark" />
                                             </div>
@@ -138,7 +134,7 @@
     </template>
 
 <script>
-import { state } from '@/js/state';
+import { playerActions, state } from '@/js/state';
 export default {
     name: 'FooterPage',
     setup() {
@@ -158,51 +154,8 @@ export default {
             volumeVal: 70,
             savedVolume: 70,
             playVal: 0,
-            audio: new Audio(require('@/audio/Tuyet Yeu Thuong Remix.wav')),
-            items: [
-                {
-                    id: 1,
-                    title: "Feel Good - Illenium,Gryffin,Daya (Eulelia Remix)",
-                    artist: "Eulelia",
-                    image: require('@/image/artwork/feelgood.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 2,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 3,
-                    title: "W/n - 3107 (feat Nâu,Duongg) (Eulelia Bootleg)",
-                    artist: "Eulelia, W/n ,Nâu ,Dương",
-                    image: require('@/image/artwork/3107 artwork.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 4,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 5,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 6,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-            ],
+            audio: state.currentSong.path,
+
         }
     },
     watch: {
@@ -217,16 +170,22 @@ export default {
             if (value > 33) {
                 this.volumeState = 2;
             }
-            this.updateProgress(validValue);
+            this.updateVolume(validValue);
         },
     },
     mounted() {
         this.updateProgressPlay();
-        this.updateProgress();
+        this.updateVolume();
     },
     methods: {
-        removeSongFromPlaylist(index) {
-            this.items.splice(index, 1);
+        formatDuration(duration) {
+            const roundedSeconds = Math.round(duration);
+            const min = Math.floor(duration / 60);
+            const sec = roundedSeconds % 60;
+            return `${min}:${sec.toString().padStart(2, "0")}`;
+        },
+        removeSongFromPlaylist(item) {
+            playerActions.removeFromPlaylist(item)
         },
         onDragStart(index) {
             this.dragIndex = index;
@@ -244,17 +203,28 @@ export default {
             this.dragIndex = null;
         },
         PlayControlToggle() {
-            state.isPlaying = !state.isPlaying;
             if (state.isPlaying) {
-                if (this.audio.src) {
-                    this.audio.play().catch((err) => {
-                        console.error('Error playing audio:', err);
-                    });
-                } else {
-                    console.error('Audio source is empty!');
+                state.audio.pause();
+                state.isPlaying = false;
+            }
+            else if (!state.isPlaying) {
+                state.audio.play();
+                state.isPlaying = true;
+            }
+            else {
+                if (state.audio) {
+                    state.audio.pause();
                 }
-            } else {
-                this.audio.pause();
+
+                // state.audio = new Audio(songUrl); 
+                // state.audio.play(); 
+                // state.currentPlayIndex = index;
+                state.isPlaying = true;
+
+                state.audio.onended = () => {
+                    state.isPlaying = false;
+                    // state.currentPlayIndex = null;
+                };
             }
         },
         nextPlaylist() {
@@ -278,25 +248,40 @@ export default {
                 this.volumeVal = 0;
             }
         },
-        updateProgress(value = this.volumeVal) {
-            const max = 100; // Giá trị tối đa của slider
-            const validValue = Math.max(0, Math.min(value, max)); // Giới hạn giá trị trong khoảng [0, max]
-            const percentage = (validValue / max) * 100;
-            const rangeInput = document.querySelector('.progressVolume');
-            if (rangeInput) {
-                rangeInput.style.setProperty('--progress', `${percentage}%`);
+        updateVolume(value = this.volumeVal) {
+            const v = Math.max(0, Math.min(value, 1));
+            state.volume = v;
+            if (state.audio) {
+                state.audio.volume = v;
             }
         },
 
         updateProgressPlay(value = this.playVal) {
-            const max = 100;
-            const validValue = Math.max(0, Math.min(value, max));
-            const percentage = (validValue / max) * 100;
-            const rangeInput = document.querySelector('.playSlider');
-            if (rangeInput) {
-                rangeInput.style.setProperty('--progressPlay', `${percentage}%`);
+
+            if (!state.currentSong || !state.currentSong.duration) return;
+
+            const validValue = Math.max(0, Math.min(value, state.currentSong.duration));
+
+            if (state.audio) {
+                state.audio.currentTime = validValue;
+                state.currentTime = validValue;
             }
         }
+    },
+    computed: {
+        progressPercentage() {
+            const percentage =
+                state.currentSong.duration && state.currentTime
+                    ? (state.currentTime / state.currentSong.duration) * 100
+                    : 0;
+
+            return {
+                '--progressPlay': `${percentage}%`,
+            };
+        },
+        // progressPercentageVolume(){
+        //     const percentage = state.vol
+        // }
     }
 }
 
@@ -313,8 +298,8 @@ export default {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 4px;
-    background: linear-gradient(to right, rgb(253, 224, 71) 0%, rgb(253, 224, 71) var(--progress, 70%), #E4D2CC var(--progress, 70%), #E4D2CC 100%);
+    height: 4px;    
+    background: linear-gradient(to right, rgb(253, 224, 71) 0%, rgb(253, 224, 71) var(--progress, 0%), #E4D2CC var(--progress, 0%), #E4D2CC 100%);
     border-radius: 4px;
     outline: none;
     cursor: pointer;
@@ -358,7 +343,7 @@ export default {
     appearance: none;
     width: 100%;
     height: 4px;
-    background: linear-gradient(to right, rgb(255, 255, 255) 0%, rgb(255, 255, 255) var(--progressPlay, 70%), #E4D2CC var(--progressPlay, 70%), #E4D2CC 100%);
+    background: linear-gradient(to right, rgb(255, 255, 255) 0%, rgb(255, 255, 255) var(--progressPlay, 0%), #E4D2CC var(--progressPlay, 0%), #E4D2CC 100%);
     border-radius: 4px;
     outline: none;
     cursor: pointer;

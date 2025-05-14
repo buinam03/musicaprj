@@ -75,65 +75,48 @@
 
             </div>
             <div class="pt-5 border-b-gray-200 border-b-[1px]"></div>
-            <div class="pt-5 w-full h-auto ">
-                <div class=" h-full w-full">
+            <div class="pt-5 w-full h-auto">
+                <div class="h-full w-full">
                     <div class="text-left pt-4 font-bold">
                         ARTIST YOU SHOULD FOLLOW
                     </div>
-                    <div
-                        class="artist-container pt-5  flex justify-center items-center transition-transform duration-300">
-
-
-                        <div class="h-[300px] w-[95%] flex justify-center items-center overflow-x-hidden">
-                            <div @click="preButton"
-                                class=" absolute top-1/2 left-0 bg-white z-20 py-4 flex justify-center items-center px-3 h-5 w-5 border rounded-md cursor-pointer hover:border-orange-500 hover:text-orange-500 ">
-                                <font-awesome-icon icon="fa-solid fa-chevron-left" />
-                            </div>
-                            <div ref="artistList" class="flex transition-transform duration-300 z-10">
-                                <div v-for="(item, index) in artist" :key="item.id"
-                                    class="h-[300px] w-[180px] mr-4 overflow-x-hidden">
-                                    <div class="">
-                                        <a href="#"><img :src="item.image"
-                                                class="rounded-full h-[180px] w-[180px] object-cover" alt=""></a>
-                                        <div class="pt-[4px] flex justify-center items-center">
-                                            <a class="text-[16px]" href="#">{{ item.name }}</a>
-                                            <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.isVerified === false }">
-                                                <div
-                                                    class="w-full h-full text-white bg-blue-500  rounded-full flex justify-center items-center text-xs">
-                                                    <font-awesome-icon icon="fa-solid fa-check" size="xs" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="pt-[2px]">
-                                            <span class="flex justify-center items-center opacity-60">
-                                                <font-awesome-icon icon="fa-solid fa-person" size="sm" />
-                                                <div class="ml-[2px] text-gray-500 text-[12px]">{{ item.followers }}
-                                                    followers
-                                                </div>
-                                            </span>
-                                        </div>
-                                        <div class="pt-[8px] flex justify-center">
-                                            <button @click="followToggle(index)"
-                                                class="px-4 py-[2px] max-w-20 w-20 bg-white rounded-md border-gray-400 border text-xs flex justify-center items-center text-black  transition duration-200"
-                                                :class="{ 'border-orange-500 text-orange-500': artist[index].isFollowing }">
-                                                {{ artist[index].isFollowing ? 'Following' : 'Follow' }}
-                                            </button>
-
+                    <div class=" pt-5 flex flex-wrap justify-center mx-0 items-center w-full gap-4">
+                        <div v-for="(item, index) in artist" :key="index"
+                            class="h-[300px] w-[20%] max-w-[180px] flex flex-col items-center box-border">
+                            <div>
+                                <a href="#"><img :src="item.profile_picture || profilePicture"
+                                        class="rounded-full h-[180px] w-[180px] object-cover" alt="profile_picture"></a>
+                                <div @click="gotoProfile(item.id)" class="pt-[4px] flex justify-center cursor-pointer items-center">
+                                    {{ item.username }}
+                                    <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.isVerified === false }">
+                                        <div v-if="item.is_verified"
+                                            class="w-full h-full text-white bg-blue-500 rounded-full flex justify-center items-center text-xs">
+                                            <font-awesome-icon icon="fa-solid fa-check" size="xs" />
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div @click="nextButton"
-                                class=" py-4 px-3 absolute top-1/2 right-0 bg-white border h-5 w-5 max-w-5 rounded-md cursor-pointer z-20 flex justify-center items-center hover:border-orange-500 hover:text-orange-500">
-                                <font-awesome-icon icon="fa-solid fa-chevron-right " />
+                                <div class="pt-[2px]">
+                                    <span class="flex justify-center items-center opacity-60">
+                                        <font-awesome-icon icon="fa-solid fa-person" size="sm" />
+                                        <div v-if="followers" class="ml-[2px] text-gray-500 text-[12px]">{{ followers.length }}
+                                            followers
+                                        </div>
+                                    </span>
+                                </div>
+                                <div class="pt-[8px] flex justify-center">
+                                    <button @click="followToggle(index)"
+                                        class="px-4 py-[2px] max-w-20 w-20 bg-white rounded-md border-gray-400 border text-xs flex justify-center items-center text-black transition duration-200"
+                                        :class="{ 'border-orange-500 text-orange-500': artist[index].isFollowing }">
+                                        {{ artist[index].isFollowing ? 'Following' : 'Follow' }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-
                     </div>
-
-
                 </div>
             </div>
+
+
             <div class="text-left pt-4 font-bold">
                 PLAYLIST TODAY
             </div>
@@ -211,7 +194,7 @@
                                     <div v-for="(artist, index) in item.artist" :key="artist.id"
                                         class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap ">
                                         <a href="#">{{ index < item.artist.length - 1 ? artist.name + ' ,' : artist.name
-                                                }}</a>
+                                        }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -289,9 +272,11 @@
 </template>
 
 <script>
+import apiClient from '@/apiService/apiClient';
 import FooterPage from '@/components/Footer.vue';
 import HeaderPage from '@/components/Header.vue';
 import { state } from '@/js/state';
+
 export default {
     name: 'HomePage',
 
@@ -301,24 +286,28 @@ export default {
 
         }
     },
-    mounted() {
+    async mounted() {
         document.addEventListener("click", this.clickOutside);
-        
-        this.currentOffset = 320;
-        // this.initCarousel();
         window.addEventListener("resize", this.updateOffsetBasedOnScreen);
-        this.updateTransform();
 
+        try {
+            // Đợi hàm async hoàn thành trước khi chạy tiếp
+            await this.getRandomUser();
+            await this.getAllFollower();
+        } catch (error) {
+            console.error("Lỗi trong mounted:", error);
+        }
     },
     data() {
         return {
-            currentOffset: 320, // Giá trị ban đầu
-            defaultOffset: 320,
+
             cardWidth: 180,
             openMenuIndex: null,
+            idUser: [],
             isMusicPlay: false,
             isButtonGroupClick: false,
             dragIndex: null,
+            followers: null,
             followState: 'Follow',
             isUserPressNextOrPre: false,
             songs: [
@@ -430,81 +419,7 @@ export default {
                     image: require('@/image/artwork/3107 artwork.jpg')
                 },
             ],
-            artist: [
-                {
-                    id: 1,
-                    name: 'Đen Vâu',
-                    image: require('@/image/user-logo/denvau.jpg'),
-                    isVerified: true,
-                    followers: 102254,
-                    isFollowing: false,
-                },
-                {
-                    id: 2,
-                    name: 'Hoaprox',
-                    image: require('@/image/user-logo/hoaprox.jpg'),
-                    isVerified: true,
-                    followers: 45707,
-                    isFollowing: false,
-                },
-                {
-                    id: 3,
-                    name: 'Bùi Trường Linh',
-                    image: require('@/image/user-logo/buitruonglinh.jpg'),
-                    isVerified: false,
-                    followers: 20252,
-                    isFollowing: false,
-                },
-                {
-                    id: 4,
-                    name: 'Martin Garrix',
-                    image: require('@/image/user-logo/martingarrix.jpg'),
-                    isVerified: true,
-                    followers: 1054326,
-                    isFollowing: false,
-                },
-                {
-                    id: 5,
-                    name: 'Eulelia',
-                    image: require('@/image/user-logo/meo.jpg'),
-                    isVerified: false,
-                    followers: 14,
-                    isFollowing: false,
-                },
-                {
-                    id: 6,
-                    name: 'Masew',
-                    image: require('@/image/user-logo/masew.jpg'),
-                    isVerified: true,
-                    followers: 54323,
-                    isFollowing: false,
-                },
-                {
-                    id: 7,
-                    name: 'Masew',
-                    image: require('@/image/user-logo/masew.jpg'),
-                    isVerified: true,
-                    followers: 54323,
-                    isFollowing: false,
-                },
-                {
-                    id: 8,
-                    name: 'Masew',
-                    image: require('@/image/user-logo/masew.jpg'),
-                    isVerified: true,
-                    followers: 54323,
-                    isFollowing: false,
-                },
-                {
-                    id: 9,
-                    name: 'Masew',
-                    image: require('@/image/user-logo/masew.jpg'),
-                    isVerified: true,
-                    followers: 54323,
-                    isFollowing: false,
-                },
-
-            ],
+            artist: [],
             items: [
                 {
                     id: 1,
@@ -593,9 +508,46 @@ export default {
                     image: require('@/image/playlist-artwork/nhac-xuan-sd.jpg')
                 },
             ],
+            queryString: [],
         }
     },
     methods: {
+        async getRandomUser() {
+            try {
+                const res = await apiClient.get('/users/getRandomUser');
+                this.artist = [...res.data.data];
+
+                this.idUser = this.artist.map(user => user.id);
+                console.log(this.artist);
+                console.log('Ids: ', this.idUser);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async getAllFollower() {
+            try {
+                const rawIds = [...this.idUser];
+                if (!rawIds.length) {
+                    console.warn("Mảng IDs rỗng");
+                    return;
+                }
+
+                // Truyền thẳng chuỗi ids, không dùng URLSearchParams
+                const res = await apiClient.get('/follow/getAllFollower', {
+                    params: {
+                        ids: rawIds.join(',') // "22,21,20..."
+                    }
+                });
+
+                this.followers = res.data.data;
+                console.log('followers: ',this.followers);
+            } catch (error) {
+                console.error("Lỗi:", error.response?.data);
+            }
+        },
+        gotoProfile(id){
+            this.$router.push({name: 'ProfilePage', params: { id }});
+        },
         PlayControlToggle() {
             state.isPlaying = !state.isPlaying;
             const rotateTonearms = document.querySelector('.rotate');
@@ -634,72 +586,7 @@ export default {
             //reset dragIndex
             this.dragIndex = null;
         },
-        nextButton() {
-            const containerWidth = this.$refs.artistList.offsetParent.offsetWidth - 30;
-            const contentWidth = this.artist.length * this.cardWidth;
-            const maxOffset = -(contentWidth - containerWidth);
 
-            // Kiểm tra giới hạn
-            if (this.currentOffset > maxOffset) {
-                this.currentOffset = Math.max(maxOffset, this.currentOffset - this.cardWidth);
-                this.isUserPressNextOrPre = true;
-                // this.updateTransform();
-                this.updateTransform();
-            }
-        },
-        preButton() {
-            // Kiểm tra giới hạn
-            if (this.currentOffset < 0) {
-                this.currentOffset = Math.min(this.defaultOffset, this.currentOffset + this.cardWidth);
-                this.isUserPressNextOrPre = true;
-                // this.updateTransform();
-                this.updateTransform();
-            }
-        },
-        updateTransform() {
-            this.$refs.artistList.style.transform = `translateX(${this.currentOffset}px)`;
-        },
-        updateOffsetBasedOnScreen() {
-            let newDefaultOffset = 0;
-            if (window.matchMedia("(min-width: 1280px)").matches) {
-                // XL screen
-                newDefaultOffset = 320; // Adjusted to match your default
-            } else if (window.matchMedia("(min-width: 1024px)").matches) {
-                // LG screen
-                newDefaultOffset = 320;
-            } else if (window.matchMedia("(min-width: 768px)").matches) {
-                // MD screen
-                newDefaultOffset = 320;
-            } else {
-                // SM or smaller
-                newDefaultOffset = 240;
-            }
-
-            // Cập nhật giá trị mặc định
-            this.defaultOffset = newDefaultOffset;
-
-            // Chỉ reset currentOffset nếu người dùng chưa tương tác
-            if (!this.isUserPressNextOrPre) {
-                this.currentOffset = this.defaultOffset;
-                this.updateTransform();
-            }
-
-
-        },
-        // resetCarousel() {
-        //     this.currentOffset = 0;
-        //     this.isUserPressNextOrPre = false;
-        //     this.updateTransform();
-        // },
-
-        // // Initialize the carousel
-        // initCarousel() {
-        //     this.currentOffset = 0;
-        //     this.updateTransform();
-
-        //     // Add resize listener
-        //     window.addEventListener('resize', this.resetCarousel);
-        // },
         addToPlaylist(index) {
             this.playlist[index].isAddToPlaylist = !this.playlist[index].isAddToPlaylist;
         },
@@ -726,13 +613,25 @@ export default {
         }
 
     },
+    computed: {
+        profilePicture() {
+            const baseUrl = process.env.VUE_APP_API_BASE_URL || ''; // Fallback nếu base URL chưa được thiết lập
+            const profilePicture = this.artist?.profile_picture; // Truy cập chính xác vào profile_picture
+
+            if (profilePicture) {
+                return `${baseUrl}${profilePicture}`; // Kết hợp base URL với profile_picture
+            }
+
+            return '/images/profile/Unknown_person.jpg'; // Đường dẫn ảnh mặc định
+        },
+
+    },
     components: {
         HeaderPage,
         FooterPage,
     },
     beforeUnmount() {
         document.removeEventListener("click", this.clickOutside);
-        window.removeEventListener("resize", this.updateOffsetBasedOnScreen);
     }
 }
 </script>
@@ -756,13 +655,6 @@ export default {
     transform: rotate(-30deg);
 }
 
-.artist-container {
-    overflow: hidden;
-    /* Ẩn các phần tràn */
-    width: 100%;
-    /* Hoặc kích thước cố định nếu cần */
-    position: relative;
-}
 
 .linear {
     background: linear-gradient(to right, white 50%, transparent 50%);

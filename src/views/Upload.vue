@@ -1,8 +1,9 @@
 <template>
     <Header></Header>
     <div class="flex items-center justify-center min-h-screen xl:min-h-screen lg:min-h-[700px] md:min-h-[500px] ">
-        
-        <div class="w-[1200px] h-[700px] pt-16 m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+
+        <div
+            class="w-[1200px] h-[700px] pt-16 m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div class="h-full w-full flex items-center justify-center">
                 <div class="m-auto items-center w-[800px] h-[400px] rounded-md shadow-2xl flex justify-center">
                     <div class="h-[200px] w-full">
@@ -22,7 +23,7 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
     <Footer></Footer>
 </template>
@@ -30,13 +31,14 @@
 <script>
 import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
+import axios from 'axios';
 
 export default {
     name: 'UploadPage',
 
     data() {
         return {
-
+            fileUpload: null,
         }
     },
     components: {
@@ -44,15 +46,68 @@ export default {
         Footer
     },
     methods: {
-        handleFileUpload(event) {
-            const fileUpload = event.target.files;
-            if (fileUpload.length > 0) {
-                const fileName = fileUpload[0].name;
-                this.$router.push({ name: 'InfoSongUpload', params: { fileName } });
-            } else {
-                console.log('Không có file nào được chọn.');
+        async getAudioDuration(file) {
+            return new Promise((resolve, reject) => {
+                const audio = new Audio();
+                audio.src = URL.createObjectURL(file);
+                console.log("Object URL:", audio.src );
+
+                audio.addEventListener("loadedmetadata", () => {
+                    resolve(audio.duration);
+                });
+
+                audio.addEventListener("error", (err) => {
+                    reject("Cannot load audio file.",err);
+                });
+            })
+        },
+
+        async handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                alert("No file selected.");
+                return;
             }
-        }
+            console.log(file);
+
+
+            try {
+                const duration = await this.getAudioDuration(file);
+                console.log("Audio Duration:", duration); 
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("upload_preset", "ml_default");
+                formData.append("resource_type", "video"); 
+
+
+                const response = await axios.post(
+                    "https://api.cloudinary.com/v1_1/dxgqkbchh/video/upload",
+                    formData
+                );
+
+
+                const fileUrl = response.data.secure_url;
+                const fileName = file.name;
+
+                console.log(response.status);
+
+                console.log("Uploaded File URL:", fileUrl);
+
+
+                this.$router.push({
+                    name: 'InfoSongUpload',
+                    query: {
+                        fileUrl: fileUrl, 
+                        fileName: fileName,
+                        duration : duration
+                    },
+                });
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                alert("Upload failed. Please try again.");
+            }
+        },
     }
 }
 </script>
@@ -71,16 +126,19 @@ export default {
     overflow: hidden;
 
 }
+
 @media (min-width: 1024px) {
-    .btn-warning{
+    .btn-warning {
         padding: 20px 25px;
     }
 }
+
 @media (min-width: 768px) {
-    .btn-warning{
+    .btn-warning {
         padding: 20px 25px;
     }
 }
+
 .btn-warning input[type="file"] {
     cursor: pointer;
     position: absolute;

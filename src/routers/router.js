@@ -14,6 +14,7 @@ import Achievements from "@/views/Achievements.vue";
 import SearchResult from "@/views/SearchResult.vue";
 import TracksInfo from "@/views/TracksInfo.vue";
 import Discover from "@/views/Discover.vue";
+import Message from "@/views/Message.vue";
 
 const routes = [
     {
@@ -86,14 +87,22 @@ const routes = [
 
     },
     {
-        path: '/profile',
+        path: '/message/:id?',
+        name: 'MessagePage',
+        component: Message,
+        meta: {title: 'Message'},     
+        props: true      
+
+    },
+    {
+        path: '/profile/:id',
         name: 'ProfilePage',
         component: Profile,
         meta: {title: 'Profile'},        
 
     },
     {
-        path: '/trackinfo',
+        path: '/trackinfo/:id',
         name: 'TrackInfoPage',
         component: TracksInfo,
         meta: {title: 'TrackInfoPage'},        
@@ -114,7 +123,7 @@ const routes = [
 
     },
     {
-        path: '/upload/infomation/:fileName',
+        path: '/upload/infomation',
         name: 'InfoSongUpload',
         component: InfoSongUpload,
         meta: {title: 'Upload'},

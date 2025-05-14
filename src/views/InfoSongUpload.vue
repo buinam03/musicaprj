@@ -6,12 +6,16 @@
                 {{ successMessage }}
             </div>
         </div>
-        <div class="pt-16 mb-20 w-container mx-auto h-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
-            <div class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10 xl:grid-cols-[550px_1fr] lg:grid-cols-[450px_1fr] md:grid-cols-[300px_1fr]">
+        <div
+            class="pt-16 mb-20 w-container mx-auto h-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+            <div
+                class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10 xl:grid-cols-[550px_1fr] lg:grid-cols-[450px_1fr] md:grid-cols-[300px_1fr]">
                 <div class="flex justify-center items-start relative">
-                    <div class="aspect-square h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto xl:h-[450px] lg:h-[350px] md:h-[300px]">
+                    <div
+                        class="aspect-square h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto xl:h-[450px] lg:h-[350px] md:h-[300px]">
                         <button type="button" class="btn-warning" :class="{ 'cursor-default': isImageUpload }">
-                            <img v-if="imageURL" :src="imageURL" class="w-full h-full p-5 border-[10px]">
+                            <img v-if="imageURL" :src="imageURL" class="w-full h-full object-cover p-5 border-[10px]"
+                                alt="artwork">
                             <div v-else class="flex flex-col items-center gap-10">
                                 <font-awesome-icon icon="fa-solid fa-upload" class="uploadIcon opacity-50" />
                                 <span class="opacity-50 text-xl">Add new artwork</span>
@@ -70,11 +74,11 @@
                     </div>
                     <div class="w-full h-auto">
                         <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
-                            Genre
+                            Genre (Pop,Jazz,EDM...)
                             <div class="text-red-500">*</div>
                         </div>
-                        <div class="w-1/2 h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="tel" class="w-full h-full rounded-sm p-4">
+                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input v-model="genre" id="titleInput" type="tel" class="w-full h-full rounded-sm p-4">
                         </div>
                     </div>
                     <div class="w-full h-auto">
@@ -82,7 +86,8 @@
                             Decription
                         </div>
                         <div class="w-full h-24 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm pb-10 pl-4 pr-4"
+                            <input v-model="bio" id="titleInput" type="text"
+                                class="w-full h-full rounded-sm pb-10 pl-4 pr-4"
                                 placeholder="Tracks with descriptions tend to get more plays and engagement.">
                         </div>
                     </div>
@@ -92,13 +97,13 @@
                         </div>
                         <div class="w-full text-sm flex">
                             <div class="flex justify-start items-center">
-                                <input type="radio" name="" id="">
+                                <input v-model="privacy" value="1" type="radio" name="" id="">
                                 <div class="pl-2 font-semibold text-sm">
                                     Public
                                 </div>
                             </div>
                             <div class="flex justify-start items-center ml-10">
-                                <input type="radio" name="" id="">
+                                <input v-model="privacy" value="0" type="radio" name="" id="">
                                 <div class="pl-2 font-semibold text-sm">
                                     Private
                                 </div>
@@ -121,21 +126,47 @@
 </template>
 
 <script>
+import apiClient from '@/apiService/apiClient';
 import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
+
 export default {
     name: 'InfoSongUpload',
+    setup() {
+
+    },
+    mounted() {
+        this.title = this.fileNameWithoutExtend;
+        console.log(this.title);
+
+    },
+    watch: {
+        imageURL(newValue) {
+            this.artwork = newValue;
+        }
+    },
     data() {
         return {
+            artwork: this.imageURL,
+            title: "",
+            genre: "",
+            bio: "",
+            duration: null,
+            privacy: 1,
             fileName: '',
             imageURL: null,
             isImageUpload: false,
             successMessage: '',
+            audioFile: null,
+            fileUrl: null,
         }
     },
     computed: {
         fileNameWithoutExtend() {
             return this.fileName ? this.fileName.split(".").slice(0, -1).join(".") : "";
+        },
+        fileImageURL() {
+            return this.imageURL;
         }
     },
     components: {
@@ -162,18 +193,46 @@ export default {
         replaceImage() {
             this.$refs.fileInput.click();
         },
-        uploadMusic() {
+        async uploadMusic() {
+            try {
 
-            this.successMessage = 'Track upload successful!';
+                const formData = new FormData();
+                formData.append("artwork", this.artwork)
+                formData.append("title", this.title);
+                formData.append("genre", this.genre);
+                formData.append("bio", this.bio);
+                formData.append("duration", this.duration);
+                formData.append("privacy", this.privacy);
+                formData.append("path", this.fileUrl);
 
-            setTimeout(() => {
-                this.successMessage = '';
-                this.$router.push('/home');
-            }, 1500);
+                await apiClient.post("song/addNewSong", formData);
+
+
+                this.successMessage = 'Track upload successful!';
+
+                setTimeout(() => {
+                    this.successMessage = '';
+                    this.$router.push('/home');
+                }, 1500);
+            } catch (error) {
+                console.log({ message: 'error when add new song', error: error });
+            }
         },
     },
     created() {
-        this.fileName = this.$route.params.fileName;
+        this.fileUrl = this.$route.query.fileUrl;
+        this.fileName = this.$route.query.fileName;
+        this.duration = this.$route.query.duration;
+
+        console.log("File URL:", this.fileUrl);
+        console.log("File Name:", this.fileName);
+    },
+    beforeRouteLeave(to, from, next) {
+        if (!this.isFormValid || confirm("Bạn chưa hoàn tất upload. Tiếp tục rời trang?")) {
+            next();
+        } else {
+            next(false);
+        }
     }
 }
 </script>
@@ -207,22 +266,26 @@ export default {
 .uploadIcon {
     transform: scale(5);
 }
+
 .notification {
-  animation: fade-in-out 3s ease;
+    animation: fade-in-out 3s ease;
 }
 
 @keyframes fade-in-out {
-  0% {
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 </style>
