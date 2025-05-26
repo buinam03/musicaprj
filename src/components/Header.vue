@@ -1,12 +1,12 @@
 <template>
     <div class="h-16 mx-auto w-full bg-[#222021] fixed z-50 ">
         <div class=" mx-auto h-full flex items-center justify-center xl:w-[1200px] lg:w-[768px]  md:w-[768px] xl:mx-auto lg:mx-auto md:mx-auto"
-            :class="{ 'justify-between': state.isLoggedIn === false }">
+            :class="{ 'justify-between': playerStore.isLoggedIn === false }">
             <div class=" flex-shrink-0 font-neutra text-4xl text-white"><router-link to="/home">MUSICA</router-link>
             </div>
-            <div v-if="state.isLoggedIn === true"
+            <div v-if="playerStore.isLoggedIn === true"
                 class="flex-grow flex items-center justify-start p-3 xl:w-[1200px] xl:text-[16px] lg:w-[1024px] lg:text-[14px] md:w-[768px] md:text-[12px] ">
-                <div class="flex justify-center items-center" :class="{ 'hidden': state.isLoggedIn === false }">
+                <div class="flex justify-center items-center" :class="{ 'hidden': playerStore.isLoggedIn === false }">
                     <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
                             to="/home">Home</router-link></div>
                     <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
@@ -102,7 +102,7 @@
                     </div>
 
                     <div class=" border-white px-5 text-white relative cursor-pointer xl:px-4 lg:px-2 md:px-1">
-                        <template v-if="state.isLoggedIn === true">
+                        <template v-if="playerStore.isLoggedIn === true">
                             <div @click="ToggleLogoDropdown()" class="logo flex items-center">
                                 <div>
                                     <img class="w-8 h-8 max-w-8 opacity-100 rounded-full border-[2px] border-white"
@@ -124,10 +124,10 @@
                                     <li class="border-gray-300 border-b-2"><router-link
                                             class="block px-4 py-2 text-black" to="/likes">Likes</router-link></li>
                                     <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" to="/following">Following</router-link>
+                                            class="block px-4 py-2 text-black" :to="`/following/${playerStore.idUserLogin}`">Following</router-link>
                                     </li>
                                     <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" to="/followers">Followers</router-link>
+                                            class="block px-4 py-2 text-black" :to="`/followers/${playerStore.idUserLogin}`">Followers</router-link>
                                     </li>
                                     <li @click="signOutClick" class="border-gray-300 border-b-2"><router-link
                                             class="block px-4 py-2 text-black" to="/discover">Sign Out</router-link>
@@ -138,7 +138,7 @@
                     </div>
                 </div>
             </div>
-            <template v-if="state.isLoggedIn === false">
+            <template v-if="playerStore.isLoggedIn === false">
                 <div class="flex gap-4 h-full justify-center items-center">
                     <div @click="isSignInTemplate" class="h-1/2 text-white px-3 py-1 border border-white rounded text-[12px] flex
                                 justify-center items-center whitespace-nowrap cursor-pointer">Sign
@@ -311,13 +311,14 @@
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import { state } from '@/js/state';
+import { usePlayerStore } from '@/js/state';
 import { formatDistanceToNow } from 'date-fns'
 export default {
     name: 'HeaderPage',
     setup() {
+        const playerStore = usePlayerStore();
         return {
-            state,
+            playerStore,
         }
     },
     data() {
@@ -388,7 +389,7 @@ export default {
                 console.log("Error :", error);
             }
         },
-        async getNotifications() {
+        async getNotifications() {  
             try {
                 const res = await apiClient.get("http://localhost:3000/api/notification/getAllNotification");
                 this.notifications = res.data.data;
@@ -491,14 +492,22 @@ export default {
                 const accessToken = res.data.accessToken;
                 const refreshToken = res.data.refreshToken;
 
+                
+
+                const userData = res.data.userId; // Assuming the API returns user data
+
+                this.playerStore.idUserLogin = userData;
+
+                console.log('playerStore',this.playerStore.idUserLogin);
+
                 //luu access & refreshtoken
                 localStorage.setItem('jwt', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
 
-
+                
 
                 this.$router.push({ path: '/home' });
-                state.isLoggedIn = true;
+                this.playerStore.isLoggedIn = true;
             } catch (error) {
                 if (error.response.status === 404) {
                     this.message = "User not found";
@@ -511,7 +520,7 @@ export default {
 
         },
         signOutClick() {
-            state.isLoggedIn = false
+            this.playerStore.isLoggedIn = false
         },
         async createAccountClick() {
             console.log(this.form);

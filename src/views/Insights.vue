@@ -92,11 +92,9 @@
             </div>
         </div>
     </div>
-    <Footer></Footer>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
 import { Bar } from 'vue-chartjs';
 import {
@@ -342,7 +340,6 @@ export default {
     components: {
         Bar,
         Header,
-        Footer
     },
 }
 </script>

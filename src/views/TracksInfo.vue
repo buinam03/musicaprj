@@ -8,10 +8,11 @@
                 </div>
                 <div class="w-full h-full p-4 relative">
                     <div class="flex items-start">
-                        <div
+                        <div @click="togglePlay(0, trackInfo)"
                             class="h-16 w-16  rounded-full flex justify-center items-center bg-orange-500 text-white hover:bg-orange-600 relative cursor-pointer">
                             <!-- Nút play được căn giữa -->
-                            <font-awesome-icon icon="fa-solid fa-play" size="2xl" class="absolute" />
+                            <font-awesome-icon
+                                        :icon="playerStore.currentPlayIndex === 0 && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" size="2xl" class="absolute"/>
                         </div>
                         <div class="px-4 text-[32px] w-2/3 text-left text-white ">
                             {{ trackInfo.title }}
@@ -26,10 +27,11 @@
                         </div>
                     </div>
                     <div class="absolute h-28 w-full bottom-0 left-0 p-4 flex justify-center items-center">
-                        <div class="w-1/12 text-white text-xs">{{ currentTimeFormated }}</div>
+                        <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentTime) }}</div>
                         <div class=" flex justify-center items-center w-[80%]">
-                            <input @input="updateProgressPlay($event.target.value)" v-model="playVal" min="0" max="100"
-                                type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
+                            <input :style="progressPercentage" @input="updateProgressPlay($event.target.value)"
+                                v-model="playerStore.currentTime" min="0" :max="playerStore.currentSong.duration"
+                                step="0.1" type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
                         </div>
                         <div class="w-1/12 text-white text-xs">{{ formatDuration(trackInfo.SongDetail.duration) }}</div>
                     </div>
@@ -161,16 +163,21 @@
                 </div>
             </div>
         </div>
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
+import { usePlayerStore } from '@/js/state';
 
 export default {
+    setup() {
+        const playerStore = usePlayerStore();
+        return {
+            playerStore,
+        }
+    },
     name: 'TracksInfoPage',
     data() {
         return {
@@ -207,6 +214,7 @@ export default {
         }
     },
     mounted() {
+        
         this.id = this.$route.params.id;
 
         if (this.id) {
@@ -237,7 +245,16 @@ export default {
 
     },
     computed: {
+        progressPercentage() {
+            const percentage =
+                this.playerStore.currentSong.duration && this.playerStore.currentTime
+                    ? (this.playerStore.currentTime / this.playerStore.currentSong.duration) * 100
+                    : 0;
 
+            return {
+                '--progressPlay': `${percentage}%`,
+            };
+        },
         profilePicture() {
             const profilePicture = this.user?.profile_picture;
             if (profilePicture) {
@@ -256,7 +273,31 @@ export default {
             return 'http://localhost:8080/images/other/Unknown_person.jpg';
         },
     },
-    methods: {
+    methods: { 
+
+        togglePlay(index, song) {
+            const playerStore = usePlayerStore();
+
+            if (playerStore.currentPlayIndex === index) {
+                if (playerStore.isPlaying) {
+                    playerStore.pause();
+                } else {
+                    playerStore.resume();
+                }
+            }
+            else {
+                playerStore.play({
+                    id: song.id,
+                    title: song.title,
+                    artwork: song.artwork,
+                    username: song.User.username,
+                    duration: song.SongDetail.duration,
+                    path: song.path,
+                });
+                playerStore.logUserListen(song.id);
+                playerStore.currentPlayIndex = index;
+            }
+        },
         async fetchComments() {
             try {
                 const id = this.$route.params.id;
@@ -304,12 +345,13 @@ export default {
             }
         },
         updateProgress(value = this.volumeVal) {
-            const max = 100; // Giá trị tối đa của slider
-            const validValue = Math.max(0, Math.min(value, max)); // Giới hạn giá trị trong khoảng [0, max]
-            const percentage = (validValue / max) * 100;
-            const rangeInput = document.querySelector('.progressVolume');
-            if (rangeInput) {
-                rangeInput.style.setProperty('--progress', `${percentage}%`);
+            if (!this.playerStore.currentSong || !this.playerStore.currentSong.duration) return;
+
+            const validValue = Math.max(0, Math.min(value, this.playerStore.currentSong.duration));
+
+            if (this.playerStore.audio) {
+                this.playerStore.audio.currentTime = validValue;
+                this.playerStore.currentTime = validValue;
             }
         },
         formatDate(dateString) {
@@ -325,10 +367,10 @@ export default {
             return `#${genre}`;
         },
         formatDuration(duration) {
-            if (!duration) return "0:00";
-            const duration_min = Math.floor(duration / 60);
-            const duration_seconds = duration % 60;
-            return `${duration_min}:${duration_seconds.toString().padStart(2, "0")}`
+            const roundedSeconds = Math.round(duration);
+            const min = Math.floor(duration / 60);
+            const sec = roundedSeconds % 60;
+            return `${min}:${sec.toString().padStart(2, "0")}`;
         },
         updateProgressPlay(value = this.playVal) {
             const max = 100;
@@ -347,7 +389,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
 }
 </script>

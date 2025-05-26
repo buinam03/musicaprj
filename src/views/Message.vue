@@ -103,14 +103,11 @@
                 </div>
             </div>
         </div>
-
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
 import socket from '@/socket/socket';
 
@@ -136,7 +133,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
     mounted() {
         socket.connect();

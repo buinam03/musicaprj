@@ -1,81 +1,159 @@
 <template>
     <div>
         <Header></Header>
-
-        <div class="pt-16 w-container mx-auto h-auto mb-16 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
+        <div class="pt-16 notification-container fixed top-0 right-0 mt-2 mr-4" v-if="Message">
+            <div class="notification bg-orange-500 text-white px-4 py-2 rounded-sm shadow-lg font-extralight">
+                {{ Message }}
+            </div>
+        </div>
+        <div
+            class="pt-16 w-container mx-auto h-auto mb-16 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
 
             <div class="flex justify-between items-center h-auto w-full">
-                <div class="text-left font-semibold p-4 text-2xl">
-                    Đen is Following
+                <div v-if="userById" class="text-left font-semibold p-4 text-2xl">
+                    {{ userById.username }} is Following
 
                 </div>
 
-                <input class="no-clear border-[1px] w-80 p-4 h-10 rounded-[4px] cursor-text text-sm " type="search" name="search" id=""
-                        placeholder="Search" >
+                <input v-model="usernameSearch" @keyup.enter="searchUserFollowing" class="no-clear border-[1px] w-80 p-4 h-10 rounded-[4px] cursor-text text-sm " type="search"
+                    name="search" id="" placeholder="Search">
             </div>
-            <div class="grid grid-cols-5 gap-4 mb-4 w-full xl:w-container  xl:grid-cols-5 xl:gap-4 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:grid-cols-3 md:gap-1">
+            <div
+                class="grid grid-cols-5 gap-4 mb-4 w-full xl:w-container  xl:grid-cols-5 xl:gap-4 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:grid-cols-3 md:gap-1">
                 <div v-for="(user, index) in users" :key="index" class=" h-[300px] p-4 bg-white shadow-lg rounded-2xl">
                     <div class="w-[180px] aspect-square mx-auto xl:w-[180px] lg:w-[150px] md:w-[120px]">
-                        <img :src="user.image" alt="Profile picture"
+                        <img :src="user.following.profile_picture || defaultImage" alt="Profile picture"
                             class="rounded-full mr-4 object-cover w-full h-full">
                     </div>
                     <div>
-                        <h2 class="text-lg font-semibold xl:text-lg lg:text-[14px] md:text-[12px]">{{ user.name }}</h2>
+                        <h2 class="text-lg font-semibold xl:text-lg lg:text-[14px] md:text-[12px]">{{
+                            user.following.username }}</h2>
 
-                        <div @click="followToggle(index)"
-                            class="w-[120px] max-w-[120px] h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
-                            :class="user.isFollow ? 'border-orange-500 text-orange-500' : 'border-gray-500 text-gray-500'">
-                            <font-awesome-icon
-                                :icon="user.isFollow ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'" />
-                            {{ user.isFollow ? 'Following' : 'Follow' }}
+                        <div @click="followToggle(user.following.id, index)"
+                            class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
+                            :class="{
+                                'bg-orange-500 text-white hover:border-white': !user.isFollowed,
+                                'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': user.isFollowed
+                            }">
+                            <div v-if="!user.isFollowed" class="pr-1">
+                                <font-awesome-icon icon="fa-solid fa-user-plus" />
+                            </div>
+                            <div v-if="user.isFollowed" class="pr-1 text-orange-500">
+                                <font-awesome-icon icon="fa-solid fa-user-check" />
+                            </div>
+                            {{ user.isFollowed ? 'Following' : 'Follow' }}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="mt-4 pb-4">
-                <div
-                    class="w-[200px] h-auto px-4 py-2 rounded-3xl border-[1px] mx-auto hover:border-orange-500 hover:text-white hover:bg-orange-500 cursor-pointer xl:text-lg lg:text-[14px] md:text-[12px]">
-                    Load More
-                </div>
-            </div>
         </div>
 
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
-import Header from '@/components/Header.vue';
 
+import Header from '@/components/Header.vue';
+import apiClient from '@/apiService/apiClient';
 export default {
     name: 'FollowingPage',
     data() {
         return {
-            users: [
-                { name: 'Woanh', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'House Music With...', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'Deep House Sessions', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'Rogue Self', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'TONAL EXTRA', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'PROFANE', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'TONAL', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'TAIGA', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'Pumped Deep', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'Doxed', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'Kudzuro', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-                { name: 'PuffCorn', image: require('@/image/user-logo/buitruonglinh.jpg'), isFollow: true },
-            ],
+            users: null,
+            profileId: this.$route.params.id,
+            defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
+            userById: null,
+            usernameSearch: '',
+            Message: '',
         };
     },
     methods: {
-        followToggle(index) {
-            this.users[index].isFollow = !this.users[index].isFollow;
+        async searchUserFollowing() {
+            try {
+                const response = await apiClient.get(`http://localhost:3000/api/follow/searchFollowing`,{params: {username: this.usernameSearch,id: this.profileId}});
+                this.users = response.data.data;
+                if(this.users.length > 0){
+                    this.users = this.users.map(user => ({
+                        ...user,
+                        isFollowed: true // Set initial follow state to true for all users
+                    }));
+                }
+                else{
+                    this.fetchFollowing();
+                    this.usernameSearch = '';
+                    this.Message = 'No user found';
+                    setTimeout(() => {
+                        this.Message = '';
+                    }, 1500);
+                }
+                console.log('userById',this.users);
+            } catch (error) {
+                console.error('Error fetching username:', error);
+            }
+        },
+        async fetchUsername() {
+            try {
+                const response = await apiClient.get(`http://localhost:3000/api/users/getUserById/${this.profileId}`,{params: {id: this.profileId}});
+                this.userById = response.data.data;
+                console.log('userById',this.userById);
+            } catch (error) {
+                console.error('Error fetching username:', error);
+            }
+        },
+        async fetchFollowing() {
+            try {
+                const response = await apiClient.get(`http://localhost:3000/api/follow/getAllFollowing`, {
+                    params: { id: this.profileId }
+                });
+                
+                // Lấy danh sách following users
+                const followingUsers = response.data.data;
+                
+                // Tạo mảng các promise để check follow status cho từng user
+                const followStatusPromises = followingUsers.map(user => 
+                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
+                        params: {
+                            follower_id: this.profileId,
+                            following_id: user.following.id
+                        }
+                    })
+                );
+
+                // Đợi tất cả các request hoàn thành
+                const followStatusResults = await Promise.all(followStatusPromises);
+
+                // Kết hợp dữ liệu user với trạng thái follow
+                this.users = followingUsers.map((user, index) => ({
+                    ...user,
+                    isFollowed: followStatusResults[index].data.data.isFollowing
+                }));
+
+                console.log('users with follow status:', this.users);
+            } catch (error) {
+                console.error('Error fetching following:', error);
+            }
+        },
+        async followToggle(id, index) {
+            try {
+                const payload = {
+                    following_id: id,
+                }
+                await apiClient.post('http://localhost:3000/api/follow/addNewFollower', payload);
+                console.log('Success', payload);
+                this.users[index].isFollowed = !this.users[index].isFollowed;
+            } catch (error) {
+                console.error("Failed to follow:", error);
+            }
         },
     },
     components: {
         Header,
-        Footer
+
+    },
+    mounted() {
+        this.fetchFollowing();
+        // this.getFollowerById();
+        this.fetchUsername();
     }
 };
 </script>
@@ -83,5 +161,25 @@ export default {
 <style scoped>
 .grid {
     padding-top: 20px;
+}
+.notification {
+    animation: fade-in-out 3s ease;
+}
+@keyframes fade-in-out {
+    0% {
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 </style>

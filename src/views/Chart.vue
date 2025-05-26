@@ -11,46 +11,34 @@
                         Top 10 weeks
                     </div>
                 </div>
-                <div v-for="(item, index) in songs.slice(0, 10)" :key="index"
+                <div v-for="(item, index) in songs" :key="index"
                     class="h-16 w-full flex justify-start items-center  border-[1px] hover:bg-gray-300 cursor-pointer text-white xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                     <div class="w-[5%] flex items-center justify-center font-forestyland font-semibold  text-xl">
                         {{ index + 1 }}
                     </div>
                     <div class="w-[5%] h-full justify-center flex items-center">
                         <div class="w-full aspect-square h-11/12 flex justify-center items-center">
-                            <img class="rounded-md w-full h-full object-cover m-auto" :src="item.image" alt="">
+                            <img class="rounded-md w-full h-full object-cover m-auto" :src="item.artwork || defaultImage" alt="">
                         </div>
                     </div>
-                    <div class="w-3/4 h-full flex justify-start items-center">
+                    <div class="w-[90%] h-full flex justify-start items-center">
                         <div class="p-2 w-5/6">
-                            <div class="text-md font-semibold text-left text-white ">
-                                {{ item.name }}
+                            <div @click="goToTrack(item.id)" class="text-md font-semibold text-left text-white ">
+                                {{ item.title }}
                             </div>
                             <div class="flex justify-start items-center">
-                                <div v-for="(artist, index) in item.artist" :key="index"
+                                <div @click="gotoProfile(item.User.id)"
                                     class="hover:underline text-xs font-semibold text-white flex justify-center items-center">
-                                    <a href="#">{{ index < item.artist.length - 1 ? artist.name + ',' : artist.name
-                                            }}</a>
+                                    {{ item.User.username }}
                                 </div>
                             </div>
                         </div>
                         <div class="w-1/6 ">
                             <div class="flex justify-center items-center text-sm text-white">
                                 <font-awesome-icon icon="fa-solid fa-play " />
-                                <div class="pl-2">{{ item.play }}</div>
-                            </div>
+                                <div class="pl-2">{{ item.SongDetail.plays }}</div>
+                            </div> 
                         </div>
-                    </div>
-                    <div class="w-[15%]">
-                        <div class="text-center text-sm text-white">
-                            {{ item.duration }}
-                        </div>
-                    </div>
-                </div>
-                <div class="h-10 w-full mt-4 ">
-                    <div
-                        class="h-10 w-[240px] mx-auto border-[1px] cursor-pointer rounded-3xl border-white text-white flex justify-center items-center hover:text-black hover:bg-white hover:border-white">
-                        Top 100 Musica
                     </div>
                 </div>
                 <div class="mt-4 h-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
@@ -126,349 +114,18 @@
                 </div>
             </div>
         </div>
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
-
+import apiClient from '@/apiService/apiClient';
 export default {
     name: 'ChartPage',
     data() {
         return {
-            songs: [
-                {
-                    id: 1,
-                    name: 'Làm gì mà phải hốt',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 2,
-                            name: 'JustaTee'
-                        },
-                        {
-                            id: 3,
-                            name: 'Hoàng Thùy Linh'
-                        }
-                    ],
-                    play: 20305969,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 2,
-                    name: 'Đi Về Nhà',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 4,
-                            name: 'JustaTee'
-                        }
-                    ],
-                    play: 15203489,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 3,
-                    name: 'Anh Đếch Cần Gì Nhiều Ngoài Em',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 5,
-                            name: 'Vũ.'
-                        }
-                    ],
-                    play: 17450234,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 4,
-                    name: 'Trốn Tìm',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 6,
-                            name: 'MTV Band'
-                        }
-                    ],
-                    play: 23904352,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 5,
-                    name: 'Bài Này Chill Phết',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 4,
-                            name: 'Min'
-                        }
-                    ],
-                    play: 19380456,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 6,
-                    name: 'Hai Triệu Năm',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 7,
-                            name: 'Biên'
-                        }
-                    ],
-                    play: 21129487,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 7,
-                    name: 'Mười Năm',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 8,
-                            name: 'Ngọc Linh'
-                        }
-                    ],
-                    play: 18023409,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 8,
-                    name: 'Mang Tiền Về Cho Mẹ',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 9,
-                            name: 'Nguyên Thảo'
-                        }
-                    ],
-                    play: 25302765,
-                    like: 22,
-                    isPublic: false,
-                    duration: '4:56'
-                },
-                {
-                    id: 9,
-                    name: 'Lối Nhỏ',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 10,
-                            name: 'Phương Anh Đào'
-                        }
-                    ],
-                    play: 20483742,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 10,
-                    name: 'Cho Mình Em',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 11,
-                            name: 'Binz'
-                        }
-                    ],
-                    play: 19384267,
-                    like: 22,
-                    isPublic: false,
-                    duration: '4:56'
-                },
-                {
-                    id: 11,
-                    name: 'Đưa Nhau Đi Trốn',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 12,
-                            name: 'Lynk Lee'
-                        }
-                    ],
-                    play: 16238470,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 12,
-                    name: 'Ghé Thăm',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 13,
-                            name: 'Kimmese'
-                        }
-                    ],
-                    play: 17294857,
-                    like: 22,
-                    isPublic: false,
-                    duration: '4:56'
-                },
-                {
-                    id: 13,
-                    name: 'Ta Cứ Đi Cùng Nhau',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 14,
-                            name: 'Lin+'
-                        }
-                    ],
-                    play: 15830294,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-
-                },
-                {
-                    id: 14,
-                    name: 'Ngày Khác Lạ',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 15,
-                            name: 'Triple D'
-                        },
-                        {
-                            id: 16,
-                            name: 'Giang Pham'
-                        }
-                    ],
-                    play: 18927403,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 15,
-                    name: 'Vì Yêu Cứ Đâm Đầu',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        },
-                        {
-                            id: 17,
-                            name: 'Min'
-                        },
-                        {
-                            id: 18,
-                            name: 'JustaTee'
-                        }
-                    ],
-                    play: 22509376,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                },
-                {
-                    id: 16,
-                    name: 'Bước Qua Mùa Cô Đơn',
-                    length: '5:04',
-                    image: require('@/image/artwork/lamgimaphaihot.jpg'),
-                    artist: [
-                        {
-                            id: 1,
-                            name: 'Đen Vâu'
-                        }
-                    ],
-                    play: 17629485,
-                    like: 22,
-                    isPublic: true,
-                    duration: '4:56'
-                }
-            ],
+            defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
+            songs: [],
             artists: [
                 { name: 'Đen Vâu', followers: Math.floor(Math.random() * 1000000), image: require('@/image/user-logo/denvau.jpg') },
                 { name: 'Mỹ Tâm', followers: Math.floor(Math.random() * 1000000), image: require('@/image/user-logo/denvau.jpg') },
@@ -486,7 +143,24 @@ export default {
         }
     },
     methods: {
-
+        goToTrack(id) {
+            this.$router.push({ name: 'TrackInfoPage', params: { id } });
+        },
+        async getSongTop10(){
+            try {
+                const res = await apiClient.get('/song/getSongByDescPlays');
+                this.songs = res.data.data;
+                console.log('songs top 10: ', this.songs);
+            } catch (error) {
+                console.error("Lỗi:", error.response?.data);
+            }
+        },
+        gotoProfile(id) {
+            this.$router.push({ name: 'ProfilePage', params: { id } });
+        },
+    },
+    mounted() {
+        this.getSongTop10();
     },
     computed: {
         sortedArtists() {
@@ -501,7 +175,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
 }
 </script>

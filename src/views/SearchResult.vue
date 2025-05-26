@@ -1,7 +1,8 @@
 <template>
     <div>
         <Header></Header>
-        <div class="pt-16 w-container mx-auto h-screen mb-16 ">
+        <div
+            class="pt-16 w-container mx-auto h-screen mb-16 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
             <div
                 class="font-semibold text-2xl text-left p-4 text-ellipsis whitespace-nowrap overflow-hidden border-b-[1px]">
                 Search result for "{{ searchQuery }}"
@@ -21,28 +22,28 @@
                         </ul>
                     </div>
                 </div>
-                <div class="h-full w-full p-2">
-                    <div class="text-left text-[12px] text-gray-500 underline">
-                        Found 20+ User and 500+ tracks,playlist
+                <div v-if="searchOptions[selectedIndex].label === 'All'" class="h-full w-full p-2">
+                    <div v-if="artist && songs" class="text-left text-[12px] text-gray-500 underline">
+                        Found {{ artist.length }} User and {{ songs.length }} tracks
                     </div>
                     <div class="flex justify-between items-center w-full border-b-[1px] pb-2">
                         <div class="text-left font-semibold text-2xl pt-4">
                             User
                         </div>
-                        <div class="whitespace-nowrap text-gray-500 cursor-pointer">
+                        <div @click="searchOptionClick(2)" class="whitespace-nowrap text-gray-500 cursor-pointer">
                             All User
                             <font-awesome-icon icon="fa-solid fa-chevron-right" />
                         </div>
                     </div>
-                    <div class="h-auto w-full flex mt-4">
-                        <div v-for="(item, index) in artist" :key="item.id"
-                            class="h-[300px] w-[180px] mr-4 overflow-x-hidden">
+                    <div class="h-auto w-full flex mt-4 ">
+                        <div v-for="(item, index) in artist" :key="item.id" class="h-[300px] w-[180px] mr-4 ">
                             <div class="">
-                                <a href="#"><img :src="item.image" class="rounded-full h-[180px] w-[180px] object-cover"
-                                        alt=""></a>
+                                <a href="#"><img :src="item.profile_picture || defaultImage"
+                                        class="rounded-full h-[180px] w-[180px] object-cover" alt=""></a>
                                 <div class="pt-[4px] flex justify-center items-center">
-                                    <a class="text-[16px]" href="#">{{ item.name }}</a>
-                                    <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.isVerified === false }">
+                                    <div @click="redirectToProfile(item.id)" class="text-[16px] cursor-pointer">{{
+                                        item.username }}</div>
+                                    <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.is_verified === false }">
                                         <div
                                             class="w-full h-full text-white bg-blue-500  rounded-full flex justify-center items-center text-xs">
                                             <font-awesome-icon icon="fa-solid fa-check" size="xs" />
@@ -52,17 +53,27 @@
                                 <div class="pt-[2px]">
                                     <span class="flex justify-center items-center opacity-60">
                                         <font-awesome-icon icon="fa-solid fa-person" size="sm" />
-                                        <div class="ml-[2px] text-gray-500 text-[12px]">{{ item.followers }}
+                                        <div class="ml-[2px] text-gray-500 text-[12px]">{{ item.followerCount }}
                                             followers
                                         </div>
                                     </span>
                                 </div>
                                 <div class="pt-[8px] flex justify-center">
-                                    <button @click="followToggle(index)"
-                                        class="px-4 py-[2px] max-w-20 w-20 bg-white rounded-md border-gray-400 border text-xs flex justify-center items-center text-black hover:border-gray-500 transition duration-200"
-                                        :class="{ 'border-orange-500 text-orange-500 hover:border-orange-500': artist[index].isFollowing }">
-                                        {{ artist[index].isFollowing ? 'Following' : 'Follow' }}
-                                    </button>
+                                    <div v-if="item.id != playerStore.idUserLogin" @click="followToggle(item.id, index)"
+                                        class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
+                                        :class="{
+                                            'bg-orange-500 text-white hover:border-white': !item.isFollowed,
+                                            'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': item.isFollowed
+                                        }">
+                                        <div v-if="!item.isFollowed && item.id != playerStore.idUserLogin" class="pr-1">
+                                            <font-awesome-icon icon="fa-solid fa-user-plus" />
+                                        </div>
+                                        <div v-if="item.isFollowed && item.id != playerStore.idUserLogin"
+                                            class="pr-1 text-orange-500">
+                                            <font-awesome-icon icon="fa-solid fa-user-check" />
+                                        </div>
+                                        {{ item.isFollowed ? 'Following' : 'Follow' }}
+                                    </div>
 
                                 </div>
                             </div>
@@ -72,20 +83,20 @@
                         <div class="text-left font-semibold text-2xl pt-4">
                             Tracks
                         </div>
-                        <div class="whitespace-nowrap text-gray-500 cursor-pointer">
+                        <div @click="searchOptionClick(1)" class="whitespace-nowrap text-gray-500 cursor-pointer">
                             All Tracks
                             <font-awesome-icon icon="fa-solid fa-chevron-right" />
                         </div>
                     </div>
-                    <div class="w-full h-auto mt-4 ">
-                        <div class="grid grid-cols-3  ">
+                    <div class="w-full h-auto mt-4 mb-16 ">
+                        <div class="block  ">
                             <!-- <div class=" w-1/3 p-2 max-h-[360px]"> -->
                             <!--  -->
                             <div ref="menuContainer" v-for="(item, index) in songs" :key="item.id"
                                 class="flex items-center p-2 hover:bg-gray-100">
                                 <div class="h-[70px] w-[70px] relative">
                                     <a href="#">
-                                        <img class=" rounded-md w-full h-full object-cover" :src="item.image"
+                                        <img class=" rounded-md w-full h-full object-cover" :src="item.artwork"
                                             alt="Artwork">
                                         <div
                                             class="absolute inset-0 flex justify-center items-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150">
@@ -94,17 +105,17 @@
                                     </a>
                                 </div>
                                 <div class="pl-4 flex-grow text-left ">
-                                    <div
-                                        class="font-semibold text-black hover:text-gray-600 max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
-                                        <a href="#">
-                                            {{ item.name }}
-                                        </a>
+                                    <div @click="redirectTrackInfo(item.id)"
+                                        class="font-semibold text-black hover:text-gray-600 max-w-[450px] text-ellipsis whitespace-nowrap overflow-hidden cursor-pointer">
+
+                                        {{ item.title }}
+
                                     </div>
-                                    <div class="flex max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
-                                        <div v-for="(artist, index) in item.artist" :key="artist.id"
+                                    <div v-for="(item, index) in item.SongArtists" :key="index"
+                                        class="flex max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
+                                        <div @click="redirectToProfile(item.User.id)"
                                             class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap ">
-                                            <a href="#">{{ index < item.artist.length - 1 ? artist.name + ' ,' :
-                                                artist.name }}</a>
+                                            {{ item.User.username }}
                                         </div>
                                     </div>
                                 </div>
@@ -114,38 +125,34 @@
                                         <font-awesome-icon icon="fa-solid fa-ellipsis" />
                                     </div>
                                     <div v-if="openMenuIndex === index"
-                                        class="absolute w-[280px] h-[auto] bg-[#9057e0] rounded-md left-0 bottom-8 block z-10">
+                                        class="absolute w-[280px] h-[auto] bg-[#9057e0] rounded-md left-[-248px] bottom-8 block z-10">
                                         <ul>
                                             <div class="mb-5 border-b-white border-b-[1px]">
                                                 <div class="flex p-2 ">
                                                     <div class="basis-1/4">
-                                                        <img class=" rounded-md w-full h-full object-cover"
-                                                            :src="item.image" alt="Artwork">
+                                                        <img class=" rounded-md w-full h-full object-cover aspect-square"
+                                                            :src="item.artwork" alt="Artwork">
                                                     </div>
-                                                    <div class="basis-3/4 relative ">
-                                                        <div class="absolute text-left pl-2 pt-2 left-0 top-0">
-                                                            <div class="font-semibold text-white hover:text-purple-400">
-                                                                <a href="#">
-                                                                    {{ item.name }}
-                                                                </a>
-                                                            </div>
-                                                            <div
-                                                                class="flex text-ellipsis whitespace-nowrap overflow-hidden max-w-[190px]">
-                                                                <div v-for="(artist, index) in item.artist"
-                                                                    :key="artist.id"
-                                                                    class=" text-white text-sm hover:underline ">
-                                                                    <a href="#">
-                                                                        {{ artist.name }}<span
-                                                                            v-if="index < item.artist.length - 1">,</span>
-                                                                    </a>
-                                                                </div>
+                                                    <div class="basis-3/4 relative h-auto">
+                                                        <div class="absolute text-left pl-2 left-0 top-0">
+                                                            <div @click="redirectTrackInfo(item.id)"
+                                                                class="font-semibold text-ellipsis overflow-hidden h-16 text-white hover:text-purple-400 cursor-pointer">
+
+                                                                {{ item.title }}
+
                                                             </div>
 
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-
+                                            <li @click="togglePlay(index, item)" class="text-left"><a href="#"
+                                                    class="flex px-4 py-2 text-white hover:opacity-40">
+                                                    <div class="basis-1/6">
+                                                        <font-awesome-icon icon="fa-solid fa-play" />
+                                                    </div>
+                                                    Play
+                                                </a></li>
                                             <li class="text-left"><a href="#"
                                                     class="flex px-4 py-2 text-white hover:opacity-40">
                                                     <div class="basis-1/6">
@@ -153,6 +160,7 @@
                                                     </div>
                                                     Add to Playlist
                                                 </a></li>
+
                                             <li class="text-left"><a href="#"
                                                     class="flex px-4 py-2 text-white hover:opacity-40">
                                                     <div class="basis-1/6">
@@ -174,186 +182,199 @@
                                 <!-- </div> -->
                             </div>
                         </div>
-                    </div>  
-                    <div class="flex justify-between items-center w-full border-b-[1px] pb-2">
-                        <div class="text-left font-semibold text-2xl pt-4">
-                            Playlist
-                        </div>
-                        <div class="whitespace-nowrap text-gray-500 cursor-pointer">
-                            All Playlist
-                            <font-awesome-icon icon="fa-solid fa-chevron-right" />
-                        </div>
-                    </div>      
-                    <div class="pt-5 mb-16  flex transition-transform duration-300">
-                        <div class="h-auto w-auto flex justify-center items-center overflow-x-hidden">
-                            <div class="flex">
-                                <div v-for="(item, index) in playlist" :key="item.id"
-                                    class="h-auto w-[180px] mr-4 group relative">
-                                    <div class="h-[180px] w-[180px] relative">
-                                        <a href="#">
-                                            <img class=" rounded-lg object-cover z-0" :src="item.image" alt="">
-                                            <div
-                                                class="absolute inset-0 bg-gray-500 bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity duration-75 rounded-lg ">
-                                            </div>
-                                            <div
-                                                class="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity ">
-                                                <div @click.stop.prevent="PlayPlaylist(index)"
-                                                    class="h-[45px] w-[45px] border-[1px]  border-white flex justify-center items-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity ">
-                                                    <font-awesome-icon icon="fa-solid fa-play" size="lg"
-                                                        class="text-white z-50" />
-                                                </div>
-                                            </div>
-                                            <div class="absolute top-0 left-0 h-full flex items-center pl-5 z-50">
-                                                <div @click.stop.prevent="addToPlaylist(index)"
-                                                    class="h-[30px] w-[30px] flex justify-center items-center rounded-full  opacity-0 group-hover:opacity-100 transition-colors"
-                                                    :class="{ 'text-orange-500': playlist[index].isAddToPlaylist, 'text-white': !playlist[index].isAddToPlaylist }">
-                                                    <font-awesome-icon icon="fa-solid fa-plus" size="lg" />
-                                                </div>
-                                            </div>
+                    </div>
 
-                                            <div class="absolute top-0 right-0 h-full flex items-center pr-5 z-50">
-                                                <div @click.stop.prevent="likePlaylist(index)"
-                                                    class="h-[30px] w-[30px] flex justify-center items-center rounded-full  opacity-0 group-hover:opacity-100 transition-colors"
-                                                    :class="{ 'text-orange-500': playlist[index].isLike, 'text-white': !playlist[index].isLike }">
-                                                    <font-awesome-icon icon="fa-solid fa-heart" size="lg" />
-                                                </div>
+                </div>
+                <div v-if="searchOptions[selectedIndex].label === 'Track'" class="h-full w-full p-2">
+                    <div class=" ">
+                        <div class="flex justify-between items-center w-full border-b-[1px] pb-2">
+                            <div class="text-left font-semibold text-2xl ">
+                                Tracks
+                            </div>
+                        </div>
+                        <div class="w-full h-auto mt-4 mb-16 ">
+                            <div class="  ">
+                                <!-- <div class=" w-1/3 p-2 max-h-[360px]"> -->
+                                <!--  -->
+                                <div ref="menuContainer" v-for="(item, index) in songs" :key="item.id"
+                                    class="flex items-center p-2 hover:bg-gray-100">
+                                    <div class="h-[70px] w-[70px] relative">
+                                        <a href="#">
+                                            <img class=" rounded-md w-full h-full object-cover" :src="item.artwork"
+                                                alt="Artwork">
+                                            <div
+                                                class="absolute inset-0 flex justify-center items-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                                                <font-awesome-icon icon="fa-solid fa-play" size="lg" />
                                             </div>
                                         </a>
+                                    </div>
+                                    <div class="pl-4 flex-grow text-left ">
+                                        <div @click="redirectTrackInfo(item.id)"
+                                            class="font-semibold text-black hover:text-gray-600 max-w-[500px] text-ellipsis whitespace-nowrap overflow-hidden cursor-pointer">
 
+                                            {{ item.title }}
+
+                                        </div>
+                                        <div v-for="(item, index) in item.SongArtists" :key="index"
+                                            class="flex max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
+                                            <div @click="redirectToProfile(item.User.id)"
+                                                class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap ">
+                                                {{ item.User.username }}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="pt-[4px] flex justify-center items-center">
-                                        <a class="text-[16px] text-gray-600" href="#">{{ item.name }}</a>
+                                    <div class="flex-shrink-0 relative ">
+                                        <div @click="optionSong(index)"
+                                            class=" w-[32px] h-[32px] rounded-full border-[1px] flex justify-center items-center cursor-pointer hover:bg-gray-200">
+                                            <font-awesome-icon icon="fa-solid fa-ellipsis" />
+                                        </div>
+                                        <div v-if="openMenuIndex === index"
+                                            class="absolute w-[280px] h-[auto] bg-[#9057e0] rounded-md left-[-248px] bottom-8 block z-10">
+                                            <ul>
+                                                <div class="mb-5 border-b-white border-b-[1px]">
+                                                    <div class="flex p-2 ">
+                                                        <div class="basis-1/4">
+                                                            <img class=" rounded-md w-full h-full object-cover aspect-square"
+                                                                :src="item.artwork" alt="Artwork">
+                                                        </div>
+                                                        <div class="basis-3/4 relative ">
+                                                            <div class="absolute text-left pl-2 left-0 top-0">
+                                                                <div
+                                                                    class="font-semibold text-ellipsis overflow-hidden h-16 text-white hover:text-purple-400">
+                                                                    <a href="#">
+                                                                        {{ item.title }}
+                                                                    </a>
+                                                                </div>
+                                                                <div
+                                                                    class="flex text-ellipsis whitespace-nowrap overflow-hidden max-w-[190px]">
+                                                                    <div v-for="(artist, index) in item.artist"
+                                                                        :key="artist.id"
+                                                                        class=" text-white text-sm hover:underline ">
+                                                                        <a href="#">
+                                                                            {{ artist.name }}<span
+                                                                                v-if="index < item.artist.length - 1">,</span>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <li @click="togglePlay(index, item)" class="text-left"><a href="#"
+                                                        class="flex px-4 py-2 text-white hover:opacity-40">
+                                                        <div class="basis-1/6">
+                                                            <font-awesome-icon icon="fa-solid fa-play" />
+                                                        </div>
+                                                        Play
+                                                    </a></li>
+                                                <li class="text-left"><a href="#"
+                                                        class="flex px-4 py-2 text-white hover:opacity-40">
+                                                        <div class="basis-1/6">
+                                                            <font-awesome-icon icon="fa-solid fa-plus" />
+                                                        </div>
+                                                        Add to Playlist
+                                                    </a></li>
+
+                                                <li class="text-left"><a href="#"
+                                                        class="flex px-4 py-2 text-white hover:opacity-40">
+                                                        <div class="basis-1/6">
+                                                            <font-awesome-icon icon="fa-solid fa-forward-step"
+                                                                class="pr-2" />
+                                                        </div>
+                                                        Play Next
+                                                    </a></li>
+                                                <li class="text-left"><a href="#"
+                                                        class="flex px-4 py-2 text-white hover:opacity-40">
+                                                        <div class="basis-1/6">
+                                                            <font-awesome-icon icon="fa-regular fa-heart"
+                                                                class="pr-2" />
+                                                        </div>
+                                                        Like
+                                                    </a></li>
+                                            </ul>
+                                        </div>
                                     </div>
+                                    <!-- </div> -->
                                 </div>
                             </div>
                         </div>
-                    </div>          
+                    </div>
+                </div>
+                <div v-if="searchOptions[selectedIndex].label === 'User'" class="h-full w-full p-2">
+                    <div class="flex justify-between items-center w-full border-b-[1px] pb-2">
+                        <div class="text-left font-semibold text-2xl">
+                            User
+                        </div>
+                    </div>
+                    <div class="h-auto w-full flex mt-4 ">
+                        <div v-for="(item, index) in artist" :key="item.id" class="h-[300px] w-[180px] mr-4 ">
+                            <div class="">
+                                <a href="#"><img :src="item.profile_picture || defaultImage"
+                                        class="rounded-full h-[180px] w-[180px] object-cover" alt=""></a>
+                                <div class="pt-[4px] flex justify-center items-center">
+                                    <a class="text-[16px]" href="#">{{ item.username }}</a>
+                                    <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.is_verified === false }">
+                                        <div
+                                            class="w-full h-full text-white bg-blue-500  rounded-full flex justify-center items-center text-xs">
+                                            <font-awesome-icon icon="fa-solid fa-check" size="xs" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pt-[2px]">
+                                    <span class="flex justify-center items-center opacity-60">
+                                        <font-awesome-icon icon="fa-solid fa-person" size="sm" />
+                                        <div class="ml-[2px] text-gray-500 text-[12px]">{{ item.followerCount }}
+                                            followers
+                                        </div>
+                                    </span>
+                                </div>
+                                <div class="pt-[8px] flex justify-center">
+                                    <div v-if="item.id != playerStore.idUserLogin" @click="followToggle(item.id, index)"
+                                        class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
+                                        :class="{
+                                            'bg-orange-500 text-white hover:border-white': !item.isFollowed,
+                                            'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': item.isFollowed
+                                        }">
+                                        <div v-if="!item.isFollowed && item.id != playerStore.idUserLogin" class="pr-1">
+                                            <font-awesome-icon icon="fa-solid fa-user-plus" />
+                                        </div>
+                                        <div v-if="item.isFollowed && item.id != playerStore.idUserLogin"
+                                            class="pr-1 text-orange-500">
+                                            <font-awesome-icon icon="fa-solid fa-user-check" />
+                                        </div>
+                                        {{ item.isFollowed ? 'Following' : 'Follow' }}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
-
+import apiClient from '@/apiService/apiClient';
+import { usePlayerStore } from '@/js/state';
 export default {
+    setup() {
+        const playerStore = usePlayerStore();
+        return {
+            playerStore,
+        };
+    },
     name: 'SearchResultPage',
     data() {
         return {
             selectedIndex: 0,
             openMenuIndex: null,
-            songs: [
-                {
-                    id: 1,
-                    name: "Cái đẹp",
-                    artist: [
-                        { id: 1, name: "tlinh" },
-                        { id: 2, name: "Pháo" },
-                        { id: 3, name: "Pháp Kiều" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg'),
-                },
-                {
-                    id: 2,
-                    name: "Ngã tư không đèn",
-                    artist: [
-                        { id: 4, name: "Den Vau" },
-                        { id: 5, name: "JustaTee" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 3,
-                    name: "Tình yêu bận bịu",
-                    artist: [
-                        { id: 6, name: "Hoaprox" },
-                        { id: 7, name: "Masew" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 4,
-                    name: "Vùng ký ức",
-                    artist: [
-                        { id: 8, name: "Đức Phúc" },
-                        { id: 9, name: "ERIK" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 5,
-                    name: "Hành trình cuối",
-                    artist: [
-                        { id: 10, name: "Sơn Tùng MTP" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 6,
-                    name: "Nhớ mùa thu Hà Nội",
-                    artist: [
-                        { id: 11, name: "Hà Anh Tuấn" },
-                        { id: 12, name: "Mỹ Tâm" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 7,
-                    name: "Thời thanh xuân đã qua",
-                    artist: [
-                        { id: 13, name: "Trịnh Thăng Bình" },
-                        { id: 14, name: "Bảo Anh" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 8,
-                    name: "Hoa nở không màu",
-                    artist: [
-                        { id: 15, name: "Hoài Lâm" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 9,
-                    name: "Màu nước mắt",
-                    artist: [
-                        { id: 16, name: "Nguyễn Trần Trung Quân" },
-                        { id: 17, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 10,
-                    name: "Ngày khác lạ",
-                    artist: [
-                        { id: 18, name: "Phương Ly" },
-                        { id: 19, name: "JustaTee" },
-                        { id: 20, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 11,
-                    name: "Đi về nhà",
-                    artist: [
-                        { id: 21, name: "JustaTee" },
-                        { id: 22, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 12,
-                    name: "Bỏ lỡ một người",
-                    artist: [
-                        { id: 23, name: "Hòa Minzy" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-            ],
+            songs: null,
             searchOptions: [
                 {
                     label: 'All',
@@ -367,90 +388,114 @@ export default {
                     label: 'User',
                     icon: 'fa-solid fa-user'
                 },
-                {
-                    label: 'Playlist',
-                    icon: 'fa-solid fa-music'
-                },
             ],
-            artist: [
-                {
-                    id: 1,
-                    name: 'Đen Vâu',
-                    image: require('@/image/user-logo/denvau.jpg'),
-                    isVerified: true,
-                    followers: 102254,
-                    isFollowing: false,
-                },
-                {
-                    id: 2,
-                    name: 'Hoaprox',
-                    image: require('@/image/user-logo/hoaprox.jpg'),
-                    isVerified: true,
-                    followers: 45707,
-                    isFollowing: false,
-                },
-                {
-                    id: 3,
-                    name: 'Bùi Trường Linh',
-                    image: require('@/image/user-logo/buitruonglinh.jpg'),
-                    isVerified: false,
-                    followers: 20252,
-                    isFollowing: false,
-                },
-                {
-                    id: 4,
-                    name: 'Martin Garrix',
-                    image: require('@/image/user-logo/martingarrix.jpg'),
-                    isVerified: true,
-                    followers: 1054326,
-                    isFollowing: false,
-                },
-            ],
-            playlist: [
-                {
-                    id: 1,
-                    name: 'EDM Now',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/edm-now.jpg')
-                },
-                {
-                    id: 2,
-                    name: 'K-Pop Remix',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/k-pop-rmx.jpg')
-                },
-                {
-                    id: 3,
-                    name: 'Nhạc Tết thịnh hành',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-tet-th.jpg')
-                },
-                {
-                    id: 4,
-                    name: 'Nhạc Tết mới nhất',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-tet.jpg')
-                },
-            ],
+            artist: null,
+            countFollower: [],
+            message: '',
+            defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
         }
     },
     mounted() {
         document.addEventListener("click", this.clickOutside);
+        this.fetchSearchResult();
         console.log()
     },
     methods: {
+        togglePlay(index, song) {
+            const playerStore = usePlayerStore();
+            const username = song.SongArtists?.[0]?.User?.username || "Unknown Artist";
+
+            if (playerStore.currentPlayIndex === index) {
+                if (playerStore.isPlaying) {
+                    playerStore.pause();
+                } else {
+                    playerStore.resume();
+                }
+            }
+            else {
+                playerStore.play({
+                    id: song.id,
+                    title: song.title,
+                    artwork: song.artwork,
+                    username: username,
+                    duration: song.SongDetail.duration,
+                    path: song.path,
+                });
+
+                playerStore.currentPlayIndex = index;
+            }
+        },
+        redirectToProfile(id) {
+            this.$router.push({ path: `/profile/${id}` });
+        },
+        redirectTrackInfo(id) {
+            this.$router.push({ path: `/trackinfo/${id}` });
+        },
+
+        async followToggle(id, index) {
+            try {
+                const payload = {
+                    following_id: id,
+                }
+                await apiClient.post('http://localhost:3000/api/follow/addNewFollower', payload);
+                console.log('Success', payload);
+                this.artist[index].isFollowed = !this.artist[index].isFollowed;
+            } catch (error) {
+                console.error("Failed to follow:", error);
+            }
+        },
+        async fetchSearchResult() {
+            try {
+                const response = await apiClient.get('http://localhost:3000/api/song/getSongSearch', {
+                    params: {
+                        key: this.searchQuery,
+                    }
+                });
+
+                this.songs = response.data.data.songs;
+                const artists = response.data.data.users;
+
+                // Tạo mảng các promise để lấy số lượng follower
+                const followerCountPromises = artists.map(user =>
+                    apiClient.get('http://localhost:3000/api/follow/getCountFollower', {
+                        params: { id: user.id }
+                    })
+                );
+
+                // Tạo mảng các promise để lấy trạng thái follow
+                const followStatusPromises = artists.map(user =>
+                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
+                        params: {
+                            follower_id: this.playerStore.idUserLogin,
+                            following_id: user.id
+                        }
+                    })
+                );
+
+                // Đợi tất cả các request hoàn thành
+                const [followerCountResults, followStatusResults] = await Promise.all([
+                    Promise.all(followerCountPromises),
+                    Promise.all(followStatusPromises)
+                ]);
+
+                // Kết hợp dữ liệu user với số lượng follower và trạng thái follow
+                this.artist = artists.map((user, index) => ({
+                    ...user,
+                    followerCount: followerCountResults[index]?.data?.data || 0, // Giá trị mặc định là 0 nếu không có dữ liệu
+                    isFollowed: followStatusResults[index]?.data?.data?.isFollowing || false, // Giá trị mặc định là false
+                }));
+
+                console.log('songs', this.songs);
+                console.log('artists', this.artist);
+            } catch (error) {
+                console.error('Error fetching search result:', error);
+            }
+        },
         updateMetaTitle(query) {
             document.title = `Search result for: ${query}`;
         },
         searchOptionClick(index) {
             this.selectedIndex = index;
-        },
-        followToggle(index) {
-            this.artist[index].isFollowing = !this.artist[index].isFollowing;
         },
         optionSong(index) {
             // this.songs[index].isMenuClick = !this.songs[index].isMenuClick;
@@ -494,7 +539,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
     beforeUnmount() {
         document.removeEventListener("click", this.clickOutside);

@@ -25,11 +25,9 @@
         </div>
 
     </div>
-    <Footer></Footer>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
 import axios from 'axios';
 
@@ -43,7 +41,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
     methods: {
         async getAudioDuration(file) {

@@ -44,12 +44,10 @@
             <!-- <font-awesome-icon icon="fa-solid fa-plus" size="2xl"/> -->
 
         </div>
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
 
 export default {
@@ -163,7 +161,6 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
 
 }

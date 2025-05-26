@@ -13,7 +13,7 @@
                     <div class="w-5/6 h-5/6  relative ">
 
                         <div class="rotate absolute w-5 h-2 bg-red-500 rounded-md z-50"
-                            :class="{ 'rotate-active': state.isPlaying }">
+                            :class="{ 'rotate-active': playerStore.isPlaying }">
                             <div class="rotate absolute h-14 w-1 bg-gray-400"></div>
                         </div>
 
@@ -24,7 +24,7 @@
                                 alt="">
                             <div class="absolute inset-0 flex justify-center items-center scale-150 text-white z-20 cursor-pointer"
                                 @click="PlayControlToggle">
-                                <font-awesome-icon v-if="state.isPlaying" icon="fa-solid fa-pause" size="2xl" />
+                                <font-awesome-icon v-if="playerStore.isPlaying" icon="fa-solid fa-pause" size="2xl" />
                                 <font-awesome-icon v-else icon="fa-solid fa-play" size="2xl" />
 
 
@@ -33,33 +33,33 @@
 
                     </div>
                 </div>
-                <div class=" h-48 bg-gradient-to-r from-gray-400 to-gray-600">
+                <div v-for="(item, index) in lastestUpload" :key="index" class=" h-48 bg-gradient-to-r from-gray-400 to-gray-600">
                     <div class="grid grid-cols-[1fr_192px] gap-10 h-full">
                         <div class="h-full">
-                            <div
+                            <div @click="gotoProfile(item.User.id)"
                                 class="text-base text-left pl-5 pt-5 text-white text-ellipsis overflow-hidden whitespace-nowrap w-3/4">
-                                <a href="#">Eulelia</a>
+                                <a href="#">{{item.User.username}}</a>
                             </div>
-                            <div
+                            <div @click="goToTrack(item.id)"
                                 class="w-3/4 text-xl text-left pl-5 text-white text-ellipsis overflow-hidden whitespace-nowrap">
-                                <a href="#">Feel Good - Illenium,Gryffin,Daya (Eulelia Remix) </a>
+                                <a href="#">{{ item.title }}</a>
                             </div>
                             <div class="pt-7">
                                 <div class="pl-7 flex ">
                                     <div class="opacity-70 text-white mr-4 flex items-center">
                                         <font-awesome-icon icon="fa-solid fa-play" />
-                                        <div class="pl-2">13.4k</div>
+                                        <div class="pl-2">{{ item.SongDetail.plays }}</div>
                                     </div>
                                     <div class="opacity-70 text-white mr-4 flex items-center ">
                                         <font-awesome-icon icon="fa-solid fa-heart" />
-                                        <div class="pl-2">13.4k</div>
+                                            <div class="pl-2">{{ item.SongDetail.likes }}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class=" h-full place-content-center place-items-center">
                             <img class="place-items-center w-5/6 h-5/6 border-4 border-white"
-                                src="@/image/artwork/feelgood.jpg" alt="">
+                                :src="item.artwork || defaultImage" alt="">
                         </div>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
             <div class="pt-5">
                 <a href="#">
                     <router-link to="/tracks">
-                        <div
+                        <div @click="goToAllTracks"
                             class=" p-2 border-gray-400 border-[1px] text-gray-400 hover:border-gray-600 hover:text-gray-600">
                             See all your tracks</div>
                     </router-link>
@@ -86,7 +86,8 @@
                             <div>
                                 <a href="#"><img :src="item.profile_picture || profilePicture"
                                         class="rounded-full h-[180px] w-[180px] object-cover" alt="profile_picture"></a>
-                                <div @click="gotoProfile(item.id)" class="pt-[4px] flex justify-center cursor-pointer items-center">
+                                <div @click="gotoProfile(item.id)"
+                                    class="pt-[4px] flex justify-center cursor-pointer items-center">
                                     {{ item.username }}
                                     <div class="w-3 h-3 ml-1" :class="{ 'hidden': item.isVerified === false }">
                                         <div v-if="item.is_verified"
@@ -98,7 +99,8 @@
                                 <div class="pt-[2px]">
                                     <span class="flex justify-center items-center opacity-60">
                                         <font-awesome-icon icon="fa-solid fa-person" size="sm" />
-                                        <div v-if="followers" class="ml-[2px] text-gray-500 text-[12px]">{{ followers.length }}
+                                        <div v-if="followers" class="ml-[2px] text-gray-500 text-[12px]">{{
+                                            followers.length }}
                                             followers
                                         </div>
                                     </span>
@@ -115,68 +117,18 @@
                     </div>
                 </div>
             </div>
-
-
-            <div class="text-left pt-4 font-bold">
-                PLAYLIST TODAY
-            </div>
-            <div class="pt-5  flex justify-center items-center transition-transform duration-300">
-                <div class="h-auto w-full flex justify-center items-center overflow-x-hidden">
-                    <div class="flex">
-                        <div v-for="(item, index) in playlist" :key="item.id"
-                            class="h-auto w-[180px] mr-4 group relative">
-                            <div class="h-[180px] w-[180px] relative">
-                                <a href="#">
-                                    <img class=" rounded-lg object-cover z-0" :src="item.image" alt="">
-                                    <div
-                                        class="absolute inset-0 bg-gray-500 bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity duration-75 rounded-lg ">
-                                    </div>
-                                    <div
-                                        class="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity ">
-                                        <div @click.stop.prevent="PlayPlaylist(index)"
-                                            class="h-[45px] w-[45px] border-[1px]  border-white flex justify-center items-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity ">
-                                            <font-awesome-icon icon="fa-solid fa-play" size="lg"
-                                                class="text-white z-50" />
-                                        </div>
-                                    </div>
-                                    <div class="absolute top-0 left-0 h-full flex items-center pl-5 z-50">
-                                        <div @click.stop.prevent="addToPlaylist(index)"
-                                            class="h-[30px] w-[30px] flex justify-center items-center rounded-full  opacity-0 group-hover:opacity-100 transition-colors"
-                                            :class="{ 'text-orange-500': playlist[index].isAddToPlaylist, 'text-white': !playlist[index].isAddToPlaylist }">
-                                            <font-awesome-icon icon="fa-solid fa-plus" size="lg" />
-                                        </div>
-                                    </div>
-
-                                    <div class="absolute top-0 right-0 h-full flex items-center pr-5 z-50">
-                                        <div @click.stop.prevent="likePlaylist(index)"
-                                            class="h-[30px] w-[30px] flex justify-center items-center rounded-full  opacity-0 group-hover:opacity-100 transition-colors"
-                                            :class="{ 'text-orange-500': playlist[index].isLike, 'text-white': !playlist[index].isLike }">
-                                            <font-awesome-icon icon="fa-solid fa-heart" size="lg" />
-                                        </div>
-                                    </div>
-                                </a>
-
-                            </div>
-                            <div class="pt-[4px] flex justify-center items-center">
-                                <a class="text-[16px] text-gray-600" href="#">{{ item.name }}</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="pt-4 mb-16">
                 <div class="text-left font-semibold">
-                    NEW RELEASE HOT TODAY
+                    RANDOM SONG NOW
                 </div>
                 <div class="w-full h-auto mt-4">
                     <div class="grid grid-cols-3  ">
-                        <!-- <div class=" w-1/3 p-2 max-h-[360px]"> -->
-                        <!--  -->
-                        <div ref="menuContainer" v-for="(item, index) in songs" :key="item.id"
+                        <div ref="menuContainer" v-for="(item, index) in songs" :key="index"
                             class="flex items-center p-2 hover:bg-gray-100">
                             <div class="h-[70px] aspect-square relative xl:h-[70px] lg:h-[60px] md:h-[50px]">
                                 <a href="#">
-                                    <img class=" rounded-md w-full h-full object-cover" :src="item.image" alt="Artwork">
+                                    <img class=" rounded-md w-full h-full object-cover aspect-square"
+                                        :src="item.artwork || defaultImage" alt="Artwork">
                                     <div
                                         class="absolute inset-0 flex justify-center items-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                                         <font-awesome-icon icon="fa-solid fa-play" size="lg" />
@@ -184,17 +136,114 @@
                                 </a>
                             </div>
                             <div class="pl-4 flex-grow text-left w-24">
-                                <div
+                                <div @click="goToTrack(item.id)"
                                     class="font-semibold text-black hover:text-gray-600 max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
-                                    <a href="#">
-                                        {{ item.name }}
-                                    </a>
+
+                                    {{ item.title }}
+
                                 </div>
                                 <div class="flex max-w-[165px]  text-ellipsis whitespace-nowrap overflow-hidden">
-                                    <div v-for="(artist, index) in item.artist" :key="artist.id"
-                                        class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap ">
-                                        <a href="#">{{ index < item.artist.length - 1 ? artist.name + ' ,' : artist.name
-                                        }}</a>
+                                    <div @click="gotoProfile(item.User.id)"
+                                        class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap cursor-pointer ">
+                                        {{ item.User.username }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 relative ">
+                                <div @click="optionSong(index)"
+                                    class=" w-[32px] h-[32px] rounded-full border-[1px] flex justify-center items-center cursor-pointer hover:bg-gray-200">
+                                    <font-awesome-icon icon="fa-solid fa-ellipsis" />
+                                </div>
+                                <div v-if="openMenuIndex === index"
+                                    class="absolute w-[280px] h-[auto] bg-[#9057e0] rounded-md left-0 bottom-8 block z-10">
+                                    <ul>
+                                        <div class="mb-5 border-b-white border-b-[1px]">
+                                            <div class="flex p-2 ">
+                                                <div class="basis-1/4">
+                                                    <img class=" rounded-md w-full h-full object-cover"
+                                                        :src="item.image" alt="Artwork">
+                                                </div>
+                                                <div class="basis-3/4 relative ">
+                                                    <div class="absolute text-left pl-2 pt-2 left-0 top-0">
+                                                        <div class="font-semibold text-white hover:text-purple-400">
+                                                            <a href="#">
+                                                                {{ item.name }}
+                                                            </a>
+                                                        </div>
+                                                        <div
+                                                            class="flex text-ellipsis whitespace-nowrap overflow-hidden max-w-[190px]">
+                                                            <div v-for="(artist, index) in item.artist" :key="artist.id"
+                                                                class=" text-white text-sm hover:underline ">
+                                                                <a href="#">
+                                                                    {{ artist.name }}<span
+                                                                        v-if="index < item.artist.length - 1">,</span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <li class="text-left"><a href="#"
+                                                class="flex px-4 py-2 text-white hover:opacity-40">
+                                                <div class="basis-1/6">
+                                                    <font-awesome-icon icon="fa-solid fa-plus" />
+                                                </div>
+                                                Add to Playlist
+                                            </a></li>
+                                        <li class="text-left"><a href="#"
+                                                class="flex px-4 py-2 text-white hover:opacity-40">
+                                                <div class="basis-1/6">
+                                                    <font-awesome-icon icon="fa-solid fa-forward-step" class="pr-2" />
+                                                </div>
+                                                Play Next
+                                            </a></li>
+                                        <li class="text-left"><a href="#"
+                                                class="flex px-4 py-2 text-white hover:opacity-40">
+                                                <div class="basis-1/6">
+                                                    <font-awesome-icon icon="fa-regular fa-heart" class="pr-2" />
+                                                </div>
+                                                Like
+                                            </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-4 mb-16">
+                <div class="text-left font-semibold">
+                    RECOMMENDED FOR YOU
+                </div>
+                <div class="w-full h-auto mt-4">
+                    <div class="grid grid-cols-3  ">
+                        <div ref="menuContainer" v-for="(item, index) in similarSong" :key="index"
+                            class="flex items-center p-2 hover:bg-gray-100">
+                            <div class="h-[70px] aspect-square relative xl:h-[70px] lg:h-[60px] md:h-[50px]">
+                                <a href="#">
+                                    <img class=" rounded-md w-full h-full object-cover aspect-square"
+                                        :src="item.artwork || defaultImage" alt="Artwork">
+                                    <div
+                                        class="absolute inset-0 flex justify-center items-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                                        <font-awesome-icon icon="fa-solid fa-play" size="lg" />
+                                    </div>
+                                </a>
+                            </div> 
+                            <div class="pl-4 flex-grow text-left w-24">
+                                <div @click="goToTrack(item.id)"
+                                    class="font-semibold text-black hover:text-gray-600 max-w-[165px] text-ellipsis whitespace-nowrap overflow-hidden">
+
+                                    {{ item.title }}
+
+                                </div>
+                                <div class="flex max-w-[165px]  text-ellipsis whitespace-nowrap overflow-hidden">
+                                    <div @click="gotoProfile(item.User.id)"
+                                        class="text-gray-600 text-sm hover:underline text-ellipsis whitespace-nowrap cursor-pointer ">
+                                        {{ item.User.username }}
                                     </div>
                                 </div>
                             </div>
@@ -266,23 +315,20 @@
             </div>
         </div>
     </div>
-    <FooterPage>
-
-    </FooterPage>
 </template>
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import FooterPage from '@/components/Footer.vue';
 import HeaderPage from '@/components/Header.vue';
-import { state } from '@/js/state';
+import { usePlayerStore } from '@/js/state';
 
 export default {
     name: 'HomePage',
 
     setup() {
+        const playerStore = usePlayerStore();
         return {
-            state,
+            playerStore,
 
         }
     },
@@ -290,17 +336,22 @@ export default {
         document.addEventListener("click", this.clickOutside);
         window.addEventListener("resize", this.updateOffsetBasedOnScreen);
 
+        console.log('User:', this.playerStore.user);
         try {
             // Đợi hàm async hoàn thành trước khi chạy tiếp
             await this.getRandomUser();
             await this.getAllFollower();
+            await this.getRandomSong();
+            await this.getLastestUpload();
+            await this.getSimilarSong();
         } catch (error) {
             console.error("Lỗi trong mounted:", error);
         }
     },
     data() {
         return {
-
+            defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg', 
+            defaultArtwork: 'http://localhost:8080/images/artwork/pixelpig.jpg',
             cardWidth: 180,
             openMenuIndex: null,
             idUser: [],
@@ -310,115 +361,7 @@ export default {
             followers: null,
             followState: 'Follow',
             isUserPressNextOrPre: false,
-            songs: [
-                {
-                    id: 1,
-                    name: "Cái đẹp",
-                    artist: [
-                        { id: 1, name: "tlinh" },
-                        { id: 2, name: "Pháo" },
-                        { id: 3, name: "Pháp Kiều" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg'),
-                },
-                {
-                    id: 2,
-                    name: "Ngã tư không đèn",
-                    artist: [
-                        { id: 4, name: "Den Vau" },
-                        { id: 5, name: "JustaTee" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 3,
-                    name: "Tình yêu bận bịu",
-                    artist: [
-                        { id: 6, name: "Hoaprox" },
-                        { id: 7, name: "Masew" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 4,
-                    name: "Vùng ký ức",
-                    artist: [
-                        { id: 8, name: "Đức Phúc" },
-                        { id: 9, name: "ERIK" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 5,
-                    name: "Hành trình cuối",
-                    artist: [
-                        { id: 10, name: "Sơn Tùng MTP" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 6,
-                    name: "Nhớ mùa thu Hà Nội",
-                    artist: [
-                        { id: 11, name: "Hà Anh Tuấn" },
-                        { id: 12, name: "Mỹ Tâm" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 7,
-                    name: "Thời thanh xuân đã qua",
-                    artist: [
-                        { id: 13, name: "Trịnh Thăng Bình" },
-                        { id: 14, name: "Bảo Anh" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 8,
-                    name: "Hoa nở không màu",
-                    artist: [
-                        { id: 15, name: "Hoài Lâm" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 9,
-                    name: "Màu nước mắt",
-                    artist: [
-                        { id: 16, name: "Nguyễn Trần Trung Quân" },
-                        { id: 17, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 10,
-                    name: "Ngày khác lạ",
-                    artist: [
-                        { id: 18, name: "Phương Ly" },
-                        { id: 19, name: "JustaTee" },
-                        { id: 20, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 11,
-                    name: "Đi về nhà",
-                    artist: [
-                        { id: 21, name: "JustaTee" },
-                        { id: 22, name: "Den Vau" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-                {
-                    id: 12,
-                    name: "Bỏ lỡ một người",
-                    artist: [
-                        { id: 23, name: "Hòa Minzy" }
-                    ],
-                    image: require('@/image/artwork/3107 artwork.jpg')
-                },
-            ],
+            songs: null,
             artist: [],
             items: [
                 {
@@ -464,54 +407,49 @@ export default {
                     isLike: false,
                 },
             ],
-            playlist: [
-                {
-                    id: 1,
-                    name: 'EDM Now',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/edm-now.jpg')
-                },
-                {
-                    id: 2,
-                    name: 'K-Pop Remix',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/k-pop-rmx.jpg')
-                },
-                {
-                    id: 3,
-                    name: 'Nhạc Tết thịnh hành',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-tet-th.jpg')
-                },
-                {
-                    id: 4,
-                    name: 'Nhạc Tết mới nhất',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-tet.jpg')
-                },
-                {
-                    id: 5,
-                    name: 'Nhạc Xuân Remix',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-xuan-rmx.jpg')
-                },
-                {
-                    id: 6,
-                    name: 'Nhạc Xuân sôi động',
-                    isAddToPlaylist: false,
-                    isLike: false,
-                    image: require('@/image/playlist-artwork/nhac-xuan-sd.jpg')
-                },
-            ],
             queryString: [],
+            lastestUpload: [],
+            similarSong: [],
         }
     },
+
     methods: {
+        async getSimilarSong() {
+            try {
+                const res = await apiClient.get(`/song/getSimilarSongs`,{params: {song_id: this.playerStore.currentSong.id || 1,user_id: this.playerStore.idUserLogin || 1}});
+                this.similarSong = [...res.data.data];
+                console.log('similarSong: ', this.similarSong); 
+            }
+            catch (error) {
+                console.error("Lỗi:", error.response?.data);
+            }
+        },
+        async getLastestUpload() {
+            try {
+                const res = await apiClient.get(`/song/getLastestSong/${this.playerStore.idUserLogin}`);
+                this.lastestUpload = [...res.data.data];
+                console.log('lastestUpload: ', this.lastestUpload);
+            }
+            catch (error) {
+                console.error("Lỗi:", error.response?.data);
+            }
+        },
+        goToAllTracks() {
+            this.$router.push({ name: 'TracksPage',params: { id: this.playerStore.idUserLogin} });
+        },
+        goToTrack(id) {
+            this.$router.push({ name: 'TrackInfoPage', params: { id } });
+        },
+        async getRandomSong() {
+            try {
+                const res = await apiClient.get('/song/getRandomSong');
+                this.songs = [...res.data.data];
+                console.log('songs: ', this.songs);
+            }
+            catch (error) {
+                console.error("Lỗi:", error.response?.data);
+            }
+        },
         async getRandomUser() {
             try {
                 const res = await apiClient.get('/users/getRandomUser');
@@ -540,18 +478,18 @@ export default {
                 });
 
                 this.followers = res.data.data;
-                console.log('followers: ',this.followers);
+                console.log('followers: ', this.followers);
             } catch (error) {
                 console.error("Lỗi:", error.response?.data);
             }
         },
-        gotoProfile(id){
-            this.$router.push({name: 'ProfilePage', params: { id }});
+        gotoProfile(id) {
+            this.$router.push({ name: 'ProfilePage', params: { id } });
         },
         PlayControlToggle() {
-            state.isPlaying = !state.isPlaying;
+            this.playerStore.isPlaying = !this.playerStore.isPlaying;
             const rotateTonearms = document.querySelector('.rotate');
-            if (state.isPlaying) {
+            if (this.playerStore.isPlaying) {
                 rotateTonearms.classList.add('rotate-active');
             }
             else {
@@ -628,7 +566,6 @@ export default {
     },
     components: {
         HeaderPage,
-        FooterPage,
     },
     beforeUnmount() {
         document.removeEventListener("click", this.clickOutside);

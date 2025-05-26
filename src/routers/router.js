@@ -15,118 +15,119 @@ import SearchResult from "@/views/SearchResult.vue";
 import TracksInfo from "@/views/TracksInfo.vue";
 import Discover from "@/views/Discover.vue";
 import Message from "@/views/Message.vue";
+import { usePlayerStore } from "@/js/state";
 
 const routes = [
     {
         path: '/home',
         name: 'HomePage',
         component: Home,
-        meta: {title: 'Musica'}
+        meta: { title: 'Musica' }
     },
     {
         path: '/upload',
         name: 'UploadPage',
         component: Upload,
-        meta: {title: 'Upload'},        
+        meta: { title: 'Upload' },
 
     },
     {
         path: '/library',
         name: 'LibraryPage',
         component: Library,
-        meta: {title: 'Library'},        
+        meta: { title: 'Library' },
 
     },
     {
         path: '/chart',
         name: 'ChartPage',
         component: Chart,
-        meta: {title: 'Chart'},        
+        meta: { title: 'Chart' },
 
     },
     {
         path: '/search',
         name: 'SearchResultPage',
         component: SearchResult,
-        meta: {title: 'Search'},        
+        meta: { title: 'Search' },
 
     },
     {
-        path: '/followers',
+        path: '/followers/:id',
         name: 'FollowersPage',
         component: Followers,
-        meta: {title: 'Followers'},        
+        meta: { title: 'Followers' },
 
     },
     {
-        path: '/following',
+        path: '/following/:id',
         name: 'FollowingPage',
         component: Following,
-        meta: {title: 'Following'},        
+        meta: { title: 'Following' },
 
     },
     {
         path: '/insights',
         name: 'InsightsPage',
         component: Insights,
-        meta: {title: 'Insights'},        
+        meta: { title: 'Insights' },
 
     },
     {
         path: '/likes',
         name: 'LikesPage',
         component: Likes,
-        meta: {title: 'Likes'},        
+        meta: { title: 'Likes' },
 
     },
     {
         path: '/tracks',
         name: 'TracksPage',
         component: Tracks,
-        meta: {title: 'Tracks'},        
+        meta: { title: 'Tracks' },
 
     },
     {
         path: '/message/:id?',
         name: 'MessagePage',
         component: Message,
-        meta: {title: 'Message'},     
-        props: true      
+        meta: { title: 'Message' },
+        props: true
 
     },
     {
         path: '/profile/:id',
         name: 'ProfilePage',
         component: Profile,
-        meta: {title: 'Profile'},        
+        meta: { title: 'Profile' },
 
     },
     {
         path: '/trackinfo/:id',
         name: 'TrackInfoPage',
         component: TracksInfo,
-        meta: {title: 'TrackInfoPage'},        
+        meta: { title: 'TrackInfoPage' },
 
     },
     {
         path: '/achievements',
         name: 'AchievementsPage',
         component: Achievements,
-        meta: {title: 'Achievements'},        
+        meta: { title: 'Achievements' },
 
     },
     {
         path: '/discover',
         name: 'DiscoverPage',
         component: Discover,
-        meta: {title: 'Discover'},        
+        meta: { title: 'Discover' },
 
     },
     {
         path: '/upload/infomation',
         name: 'InfoSongUpload',
         component: InfoSongUpload,
-        meta: {title: 'Upload'},
+        meta: { title: 'Upload' },
     },
     {
         path: '/',
@@ -139,5 +140,14 @@ const router = createRouter({
     history: createWebHistory(),
     routes
 });
+
+router.beforeEach((to, from, next) => {
+    const userStore = usePlayerStore();
+    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+        next({ name: "Discover" });
+    } else {
+        next();
+    }
+})
 
 export default router;

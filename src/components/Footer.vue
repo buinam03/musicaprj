@@ -3,14 +3,14 @@
             <div
                 class="w-container mx-auto h-full flex justify-center items-center xl:w-[1200px] lg:w-[960px]  md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="w-1/6 flex justify-center items-center xl:text-[16px] lg:text-[14px] md:text-[12px]">
-                    <div class=" w-1/5">
+                    <div @click="previousSong" class=" w-1/5">
                         <font-awesome-icon icon="fa-solid fa-backward-step" size="lg" />
                     </div>
-                    <div class=" w-1/5" @click="PlayControlToggle">
-                        <font-awesome-icon v-if="state.isPlaying" icon="fa-solid fa-pause" size="lg" />
+                    <div @keyup.space="PlayControlToggle" class=" w-1/5" @click="PlayControlToggle" tabindex="0">
+                        <font-awesome-icon v-if="playerStore.isPlaying" icon="fa-solid fa-pause" size="lg" />
                         <font-awesome-icon v-else icon="fa-solid fa-play" size="lg" />
                     </div>
-                    <div class=" w-1/5">
+                    <div @click="nextSong" class=" w-1/5">
                         <font-awesome-icon icon="fa-solid fa-forward-step" size="lg" />
                     </div>
                     <div class="mx-2 w-1/5" :class="{ 'text-white': isShuffleToggle, '': !isShuffleToggle }"
@@ -24,26 +24,27 @@
                     </div>
                 </div>
                 <div class="pl-4 h-full w-2/3 flex justify-center items-center xl:scale-100 lg:scale-90 md:scale-90">
-                    <div class="w-1/12 text-white text-xs">{{ formatDuration(state.currentTime) }}</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentTime) }}</div>
                     <div class="relative w-3/6 h-full ">
 
                         <div class="absolute top-1/2 transform -translate-y-1/2 translate-x-0 w-full">
                             <input :style="progressPercentage" @input="updateProgressPlay($event.target.value)"
-                                v-model="state.currentTime" min="0" :max="state.currentSong.duration" step="0.1"
-                                type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
+                                v-model="playerStore.currentTime" min="0" :max="playerStore.currentSong.duration"
+                                step="0.1" type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
                         </div>
                     </div>
-                    <div class="w-1/12 text-white text-xs">{{ formatDuration(state.currentSong.duration) }}</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentSong.duration) }}</div>
                     <div class="w-1/3 flex justify-center items-center relative">
-                        <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': state.volume != 0 }">
-                            <font-awesome-icon v-if="state.volume === 0" icon="fa-solid fa-volume-xmark" />
+                        <div @click="VolumeToggle" class="cursor-pointer"
+                            :class="{ 'hidden': playerStore.volume != 0 }">
+                            <font-awesome-icon v-if="playerStore.volume === 0" icon="fa-solid fa-volume-xmark" />
                         </div>
                         <div @click="VolumeToggle" class="cursor-pointer" :class="{ 'hidden': volumeState != 2 }">
-                            <font-awesome-icon v-if="state.volume > 0" icon="fa-solid fa-volume-high" />
+                            <font-awesome-icon v-if="playerStore.volume > 0" icon="fa-solid fa-volume-high" />
                         </div>
 
                         <div class="pl-2">
-                            <input v-model="state.volume" @input="updateVolume($event.target.value)" type="range"
+                            <input v-model="playerStore.volume" @input="updateVolume($event.target.value)" type="range"
                                 min="0" max="1" step="0.01" class="h-1 block mx-auto cursor-pointer progressVolume">
 
                         </div>
@@ -54,16 +55,16 @@
                     <div class="h-16 w-16 flex items-center justify-center flex-shrink-0  xl:h-16 lg:h-12 md:h-10">
                         <a class="flex items-center justify-center xl:h-16 lg:h-12 md:h-10" href="#"><img
                                 class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded"
-                                :src="state.currentSong.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
+                                :src="playerStore.currentSong.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
                                 alt=""></a>
                     </div>
                     <div
-                        class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[16px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
+                        class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[14px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
                         <div class="text-white text-left text-ellipsis whitespace-nowrap overflow-hidden ">
-                            <a href="#">{{ state.currentSong.title }}</a>
+                            <a href="#">{{ playerStore.currentSong.title || 'Pick a song to set the vibe!' }}</a>
                         </div>
                         <div class="text-white text-left text-xs ">
-                            <a href="#" class="">{{ state.currentSong.username }}</a>
+                            <a href="#" class="">{{ playerStore.currentSong.username || 'The DJ is missing!' }}</a>
                         </div>
                     </div>
                 </div>
@@ -82,13 +83,13 @@
                                 <div class="pl-4 pt-4 pb-4 text-base text-black underline">
                                     Next Up
                                 </div>
-                                <div
+                                <div @click="removeAllFromPlaylist"
                                     class="px-4 py-2 border-[1px] border-gray-400 mr-4 cursor-pointer text-[12px] text-gray-500 rounded-sm hover:border-gray-600 hover:text-orange-500 ">
                                     Clear</div>
                             </div>
 
                             <div class="overflow-y-auto h-[calc(100%)]">
-                                <div v-for="(item, index) in state.playlist" :key="item.id" draggable="true"
+                                <div v-for="(item, index) in playerStore.playlist" :key="item.id" draggable="true"
                                     @dragstart="onDragStart(index)" @dragover="onDragOver($event)" @drop="onDrop(index)"
                                     class="h-14 w-full mt-2 flex items-center justify-center  hover:bg-gray-200 ">
                                     <div class="w-full h-14 rounded-sm flex items-center  ">
@@ -96,7 +97,7 @@
                                             <font-awesome-icon icon="fa-solid fa-grip" />
                                         </div>
                                         <div class="ml-2 w-14 h-14 flex-shrink-0 flex justify-center items-center">
-                                            <img :src="item.artwork ||'http://localhost:8080/images/other/Unknown_person.jpg'"
+                                            <img :src="item.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
                                                 class="aspect-square mx-auto w-full h-full object-cover" alt="">
                                         </div>
                                         <div class="text-left pl-2 w-10/12 ">
@@ -117,7 +118,7 @@
                                                 :class="{ 'text-orange-500': item.isLike }" @click="LikeToggle(index)">
                                                 <font-awesome-icon icon="fa-solid fa-heart" />
                                             </div>
-                                            <div @click="removeSongFromPlaylist(index,item)"
+                                            <div @click="removeSongFromPlaylist(index)"
                                                 class="pl-3 cursor-pointer opacity-50 text-gray-500">
                                                 <font-awesome-icon icon="fa-solid fa-xmark" />
                                             </div>
@@ -134,12 +135,13 @@
     </template>
 
 <script>
-import { playerActions, state } from '@/js/state';
+import { usePlayerStore } from '@/js/state';
 export default {
     name: 'FooterPage',
     setup() {
+        const playerStore = usePlayerStore();
         return {
-            state,
+            playerStore,
         }
     },
     data() {
@@ -154,11 +156,17 @@ export default {
             volumeVal: 70,
             savedVolume: 70,
             playVal: 0,
-            audio: state.currentSong.path,
+            audio: this.playerStore.currentSong.path,
 
         }
     },
     watch: {
+        commitVolume() {
+            this.playerStore.volume = this.savedVolume.value;
+            if (this.playerStore.audio) {
+                this.playerStore.audio.volume = this.savedVolume.value;
+            }
+        },
         volumeVal(value) {
             const validValue = Math.max(0, Math.min(value, 100));
             if (value < 1) {
@@ -178,14 +186,23 @@ export default {
         this.updateVolume();
     },
     methods: {
+        nextSong() {
+            this.playerStore.next();
+        },
+        previousSong() {
+            this.playerStore.previous();
+        },
         formatDuration(duration) {
             const roundedSeconds = Math.round(duration);
             const min = Math.floor(duration / 60);
             const sec = roundedSeconds % 60;
             return `${min}:${sec.toString().padStart(2, "0")}`;
         },
-        removeSongFromPlaylist(item) {
-            playerActions.removeFromPlaylist(item)
+        removeSongFromPlaylist(index) {
+            this.playerStore.removeFromPlaylist(index)
+        },
+        removeAllFromPlaylist(){
+            this.playerStore.removeAllFromPlaylist();
         },
         onDragStart(index) {
             this.dragIndex = index;
@@ -203,28 +220,17 @@ export default {
             this.dragIndex = null;
         },
         PlayControlToggle() {
-            if (state.isPlaying) {
-                state.audio.pause();
-                state.isPlaying = false;
+            // Kiểm tra xem có bài hát đang phát không
+            if (!this.playerStore.audio) {
+                console.warn('No song selected to play');
+                return;
             }
-            else if (!state.isPlaying) {
-                state.audio.play();
-                state.isPlaying = true;
-            }
-            else {
-                if (state.audio) {
-                    state.audio.pause();
-                }
 
-                // state.audio = new Audio(songUrl); 
-                // state.audio.play(); 
-                // state.currentPlayIndex = index;
-                state.isPlaying = true;
-
-                state.audio.onended = () => {
-                    state.isPlaying = false;
-                    // state.currentPlayIndex = null;
-                };
+            // Nếu đang phát thì pause, nếu đang pause thì play
+            if (this.playerStore.isPlaying) {
+                this.playerStore.pause();
+            } else {
+                this.playerStore.resume();
             }
         },
         nextPlaylist() {
@@ -250,29 +256,35 @@ export default {
         },
         updateVolume(value = this.volumeVal) {
             const v = Math.max(0, Math.min(value, 1));
-            state.volume = v;
-            if (state.audio) {
-                state.audio.volume = v;
+            console.log("Volume to set:", v);
+
+            this.playerStore.volume = v;
+
+            if (this.playerStore.audio) {
+                this.playerStore.audio.volume = v;
+                console.log("Audio volume set to:", this.playerStore.audio.volume);
+            } else {
+                console.error("Audio object not initialized.");
             }
         },
 
         updateProgressPlay(value = this.playVal) {
 
-            if (!state.currentSong || !state.currentSong.duration) return;
+            if (!this.playerStore.currentSong || !this.playerStore.currentSong.duration) return;
 
-            const validValue = Math.max(0, Math.min(value, state.currentSong.duration));
+            const validValue = Math.max(0, Math.min(value, this.playerStore.currentSong.duration));
 
-            if (state.audio) {
-                state.audio.currentTime = validValue;
-                state.currentTime = validValue;
+            if (this.playerStore.audio) {
+                this.playerStore.audio.currentTime = validValue;
+                this.playerStore.currentTime = validValue;
             }
         }
     },
     computed: {
         progressPercentage() {
             const percentage =
-                state.currentSong.duration && state.currentTime
-                    ? (state.currentTime / state.currentSong.duration) * 100
+                this.playerStore.currentSong.duration && this.playerStore.currentTime
+                    ? (this.playerStore.currentTime / this.playerStore.currentSong.duration) * 100
                     : 0;
 
             return {
@@ -298,7 +310,7 @@ export default {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 4px;    
+    height: 4px;
     background: linear-gradient(to right, rgb(253, 224, 71) 0%, rgb(253, 224, 71) var(--progress, 0%), #E4D2CC var(--progress, 0%), #E4D2CC 100%);
     border-radius: 4px;
     outline: none;

@@ -121,13 +121,11 @@
                 </div>
             </div>
         </div>
-        <Footer></Footer>
     </div>
 </template>
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import Footer from '@/components/Footer.vue';
 import Header from '@/components/Header.vue';
 
 export default {
@@ -171,9 +169,9 @@ export default {
     },
     components: {
         Header,
-        Footer
     },
     methods: {
+        
         handleFileUpload(event) {
             const file = event.target.files[0]; // Lấy file đầu tiên
             if (file) {
