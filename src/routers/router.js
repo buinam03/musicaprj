@@ -144,7 +144,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const userStore = usePlayerStore();
     if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-        next({ name: "Discover" });
+        next({ name: "DiscoverPage" });
     } else {
         next();
     }

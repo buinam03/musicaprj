@@ -10,11 +10,17 @@
                         <div class="font-semibold pb-10">
                             Upload your best music here
                         </div>
-                        <button type="button" class="btn-warning hover:bg-orange-500 duration-300 hover:scale-110">
-                            <font-awesome-icon icon="fa-solid fa-upload" />
-                            Choose file to upload
+                        <button type="button" class="btn-warning hover:bg-orange-500 duration-300 hover:scale-110" :disabled="isUploading">
+                            <div v-if="!isUploading">
+                                <font-awesome-icon icon="fa-solid fa-upload" />
+                                Choose file to upload
+                            </div>
+                            <div v-else class="flex items-center justify-center">
+                                <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin mr-2" />
+                                Uploading...
+                            </div>
                             <input type="file" @change="handleFileUpload" id="fileUpload"
-                                accept=".wav,.mp3,.flac,.alac,.aiff">
+                                accept=".wav,.mp3,.flac,.alac,.aiff" :disabled="isUploading">
                         </button>
                         <div class="pt-20 text-xs">
                             Provide FLAC, WAV, ALAC, or AIFF for highest audio quality
@@ -37,6 +43,7 @@ export default {
     data() {
         return {
             fileUpload: null,
+            isUploading: false,
         }
     },
     components: {
@@ -67,6 +74,7 @@ export default {
             }
             console.log(file);
 
+            this.isUploading = true;
 
             try {
                 const duration = await this.getAudioDuration(file);
@@ -77,20 +85,16 @@ export default {
                 formData.append("upload_preset", "ml_default");
                 formData.append("resource_type", "video"); 
 
-
                 const response = await axios.post(
                     "https://api.cloudinary.com/v1_1/dxgqkbchh/video/upload",
                     formData
                 );
 
-
                 const fileUrl = response.data.secure_url;
                 const fileName = file.name;
 
                 console.log(response.status);
-
                 console.log("Uploaded File URL:", fileUrl);
-
 
                 this.$router.push({
                     name: 'InfoSongUpload',
@@ -103,6 +107,8 @@ export default {
             } catch (error) {
                 console.error("Error uploading file:", error);
                 alert("Upload failed. Please try again.");
+            } finally {
+                this.isUploading = false;
             }
         },
     }
@@ -121,7 +127,12 @@ export default {
     border: 0;
     transition: 0.2s;
     overflow: hidden;
+}
 
+.btn-warning:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
 }
 
 @media (min-width: 1024px) {
@@ -143,7 +154,10 @@ export default {
     height: 100%;
     left: 0%;
     top: 0%;
-    /* transform: scale(3); */
     opacity: 0;
+}
+
+.btn-warning input[type="file"]:disabled {
+    cursor: not-allowed;
 }
 </style>

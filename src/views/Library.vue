@@ -8,13 +8,13 @@
                 <div class="text-left font-semibold text-2xl flex justify-center items-center">
                     Likes
                 </div>
-                <div class="whitespace-nowrap text-gray-500 cursor-pointer">
+                <div @click="gotoLike" class="whitespace-nowrap text-gray-500 cursor-pointer">
                     All Likes
                     <font-awesome-icon icon="fa-solid fa-chevron-right" />
                 </div>
             </div>
             <div class="mt-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
-                <div class="flex flex-wrap w-full h-auto ">
+                <div v-if="songs && songs.length > 0" class="flex flex-wrap w-full h-auto ">
                     <div v-for="(item, index) in songs.slice(0, 12)" :key="index"
                         class="pr-4 h-[250px] w-1/6 xl:h-[250px] lg:h-[200px] md:h-[150px]">
                         <div @click="playToggle(index, item.Song)"
@@ -42,18 +42,21 @@
                         </div>
                     </div>
                 </div>
+                <div v-else class="h-[160px] w-full flex justify-center items-center py-8 bg-gray-50 rounded-xl">
+                     <div class="text-[20px] text-gray-500">You haven't liked any tracks yet.</div>
+                </div>
             </div>
             <div
                 class="flex justify-between items-center w-full border-b-[1px] p-4 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
                 <div class="text-left font-semibold text-2xl flex justify-center items-center">
                     Following
                 </div>
-                <div class="whitespace-nowrap text-gray-500 cursor-pointer">
+                <div @click="gotoFollowing" class="whitespace-nowrap text-gray-500 cursor-pointer">
                     All Following
                     <font-awesome-icon icon="fa-solid fa-chevron-right" />
                 </div>
             </div>
-            <div
+            <div v-if="followingUsers && followingUsers.length > 0"
                 class="grid grid-cols-5 gap-4 mb-20 h-auto xl:w-[1200px] xl:grid-cols-5 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:w-[700px] md:grid-cols-3 xl:mx-auto lg:mx-auto md:mx-auto">
                 <div @mouseover="isHoverUser = index" @mouseleave="isHoverUser = null"
                     v-for="(user, index) in followingUsers.slice(0, 5)" :key="index"
@@ -69,11 +72,14 @@
                             class="w-[120px] max-w-[120px] h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm "
                             :class="user.isFollowed ? 'border-orange-500 text-orange-500' : 'border-gray-500 text-gray-500'">
                             <font-awesome-icon
-                                :icon="user.isFollowed   ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'" />
+                                :icon="user.isFollowed ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'" />
                             {{ user.isFollowed ? 'Following' : 'Follow' }}
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-else class="h-[160px] w-full flex justify-center items-center py-8 bg-gray-50 rounded-xl mb-20">
+                 <div class="text-[20px] text-gray-500">You aren't following anyone yet.</div>
             </div>
         </div>
 
@@ -107,7 +113,12 @@ export default {
         this.fetchFollowing();
     },
     methods: {
-        
+        gotoLike(){
+            this.$router.push({name : 'LikesPage'});
+        },
+        gotoFollowing(){
+            this.$router.push({path: '/following/' + this.playerStore.idUserLogin})
+        },
         playToggle(index, song) {
             const playerStore = usePlayerStore();
             console.log('Song data:', song);

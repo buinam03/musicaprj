@@ -49,9 +49,16 @@
 
 <script>
 import Header from '@/components/Header.vue';
-
+import { usePlayerStore } from '@/js/state';
 export default {
     name: 'AchievementsPage',
+    setup() {
+
+        const playerStore = usePlayerStore();
+        return {
+            playerStore,
+        }
+    },
     data() {
         return {
             selectArchievement: [null, null, null, null],
@@ -117,10 +124,10 @@ export default {
     },
     methods: {
         saveChanges() {
-            this.$router.push({ path: '/profile' ,params: {}});
+            this.$router.push({ path: `/profile/${this.playerStore.idUserLogin}` });
         },
         cancelChanges() {
-            this.$router.push({ path: '/profile' })
+            this.$router.push({ path: `/profile/${this.playerStore.idUserLogin}` });
         },
         addArchievementToDisplay(item) {
 

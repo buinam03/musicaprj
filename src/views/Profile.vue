@@ -25,8 +25,6 @@
                         class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
                         <div  class="bg-white rounded-lg shadow-xl w-1/3 h-1/2 p-4">
                             <h2 class="text-lg font-semibold mb-4">Change profile picture</h2>
-
-                            <!-- Hiển thị ảnh đã chọn -->
                             <div class="relative flex justify-center items-center">
                                 <img :src="profile_picture_url || 'http://localhost:8080/images/other/Unknown_person.jpg'"
                                     alt="Preview" class="w-72 h-72 object-cover rounded-full border" />
@@ -63,7 +61,6 @@
                         <div class="bg-white rounded-lg shadow-xl w-2/3 h-1/2 p-4">
                             <h2 class="text-lg font-semibold mb-4">Change header picture</h2>
 
-                            <!-- Hiển thị ảnh đã chọn -->
                             <div class="relative flex justify-center items-center bg-white">
                                 <img :src="header_picture_url || 'http://localhost:8080/images/other/header_default.png'"
                                     alt="Preview" class="w-full h-72 object-cover border cursor-pointer" />
@@ -71,7 +68,6 @@
                                     class="absolute w-full h-full inset-0 opacity-0 cursor-pointer" />
                             </div>
 
-                            <!-- Nút điều khiển -->
                             <div class="flex justify-end gap-4 mt-6">
                                 <button class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" @click="cancelImage">
                                     Cancel
@@ -97,7 +93,7 @@
                                 <font-awesome-icon icon="fa-solid fa-check" size="xs" />
                             </div>
                         </div>
-                        <div @click="gotoFollower" v-if="countFollower" class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
+                        <div @click="gotoFollower" v-if="countFollower" class="cursor-pointer text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
                             {{ countFollower || 0 }} followers
                         </div>
                         <div @click="gotoFollower" v-else class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
@@ -110,32 +106,21 @@
                             <router-link class="" to="/following">0 following</router-link>
                         </div>
                         <div class="pt-1 flex">
-                            <div class="h-8 w-8 bg-blue-300 rounded-full mr-1">
-                                <img src="@/image/user-logo/martingarrix.jpg"
-                                    class="rounded-full w-full h-full object-cover" alt="">
-                            </div>
-                            <div class="h-8 w-8 bg-blue-300 rounded-full mr-1">
-                                <img src="@/image/user-logo/masew.jpg" class="rounded-full w-full h-full object-cover"
-                                    alt="">
-                            </div>
-                            <div class="h-8 w-8 bg-blue-300 rounded-full mr-1">
-                                <img src="@/image/user-logo/meo.jpg" class="rounded-full w-full h-full object-cover"
-                                    alt="">
-                            </div>
-                            <div class="h-8 w-8 bg-blue-300 rounded-full mr-1">
-                                <img src="@/image/user-logo/moritz-mentges-5MlBMYDsGBY-unsplash.jpg"
-                                    class="rounded-full w-full h-full object-cover" alt="">
+                            <div v-for="(picture, index) in firstFourFollowingPictures" :key="index"
+                                class="h-8 w-8 bg-blue-300 rounded-full mr-1">
+                                <img :src="picture"
+                                    class="rounded-full w-full h-full object-cover" alt="Following user profile picture">
                             </div>
                             <div
                                 class="h-8 w-8 rounded-full mr-1 flex justify-center items-center border-[2px] hover:bg-gray-200 cursor-pointer">
-                                <router-link class="" to="/following"><font-awesome-icon
+                                <router-link class="" :to="'/following/' + profileId"><font-awesome-icon
                                         icon="fa-solid fa-ellipsis" /></router-link>
                             </div>
 
                         </div>
                     </div>
                     <div v-if="isUserCurrent === true" class="h-full w-48 block ">
-                        <div class="h-8 w-auto">
+                        <!-- <div class="h-8 w-auto">
                             <div
                                 class="border-[1px] text-md font-extralight text-white bg-orange-500 rounded-[4px] cursor-pointer px-3 py-1 flex items-center justify-center hover:border-gray-400">
                                 <div class="pr-1">
@@ -143,10 +128,12 @@
                                 </div>
                                 Your Insights
                             </div>
-                        </div>
-                        <div class="h-8 w-auto mt-2">
+                        </div> -->
+                        <div class="h-8 w-auto">
                             <div @click="toggleEditProfile"
-                                class="border-[1px] text-md font-extralight text-gray-600 bg-white rounded-[4px] cursor-pointer px-3 py-1 flex items-center justify-center hover:border-gray-400">
+                                class="border-[1px] text-md font-extralight text-white bg-orange-500 rounded-[4px] cursor-pointer px-3 py-1 flex items-center justify-center hover:border-gray-400
+                                
+                                ">
                                 <div class="pr-1">
                                     <font-awesome-icon icon="fa-solid fa-pencil" />
                                 </div>
@@ -211,100 +198,111 @@
                     class="w-full h-auto text-left text-[30px] font-semibold xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Lastest Upload
                 </div>
-                <div v-for="(item, index) in lastestSong" :key="index"
-                    class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
-                    <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
-                        <img class="w-full h-full mx-auto rounded-sm object-cover " :src="item.artwork || defaultImage"
-                            alt="" />
-                    </div>
-                    <div class="w-full h-full flex justify-start items-center">
-                        <div class="w-1/2 h-1/2 flex justify-between items-center">
-                            <div class="text-left">
-                                <div
-                                    class="font-semibold text-lg hover:text-purple-500 w-[400px] text-ellipsis overflow-hidden whitespace-nowrap">
-                                    <a href="#">{{ item.title }}</a>
+                <div v-if="lastestSong && lastestSong.length > 0">
+                    <div v-for="(item, index) in lastestSong" :key="index"
+                        class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
+                        <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
+                            <img class="w-full h-full mx-auto rounded-sm object-cover " :src="item.artwork || defaultImage"
+                                alt="" />
+                        </div>
+                        <div class="w-full h-full flex justify-start items-center">
+                            <div class="w-1/2 h-1/2 flex justify-between items-center">
+                                <div class="text-left">
+                                    <div
+                                        class="font-semibold text-lg hover:text-purple-500 w-[400px] text-ellipsis overflow-hidden whitespace-nowrap">
+                                        <a href="#">{{ item.title }}</a>
+                                    </div>
+                                    <div
+                                        class="hover:underline hover:text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                        <a href="#">{{ item.User?.username || "Unknown Uploader" }}</a>
+                                    </div>
+                                    <div class="text-gray-500 text-sm mt-2">
+                                        <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
+                                        {{ item.SongDetail.plays }}
+                                    </div>
                                 </div>
-                                <div
-                                    class="hover:underline hover:text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">
-                                    <a href="#">{{ item.User?.username || "Unknown Uploader" }}</a>
-                                </div>
-                                <div class="text-gray-500 text-sm mt-2">
-                                    <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
-                                    {{ item.SongDetail.plays }}
+                                <div class="">
+                                    <div v-if="item.is_public === true"
+                                        class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Public</div>
+                                    <div v-if="item.is_public === false"
+                                        class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Private</div>
                                 </div>
                             </div>
-                            <div class="">
-                                <div v-if="item.is_public === true"
-                                    class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Public</div>
-                                <div v-if="item.is_public === false"
-                                    class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Private</div>
+                            <div class="w-1/2 h-full flex justify-end items-center">
+                                <div @click="togglePlay(index, item)"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon
+                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
+                                </div>
+                                <div @click="addToPlaylist(index,item)"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-plus" />
+                                </div>
+                                <div @click="editTrack()"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-pen" />
+                                </div>
                             </div>
                         </div>
-                        <div class="w-1/2 h-full flex justify-end items-center">
-                            <div @click="togglePlay(index, item)"
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon
-                                    :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
-                            </div>
-                            <div
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon icon="fa-solid fa-plus" />
-                            </div>
-                            <div
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon icon="fa-solid fa-pen" />
-                            </div>
-                        </div>
                     </div>
+                </div>
+                <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                    <div class="text-[20px] text-gray-500">{{ userById.username }} hasn't uploaded any songs yet.</div>
                 </div>
                 <div
                     class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Most-Listened Track
                 </div>
-                <div v-for="(item, index) in mostListenSong" :key="index" class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
-                    <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
-                        <img class="w-full h-full mx-auto rounded-sm object-cover "
-                            :src="item.artwork || defaultImage" alt="" />
-                    </div>
-                    <div class="w-full h-full flex justify-start items-center">
-                        <div class="w-1/2 h-1/2 flex justify-between items-center">
-                            <div class="text-left w-full">
-                                <div
-                                    class="font-semibold text-xl hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap w-full ">
-                                    {{ item.title }}
-                                </div>
-                                <div v-for="(item, index) in item.SongArtists" :key="index"
-                                    class="hover:underline hover:text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">
-                                    <a href="#">{{ item.User?.username || "Unknown Uploader" }}</a>
-                                </div>
-                                <div class="text-gray-500 text-sm mt-2">
-                                    <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
-                                    {{ item.SongDetail.plays }}
-                                </div>
-                            </div>
-                            <div class="">
-                                <div class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Public</div>
-                            </div>
+                <div v-if="mostListenSong && mostListenSong.length > 0">
+                    <div v-for="(item, index) in mostListenSong" :key="index" 
+                        class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
+                        <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
+                            <img class="w-full h-full mx-auto rounded-sm object-cover "
+                                :src="item.artwork || defaultImage" alt="" />
                         </div>
-                        <div class="w-1/2 h-full flex justify-end items-center">
-                            <div
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon icon="fa-solid fa-play" />
+                        <div class="w-full h-full flex justify-start items-center">
+                            <div class="w-1/2 h-1/2 flex justify-between items-center">
+                                <div class="text-left w-full">
+                                    <div
+                                        class="font-semibold text-xl hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap w-full ">
+                                        {{ item.title }}
+                                    </div>
+                                    <div v-for="(item, index) in item.SongArtists" :key="index"
+                                        class="hover:underline hover:text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap">
+                                        <a href="#">{{ item.User?.username || "Unknown Uploader" }}</a>
+                                    </div>
+                                    <div class="text-gray-500 text-sm mt-2">
+                                        <font-awesome-icon icon="fa-solid fa-play" class="pr-1" />
+                                        {{ item.SongDetail.plays }}
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div class="text-white bg-gray-400 w-auto h-auto px-1 rounded-sm">Public</div>
+                                </div>
                             </div>
-                            <div
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon icon="fa-solid fa-plus" />
-                            </div>
-                            <div
-                                class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
-                                <font-awesome-icon icon="fa-solid fa-pen" />
+                            <div class="w-1/2 h-full flex justify-end items-center">
+                                <div @click="togglePlay(index, item)"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon
+                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
+                                </div>
+                                <div @click="addToPlaylist(index,item)"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-plus" />
+                                </div>
+                                <div @click="editTrack()"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-pen" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div v-if="songUser.length > 0"
-                    class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
-                    All Tracks by {{songUser[0].User?.username}}
+                <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                    <div class="text-[20px] text-gray-500">No tracks have been played yet.</div>
+                </div>
+                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
+                    All Tracks by {{ userById.username }}
                 </div>  
                 <div v-if="songUser.length > 0" class="h-[500px] w-full">
                     <div v-for="(item, index) in pageData" :key="item.id"
@@ -360,10 +358,10 @@
                         </div>
                     </div>
                 </div>
-                <div v-else class="h-auto w-full flex justify-center items-center">
-                    <div class="text-[30px]">{{ messageSong }}</div> <!-- Debug -->
+                <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                    <div class="text-[20px] text-gray-500">{{ userById.username }} hasn't uploaded any tracks yet.</div>
                 </div>
-                <div class="mt-4 pb-4">
+                <div v-if="songUser.length > 0" class="mt-4 pb-4">
                     <ul class="flex justify-center items-center">
                         <li>
                             <button class="button-page flex justify-center items-center"
@@ -383,13 +381,11 @@
                                     icon="fa-solid fa-angles-right" /></button>
                         </li>
                     </ul>
-
                 </div>
-                <div v-if="userById"
-                    class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
+                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Likes by {{ userById.username }}
                 </div>
-                <div class="h-[400px] w-full">
+                <div v-if="likeByUser && likeByUser.length > 0" class="h-[500px] w-full">
                     <div v-for="(item, index) in pageLikeData" :key="item.id"
                         class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-20 lg:h-16 md:h-14">
                         <div class="h-20 aspect-square flex-shrink-0 mr-4 xl:h-20 lg:h-16 md:h-14">
@@ -401,7 +397,7 @@
                                 <div class="text-left">
                                     <div
                                         class="font-semibold max-w-[320px] text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap xl:text-xl lg:text-base md:text-base">
-                                        <a href="#">{{ item.Song.title }}</a>
+                                        <router-link :to="`/trackinfo/${item.Song.id}`">{{ item.Song.title }}</router-link>
                                     </div>
                                     <div class="flex">
                                         <div
@@ -434,7 +430,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 pb-4">
+                <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                    <div class="text-[20px] text-gray-500">{{ userById.username }} hasn't liked any tracks yet.</div>
+                </div>
+                <div v-if="likeByUser && likeByUser.length > 0" class="mt-4 pb-4">
                     <ul class="flex justify-center items-center">
                         <li>
                             <button class="button-page flex justify-center items-center"
@@ -454,7 +453,6 @@
                                     icon="fa-solid fa-angles-right" /></button>
                         </li>
                     </ul>
-
                 </div>
             </div>
         </div>
@@ -664,6 +662,7 @@ export default {
             countFollower: null,
             countFollowing: null,
             likeByUser: [],
+            firstFourFollowingPictures: [],
         }
     },
     methods: {
@@ -672,6 +671,43 @@ export default {
         },
         gotoFollowing(){
             this.$router.push({path: '/following/' + this.profileId})
+        },
+        async fetchFollowing() {
+            try {
+                const response = await apiClient.get(`http://localhost:3000/api/follow/getAllFollowing`, {
+                    params: { id: this.profileId }
+                });
+                
+                // Lấy danh sách following users
+                const followingUsers = response.data.data;
+
+                // Lấy 4 ảnh đầu tiên của người dùng được follow
+                this.firstFourFollowingPictures = followingUsers
+                    .slice(0, 4)
+                    .map(user => user.following.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg');
+
+                // Tạo mảng các promise để check follow status cho từng user
+                const followStatusPromises = followingUsers.map(user => 
+                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
+                        params: {
+                            follower_id: this.profileId,
+                            following_id: user.following.id
+                        }
+                    })
+                );
+
+                const followStatusResults = await Promise.all(followStatusPromises);
+
+                // Kết hợp dữ liệu user với trạng thái follow
+                this.users = followingUsers.map((user, index) => ({
+                    ...user,
+                    isFollowed: followStatusResults[index].data.data.isFollowing
+                }));
+
+                console.log('users with follow status:', this.users);
+            } catch (error) {
+                console.error('Error fetching following:', error);
+            }
         },
         async fetchCountFollower() {
             try {
@@ -1075,13 +1111,36 @@ export default {
                 ? { backgroundImage: `url('${this.header_picture_url}')` }
                 : {};
         },
-        totalPage() {
-            return Math.ceil(this.songUser.length / this.itemPerPage);
+        filteredSongs() {
+            if (!this.songUser) return [];
+            
+            console.log('isUserCurrent:', this.isUserCurrent);
+            console.log('songUser:', this.songUser);
+            
+            if (this.isUserCurrent) {
+                return this.songUser;
+            } else {
+                const publicSongs = this.songUser.filter(song => Number(song.is_public) === 1);
+                console.log('publicSongs:', publicSongs);
+                return publicSongs;
+            }
+        },
+        filteredSongsLike(){
+            if (!this.likeByUser) return [];
+            if (this.isUserCurrent) {
+                return this.likeByUser;
+            } else {
+                const publicSongs = this.likeByUser.filter(song => Number(song.Song.is_public) === 1);
+                return publicSongs;
+            }
         },
         pageData() {
-            const start = (this.currentPage - 1) * this.itemPerPage; //stt dau tien cua moi trang
-            const end = start + this.itemPerPage //stt ket thuc vi du nhu la o trang 2 la 6->10
-            return this.songUser.slice(start, end); //tra ve stt
+            const start = (this.currentPage - 1) * this.itemPerPage;
+            const end = start + this.itemPerPage;
+            return this.filteredSongs.slice(start, end);
+        },
+        totalPage() {
+            return Math.ceil(this.filteredSongs.length / this.itemPerPage);
         },
         pageToShow() {
             const pages = [];
@@ -1108,7 +1167,7 @@ export default {
         pageLikeData() {
             const start = (this.currentLikePage - 1) * this.itemPerPage; //stt dau tien cua moi trang
             const end = start + this.itemPerPage //stt ket thuc vi du nhu la o trang 2 la 6->10
-            return this.likeByUser.slice(start, end); //tra ve stt
+            return this.filteredSongsLike.slice(start, end); //tra ve stt
         },
         pageLikeToShow() {
             const pages = [];

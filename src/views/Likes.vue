@@ -7,8 +7,11 @@
                 <div v-if="user" class="text-left font-semibold text-2xl">
                     Likes by {{ user.username }}
                 </div>
+                <div v-else class="text-left font-semibold text-2xl">
+                    Likes
+                </div>
             </div>
-            <div class="w-full">
+            <div v-if="songs && songs.length > 0" class="w-full">
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -70,6 +73,9 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                <div class="text-[20px] text-gray-500">{{ user ? user.username : 'User' }} hasn't liked any tracks yet.</div>
             </div>
         </div>
     </div>

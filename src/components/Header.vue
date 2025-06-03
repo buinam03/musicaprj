@@ -14,7 +14,7 @@
                     </div>
                     <div class="px-5 relative xl:px-4 lg:px-3 md:px-2">
                         <input v-model="querryToSearch" @keydown.enter="search"
-                            class="no-clear w-80 p-4 h-10 rounded-[4px] cursor-text text-sm xl:w-[400px] lg:w-72 md:w-52 xl:h-10 lg:h-8 md:h-6  "
+                            class="no-clear w-[500px] p-4 h-10 rounded-[4px] cursor-text text-sm xl:w-[500px] lg:w-96 md:w-52 xl:h-10 lg:h-8 md:h-6  "
                             type="search" name="search" id="" placeholder="Search">
                         <div class="absolute inset-y-0 right-0 pr-8 flex items-center ">
                             <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="cursor-pointer text-gray-500"
@@ -23,13 +23,12 @@
                     </div>
                     <div class="px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/upload">Upload</router-link>
                     </div>
-                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
+                    <!-- <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
                             to="/insights">Insights</router-link>
-                    </div>
+                    </div> -->
                     <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
                             to="/chart">Chart</router-link>
                     </div>
-                    <!-- Notification Button -->
                     <div class="nav-left nav-right  border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1">
                         <div @click="ToggleDropdown('bell')">
                             <a href="#"><font-awesome-icon icon="fa-solid fa-bell" /></a>
@@ -38,14 +37,14 @@
 
                     <!-- Message Button -->
                     <div @click="getDESCRoom"
-                        class=" nav-left nav-right border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1">
+                        class=" nav-left nav-right border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1 cursor-pointer">
                         <div>
                             <font-awesome-icon icon="fa-solid fa-message" />
                         </div>
                     </div>
                     <!-- Shared Dropdown -->
                     <div v-if="isDropdownOpen" ref="dropdown"
-                        class="absolute mt-4 h-96 w-noti bg-gray-200 shadow-lg z-50 overflow-y-auto xl:w-[450px] lg:w-[350px]  md:w-[250px] overflow-x-hidden">
+                        class="cursor-pointer absolute mt-4 h-96 w-noti bg-gray-200 shadow-lg z-50 overflow-y-auto xl:w-[450px] lg:w-[350px]  md:w-[250px] overflow-x-hidden">
                         <template v-if="dropdownContent === 'bell'">
                             <div class="h-12 sticky top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
                                 <p class="px-4 py-2 text-black  float-left z-50">Notifications</p>
@@ -116,21 +115,33 @@
                             <div v-if="isLogoDropdownOpen"
                                 class="absolute left-0 mt-4 w-40 bg-gray-200 xl:w-40 lg:w-28 md:w-24">
                                 <ul>
-                                    <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black"
-                                            :to="`/profile/${idUserCurrent}`">Profile</router-link></li>
-                                    <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" to="/tracks">Tracks</router-link></li>
-                                    <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" to="/likes">Likes</router-link></li>
-                                    <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" :to="`/following/${playerStore.idUserLogin}`">Following</router-link>
+                                    <li class="border-gray-300 border-b-2  hover:scale-110 transition-all duration-300"><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center"
+                                            :to="`/profile/${idUserCurrent}`">
+                                            <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 text-left"/>
+                                            Profile</router-link></li>
+                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300"><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/tracks">
+                                            <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-2"/>
+                                            Tracks</router-link></li>
+                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/likes">
+                                            <font-awesome-icon icon="fa-solid fa-heart" class="mr-2"/>
+                                            Likes</router-link></li>
+                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/following/${playerStore.idUserLogin}`">
+                                            <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2"/>
+                                            Following</router-link>
                                     </li>
-                                    <li class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" :to="`/followers/${playerStore.idUserLogin}`">Followers</router-link>
+                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/followers/${playerStore.idUserLogin}`">
+                                            <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2"/>
+                                            Followers</router-link>
                                     </li>
-                                    <li @click="signOutClick" class="border-gray-300 border-b-2"><router-link
-                                            class="block px-4 py-2 text-black" to="/discover">Sign Out</router-link>
+                                    <li @click="signOutClick" class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
+                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/discover">
+                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-2"/>
+                                            Sign Out</router-link>
                                     </li>
                                 </ul>
                             </div>

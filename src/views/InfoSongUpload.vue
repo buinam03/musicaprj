@@ -55,21 +55,14 @@
                     </div>
                     <div class="w-full h-auto">
                         <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
-                            Track link
-                        </div>
-                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4"
-                                value="https://musica.com/shuu_music/vu-tru-co-anh-final-phuong-my-chiphaodtap-eulelia-remix/s-cTuXYLujAMl?utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing&si=4b7763f531324a0ca9b617ef11984693"
-                                readonly>
-                        </div>
-                    </div>
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
                             Main Artist(s)
                             <div class="text-red-500">*</div>
                         </div>
-                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4">
+                        <div v-if="userById" class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" :value="username" readonly>
+                        </div>
+                        <div v-else class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" value="No artist" readonly>
                         </div>
                     </div>
                     <div class="w-full h-auto">
@@ -78,7 +71,12 @@
                             <div class="text-red-500">*</div>
                         </div>
                         <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input v-model="genre" id="titleInput" type="tel" class="w-full h-full rounded-sm p-4">
+                            <select v-model="selectedGenre" class="w-full p-4 text-lg">
+                                <option value="">Select a genre</option>
+                                <option v-for="item in genreList" :key="item.id" :value="item">
+                                    {{ item.name }}
+                                </option>
+                            </select>
                         </div>
                     </div>
                     <div class="w-full h-auto">
@@ -127,15 +125,20 @@
 <script>
 import apiClient from '@/apiService/apiClient';
 import Header from '@/components/Header.vue';
-
+import { usePlayerStore } from '@/js/state';
 export default {
     name: 'InfoSongUpload',
     setup() {
-
+        const playerStore = usePlayerStore();
+        return {
+            playerStore,
+        };
     },
     mounted() {
         this.title = this.fileNameWithoutExtend;
         console.log(this.title);
+        this.getGenre();
+        this.getUserById();
 
     },
     watch: {
@@ -157,9 +160,14 @@ export default {
             successMessage: '',
             audioFile: null,
             fileUrl: null,
+            genreList: [],
+            userById: null,
+            username : '',
+            selectedGenre: '',
         }
     },
     computed: {
+
         fileNameWithoutExtend() {
             return this.fileName ? this.fileName.split(".").slice(0, -1).join(".") : "";
         },
@@ -171,7 +179,24 @@ export default {
         Header,
     },
     methods: {
-        
+        async getUserById(){
+            try {
+                const response = await apiClient.get(`/users/getUserById/${this.playerStore.idUserLogin}`);
+                this.userById = response.data.data;
+                this.username = this.userById.username;
+                console.log('userById', this.userById);
+            } catch (error) {
+                console.log('Error get genre', error);
+            }
+        },
+        async getGenre() {
+            try {
+                const response = await apiClient.get('http://localhost:3000/api/songdetail/getGenre');
+                this.genreList = response.data.data;
+            } catch (error) {
+                console.log('Error get genre', error);
+            }
+        },
         handleFileUpload(event) {
             const file = event.target.files[0]; // Lấy file đầu tiên
             if (file) {
@@ -197,7 +222,7 @@ export default {
                 const formData = new FormData();
                 formData.append("artwork", this.artwork)
                 formData.append("title", this.title);
-                formData.append("genre", this.genre);
+                formData.append("genre", this.selectedGenre.name);
                 formData.append("bio", this.bio);
                 formData.append("duration", this.duration);
                 formData.append("privacy", this.privacy);

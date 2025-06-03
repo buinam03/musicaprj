@@ -61,7 +61,7 @@
                     <div
                         class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[14px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
                         <div class="text-white text-left text-ellipsis whitespace-nowrap overflow-hidden ">
-                            <a href="#">{{ playerStore.currentSong.title || 'Pick a song to set the vibe!' }}</a>
+                            <router-link :to="`/trackinfo/${playerStore.currentSong.id}`">{{ playerStore.currentSong.title || 'Pick a song to set the vibe!' }}</router-link>
                         </div>
                         <div class="text-white text-left text-xs ">
                             <a href="#" class="">{{ playerStore.currentSong.username || 'The DJ is missing!' }}</a>
@@ -74,59 +74,6 @@
                         <div
                             class="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:flex items-center justify-center bg-gray-800 border-gray-400 text-gray-300 text-[10px] py-1 px-2 shadow-lg select-none">
                             Playlist
-                        </div>
-                    </div>
-                    <div class="absolute w-[450px] h-[450px] top-[-470px] right-0 bg-white"
-                        :class="{ 'hidden': isPlaylistToggle === false }">
-                        <div class="w-full h-96 border-gray-200 border-[1px] rounded-md">
-                            <div class="flex items-center justify-between border-b-[1px]">
-                                <div class="pl-4 pt-4 pb-4 text-base text-black underline">
-                                    Next Up
-                                </div>
-                                <div @click="removeAllFromPlaylist"
-                                    class="px-4 py-2 border-[1px] border-gray-400 mr-4 cursor-pointer text-[12px] text-gray-500 rounded-sm hover:border-gray-600 hover:text-orange-500 ">
-                                    Clear</div>
-                            </div>
-
-                            <div class="overflow-y-auto h-[calc(100%)]">
-                                <div v-for="(item, index) in playerStore.playlist" :key="item.id" draggable="true"
-                                    @dragstart="onDragStart(index)" @dragover="onDragOver($event)" @drop="onDrop(index)"
-                                    class="h-14 w-full mt-2 flex items-center justify-center  hover:bg-gray-200 ">
-                                    <div class="w-full h-14 rounded-sm flex items-center  ">
-                                        <div class="w-1/12 rotate-90 opacity-10 text-gray-700 cursor-grab">
-                                            <font-awesome-icon icon="fa-solid fa-grip" />
-                                        </div>
-                                        <div class="ml-2 w-14 h-14 flex-shrink-0 flex justify-center items-center">
-                                            <img :src="item.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                                class="aspect-square mx-auto w-full h-full object-cover" alt="">
-                                        </div>
-                                        <div class="text-left pl-2 w-10/12 ">
-                                            <div
-                                                class="w-[250px] text-ellipsis overflow-hidden whitespace-nowrap text-gray-700 text-sm">
-                                                <a href="#">
-                                                    {{ item.title }}
-                                                </a>
-                                            </div>
-                                            <div class="text-gray-500 text-sm">
-                                                <a href="#">
-                                                    {{ item.username }}
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="w-1/6 flex justify-center items-center ">
-                                            <div class="cursor-pointer opacity-50 text-gray-500"
-                                                :class="{ 'text-orange-500': item.isLike }" @click="LikeToggle(index)">
-                                                <font-awesome-icon icon="fa-solid fa-heart" />
-                                            </div>
-                                            <div @click="removeSongFromPlaylist(index)"
-                                                class="pl-3 cursor-pointer opacity-50 text-gray-500">
-                                                <font-awesome-icon icon="fa-solid fa-xmark" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -234,16 +181,21 @@ export default {
             }
         },
         nextPlaylist() {
-            this.isPlaylistToggle = !this.isPlaylistToggle;
+            this.playerStore.togglePlaylistPanel();
         },
         LikeToggle(index) {
             this.items[index].isLike = !this.items[index].isLike;
         },
         ShuffleMusicToggle() {
-            this.isShuffleToggle = !this.isShuffleToggle;
+            this.playerStore.shufflePlaylist();
         },
         RepeatMusicToggle() {
-            this.repeatState = (this.repeatState + 1) % 3; // Chuyển trạng thái giữa 0, 1, và 2
+            this.repeatState = (this.repeatState + 1) % 2; 
+            if (this.repeatState === 1) {
+                this.playerStore.toggleRepeatOne();
+            } else {
+                this.playerStore.isRepeatOne = false;
+            }
         },
         VolumeToggle() {
             if (this.volumeVal === 0) {

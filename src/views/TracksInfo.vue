@@ -8,11 +8,11 @@
                 </div>
                 <div class="w-full h-full p-4 relative">
                     <div class="flex items-start">
-                        <div @click="togglePlay(0, trackInfo)"
+                        <div @click="togglePlay()"
                             class="h-16 w-16  rounded-full flex justify-center items-center bg-orange-500 text-white hover:bg-orange-600 relative cursor-pointer">
-                            <!-- Nút play được căn giữa -->
                             <font-awesome-icon
-                                        :icon="playerStore.currentPlayIndex === 0 && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" size="2xl" class="absolute"/>
+                                :icon="playerStore.currentSong && trackInfo && playerStore.currentSong.id === trackInfo.id && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
+                                size="2xl" class="absolute" />
                         </div>
                         <div class="px-4 text-[32px] w-2/3 text-left text-white ">
                             {{ trackInfo.title }}
@@ -27,13 +27,19 @@
                         </div>
                     </div>
                     <div class="absolute h-28 w-full bottom-0 left-0 p-4 flex justify-center items-center">
-                        <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentTime) }}</div>
+                        <div class="w-1/12 text-white text-xs">
+                            {{ playerStore.currentSong && trackInfo && playerStore.currentSong.id === trackInfo.id ?
+                                formatDuration(playerStore.currentTime) : '0:00' }}
+                        </div>
                         <div class=" flex justify-center items-center w-[80%]">
                             <input :style="progressPercentage" @input="updateProgressPlay($event.target.value)"
-                                v-model="playerStore.currentTime" min="0" :max="playerStore.currentSong.duration"
-                                step="0.1" type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
+                                :value="playerStore.currentSong && trackInfo && playerStore.currentSong.id === trackInfo.id ? playerStore.currentTime : 0"
+                                min="0" :max="trackInfo ? trackInfo.SongDetail.duration : 0" step="0.1" type="range"
+                                class="playSlider h-1 block mx-auto cursor-pointer w-full"
+                                :disabled="!(playerStore.currentSong && trackInfo && playerStore.currentSong.id === trackInfo.id)">
                         </div>
-                        <div class="w-1/12 text-white text-xs">{{ formatDuration(trackInfo.SongDetail.duration) }}</div>
+                        <div class="w-1/12 text-white text-xs">{{ trackInfo ?
+                            formatDuration(trackInfo.SongDetail.duration) : '0:00' }}</div>
                     </div>
                 </div>
             </div>
@@ -41,7 +47,8 @@
                 <div class="w-full h-full">
                     <div class="h-16 w-full   flex justify-center items-center">
                         <div v-if="user" class="h-16 aspect-square">
-                            <img class="rounded-full object-cover cursor-pointer aspect-square h-16" :src="profilePicture" alt="artwork">
+                            <img class="rounded-full object-cover cursor-pointer aspect-square h-16"
+                                :src="profilePicture" alt="artwork">
                         </div>
                         <div class="w-[90%] h-full ml-4 flex justify-center items-center">
                             <div class="rounded-3xl border-[1px] w-full h-3/4 flex justify-center items-center">
@@ -58,13 +65,16 @@
                     </div>
                     <div class="mt-4 w-full h-16 flex justify-between items-center border-b-[1px]">
                         <div class="flex justify-center items-center">
-                            <div class="w-auto px-4 py-1 border-[1px] rounded flex justify-center items-center mr-4">
+                            <div @click="toggleLike(trackInfo.id)"
+                                class="w-auto px-4 py-1 border-[1px] rounded flex justify-center items-center mr-4 cursor-pointer"
+                                :class="{ 'text-orange-500': isLiked }">
                                 <font-awesome-icon icon="fa-solid fa-heart" class="pr-2" />
                                 Like
                             </div>
-                            <div class="w-auto px-4 py-1 border-[1px] rounded flex justify-center items-center mr-4">
+                            <div @click="addToPlaylist(trackInfo)"
+                                class="w-auto cursor-pointer px-4 py-1 border-[1px] rounded flex justify-center items-center mr-4">
                                 <font-awesome-icon icon="fa-solid fa-notes-medical" class="pr-2" />
-                                Add to Next up
+                                Add to playlist
                             </div>
                         </div>
                         <div class="flex justify-center items-center">
@@ -96,16 +106,24 @@
                                 <div class="mb-2">
                                     <div class="text-gray-500 text-[10px]">
                                         <font-awesome-icon icon="fa-solid fa-user" class="pr-1" />
-                                        13.834
+                                        {{ followerCount }}
                                     </div>
                                 </div>
                                 <div class=" flex justify-center" :class="{ hidden: userByIdCMT === user_current }">
-                                    <button
-                                        class="px-4 py-[2px] max-w-20 w-20 bg-white rounded-md border-gray-400 border text-xs flex justify-center items-center text-gray-500  transition duration-200">
-                                        <font-awesome-icon icon="fa-solid fa-user-plus" class="pr-1" />
-                                        Follow
-                                    </button>
-
+                                    <div @click="followUser"
+                                        class="border-[1px] text-[12px] font-extralight  bg-orange-500 rounded-[4px] cursor-pointer px-2 py-1 flex items-center justify-center "
+                                        :class="{
+                                            'bg-orange-500 text-white hover:border-white': !isFollowed,
+                                            'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': isFollowed
+                                        }">
+                                        <div v-if="this.isFollowed === false" class="pr-1">
+                                            <font-awesome-icon icon="fa-solid fa-user-plus" />
+                                        </div>
+                                        <div v-if="this.isFollowed === true" class="pr-1 text-orange-500">
+                                            <font-awesome-icon icon="fa-solid fa-user-check" />
+                                        </div>
+                                        {{ this.isFollowed ? 'Following' : 'Follow' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -118,9 +136,10 @@
                                 <div class="">
                                     <div
                                         class="w-40 h-full border-[1px] p-2 border-orange-500 text-orange-500 cursor-pointer">
-                                        <select class="w-full outline-none" name="" id="">
-                                            <option value="">Newest</option>
-                                            <option value="">Oldest</option>
+                                        <select v-model="sortOrder" @change="fetchComments" class="w-full outline-none"
+                                            name="" id="">
+                                            <option value="DESC">Newest</option>
+                                            <option value="ASC">Oldest</option>
                                         </select>
                                     </div>
                                 </div>
@@ -136,7 +155,7 @@
                                         <div class=" flex justify-start items-center font-semibold">
                                             {{ item.User.username }}
                                             <div class="pl-4 text-[12px] text-gray-300 font-medium">
-                                                1 year ago
+                                                {{ formatTime(item.created_at) }}
                                             </div>
                                         </div>
                                         <div class="py-2 text-left text-[13px]">
@@ -170,13 +189,14 @@
 import apiClient from '@/apiService/apiClient';
 import Header from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
+import { formatDistanceToNow } from 'date-fns';
 
 export default {
     setup() {
         const playerStore = usePlayerStore();
         return {
             playerStore,
-        }
+        };
     },
     name: 'TracksInfoPage',
     data() {
@@ -194,6 +214,11 @@ export default {
             userByIdCMT: null,
             userComment: [],
             currentTimeFormated: "0:00",
+            sortOrder: 'DESC',
+            isLiked: false,
+            isFollowed: false,
+            followerCount: 0,
+            follower: null,
             comments: [
                 {
                     title: 'nice',
@@ -210,11 +235,10 @@ export default {
                     image: require('@/image/user-logo/denvau.jpg'),
                     name: 'Bui Cong Nam',
                 },
-            ]
+            ],
         }
     },
     mounted() {
-        
         this.id = this.$route.params.id;
 
         if (this.id) {
@@ -223,7 +247,6 @@ export default {
                 this.user_current = this.user.id;
             });
 
-
             apiClient.get(`/song/getSongById/${this.id}`).then(res => {
                 this.trackInfo = res.data.data;
                 const user_id = this.trackInfo.uploader_id;
@@ -231,23 +254,23 @@ export default {
                 if (this.trackInfo.uploader_id == this.user_current) {
                     this.isUploader = true;
                 }
-                this.getUserById(user_id);
+                this.getUserById(user_id).then(() => {
+                    // Check follow status after getting user info
+                    this.checkFollowStatus();
+                });
             })
 
             this.fetchComments();
-
-
+            this.getUserFollower();
         }
-        else {
-            console.error("Song ID is missing from URL!");
-        }
-
-
     },
     computed: {
         progressPercentage() {
+            // Calculate percentage based on playerStore state if trackInfo song is loaded
+            const isCurrentTrackInfoSong = this.playerStore.currentSong && this.trackInfo && this.playerStore.currentSong.id === this.trackInfo.id;
+
             const percentage =
-                this.playerStore.currentSong.duration && this.playerStore.currentTime
+                isCurrentTrackInfoSong && this.playerStore.currentSong.duration > 0
                     ? (this.playerStore.currentTime / this.playerStore.currentSong.duration) * 100
                     : 0;
 
@@ -273,35 +296,144 @@ export default {
             return 'http://localhost:8080/images/other/Unknown_person.jpg';
         },
     },
-    methods: { 
+    methods: {
+        async getFollowerById() {
+            try {
+                try {
+                    const res = await apiClient.get(`http://localhost:3000/api/follow/getFollowerById/${this.playerStore.idUserLogin}`);
+                    this.follower = res.data.data;
+                    if (this.follower) {
+                        this.isFollowed = true;
+                    }
+                    else {
+                        this.isFollowed = false;
+                    }
 
-        togglePlay(index, song) {
+                } catch (error) {
+                    console.error("Failed to fetch followers:", error);
+                }
+            } catch (error) {
+                console.error("Failed to fetch followers:", error);
+            }
+        },
+        async checkFollowStatus() {
+            try {
+                const response = await apiClient.get('/follow/getFollowStatus', {
+                    params: {
+                        follower_id: this.playerStore.idUserLogin,
+                        following_id: this.userById.id
+                    }
+                });
+                this.isFollowed = response.data.data.isFollowing;
+            } catch (error) {
+                console.error("Failed to check follow status:", error);
+            }
+        },
+        async followUser() {
+            try {
+                const payload = {
+                    following_id: this.userById.id,
+                    follower_id: this.playerStore.idUserLogin
+                }
+                
+                if (this.isFollowed) {
+                    // Unfollow
+                    await apiClient.delete(`/follow/unfollow`, { data: payload });
+                    this.followerCount--;
+                } else {
+                    // Follow
+                    await apiClient.post('/follow/addNewFollower', payload);
+                    this.followerCount++;
+                }
+                
+                this.isFollowed = !this.isFollowed;
+            } catch (error) {
+                console.error("Failed to follow/unfollow:", error);
+            }
+        },
+        async getUserFollower() {
+            try {
+                const res = await apiClient.get('/follow/getCountFollower', {
+                    params: { id: this.userById.id }
+                });
+                this.followerCount = res.data.data;
+            } catch (error) {
+                console.error('Error fetching follower count:', error);
+            }
+        },
+        addToPlaylist(song) {
+            const isAlreadyInPlaylist = this.playerStore.playlist.some((item) => item.id === song.id);
+
+            if (!isAlreadyInPlaylist) {
+                this.playerStore.addToPlaylist(song);
+                console.log("Added to playlist:", this.playerStore.playlist);
+            } else {
+                console.log("This song is already in the playlist.");
+            }
+
+        },
+        async checkLikeStatus() {
+            try {
+                const response = await apiClient.get(`/like/getLikeStatus?user_id=${this.playerStore.idUserLogin}&song_id=${this.trackInfo.id}`);
+                this.isLiked = response.data.isLiked;
+            } catch (error) {
+                console.error('Error checking like status:', error);
+            }
+        },
+        async toggleLike(songId) {
+            if (!this.playerStore.idUserLogin) return;
+
+            try {
+                const payload = {
+                    song_id: songId,
+                    user_id: this.playerStore.idUserLogin
+                }
+                await apiClient.post(`/like/toggleLike`, payload);
+
+                // Toggle isLiked state
+                this.isLiked = !this.isLiked;
+
+                // Update likes count
+                if (this.isLiked) {
+                    this.trackInfo.SongDetail.likes++;
+                } else {
+                    this.trackInfo.SongDetail.likes--;
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        },
+        togglePlay() {
             const playerStore = usePlayerStore();
 
-            if (playerStore.currentPlayIndex === index) {
+            // Check if the track displayed in TracksInfo is the one currently loaded in the player
+            const isCurrentTrackInPlayer = playerStore.currentSong && this.trackInfo && playerStore.currentSong.id === this.trackInfo.id;
+
+            if (isCurrentTrackInPlayer) {
+                // If it's the same song, just toggle play/pause state
                 if (playerStore.isPlaying) {
                     playerStore.pause();
                 } else {
                     playerStore.resume();
                 }
-            }
-            else {
+            } else {
+                // If it's a different song, load and play the trackInfo song
                 playerStore.play({
-                    id: song.id,
-                    title: song.title,
-                    artwork: song.artwork,
-                    username: song.User.username,
-                    duration: song.SongDetail.duration,
-                    path: song.path,
+                    id: this.trackInfo.id,
+                    title: this.trackInfo.title,
+                    artwork: this.trackInfo.artwork,
+                    username: this.trackInfo.User.username,
+                    duration: this.trackInfo.SongDetail.duration,
+                    path: this.trackInfo.path,
                 });
-                playerStore.logUserListen(song.id);
-                playerStore.currentPlayIndex = index;
+                playerStore.logUserListen(this.trackInfo.id);
+                playerStore.currentPlayIndex = 0;
             }
         },
         async fetchComments() {
             try {
                 const id = this.$route.params.id;
-                const response = await apiClient.get(`/comment/getAllComment/${id}`);
+                const response = await apiClient.get(`/comment/getAllComment/${id}?time=${this.sortOrder}`);
                 this.cmtSong = response.data.data;
                 console.log("Fetched comments:", this.cmtSong);
             } catch (error) {
@@ -372,19 +504,30 @@ export default {
             const sec = roundedSeconds % 60;
             return `${min}:${sec.toString().padStart(2, "0")}`;
         },
-        updateProgressPlay(value = this.playVal) {
-            const max = 100;
-            const validValue = Math.max(0, Math.min(value, max));
-            const percentage = (validValue / max) * 100;
-            const rangeInput = document.querySelector('.playSlider');
+        formatTime(timestamp) {
+            return formatDistanceToNow(new Date(timestamp), {
+                addSuffix: true,
+            })
+        },
+        updateProgressPlay(value) {
+            // Ensure trackInfo song is loaded in player before updating progress
+            const isCurrentTrackInfoSong = this.playerStore.currentSong && this.trackInfo && this.playerStore.currentSong.id === this.trackInfo.id;
 
-
-            if (rangeInput) {
-                rangeInput.style.setProperty('--progressPlay', `${percentage}%`);
+            if (isCurrentTrackInfoSong && this.playerStore.currentSong.duration > 0 && this.playerStore.audio) {
+                const validValue = parseFloat(value);
+                this.playerStore.audio.currentTime = validValue;
+                // playerStore.currentTime is updated by the audio element's timeupdate event listener in playerStore
             }
-            const currentTime = (validValue / max) * this.trackInfo.SongDetail.duration;
-
-            this.currentTimeFormated = this.formatDuration(Math.round(currentTime));
+        }
+    },
+    watch: {
+        trackInfo: {
+            handler(newValue) {
+                if (newValue) {
+                    document.title = `${newValue.title} - Musica`;
+                }
+            },
+            immediate: true
         }
     },
     components: {

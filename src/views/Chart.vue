@@ -1,7 +1,7 @@
 <template>
     <div>
         <Header></Header>
-        <div class="w-full h-auto mx-auto text-color ">
+        <div class="w-full h-screen mx-auto text-color ">
             <div class="w-container pt-16 mb-16 h-auto m-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                 <div class="flex justify-between items-center ">
                     <div class="p-4 text-left font-semibold text-2xl text-white  sticky">
@@ -41,13 +41,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-4 h-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
+                <!-- <div class="mt-4 h-auto xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                     <div class="p-4 h-auto w-full text-left font-semibold text-2xl text-white xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                         Top artist of the week
                     </div>
                     <div class="grid grid-cols-2 xl:w-[1280px] lg:w-[1024px] md:w-[768px]">
                         <div class="flex justify-center items-end h-[300px] relative">
-                            <!-- Silver -->
                             <div class="w-32 h-48 flex flex-col items-center">
                                 <div
                                     class="w-16 h-16 bg-gray-400 rounded-full flex items-center justify-center border-4 border-gray-300">
@@ -59,8 +58,6 @@
                                     #2 {{ top3artist[1].name }}
                                 </div>
                             </div>
-
-                            <!-- Gold -->
                             <div class="w-32 h-64 flex flex-col items-center mx-4">
                                 <div
                                     class="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center border-4 border-yellow-300">
@@ -72,8 +69,6 @@
                                     #1 {{ top3artist[0].name }}
                                 </div>
                             </div>
-
-                            <!-- Bronze -->
                             <div class="w-32 h-40 flex flex-col items-center">
                                 <div
                                     class="w-16 h-16 bg-amber-700 rounded-full flex items-center justify-center border-4 border-amber-500">
@@ -111,7 +106,7 @@
                         class="h-10 w-[240px] mx-auto border-[1px] cursor-pointer rounded-3xl border-white text-white flex justify-center items-center hover:text-black hover:bg-white hover:border-white">
                         Top 100 Artist
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

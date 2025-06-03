@@ -222,7 +222,18 @@ export default {
                 console.log('receive', receiverId)
 
                 this.userById = resById.data.data;
-                this.roomMessage = resRoom.data.data;
+                let allRooms = resRoom.data.data;
+
+                // Filter out duplicate rooms based on room_id
+                const uniqueRoomIds = new Set();
+                this.roomMessage = allRooms.filter(room => {
+                    if (uniqueRoomIds.has(room.room_id)) {
+                        return false;
+                    } else {
+                        uniqueRoomIds.add(room.room_id);
+                        return true;
+                    }
+                });
 
                 console.log('id: ', this.userById);
 

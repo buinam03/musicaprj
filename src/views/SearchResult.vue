@@ -12,7 +12,7 @@
 
                     <div class="flex justify-start w-full">
                         <ul class="flex flex-col  pl-4 w-full">
-                            <li @click="searchOptionClick(index)" v-for="(item, index) in searchOptions" :key="index"
+                            <li @click="searchOptionClick(index) && currentSearchOption == item.label" v-for="(item, index) in searchOptions" :key="index"
                                 class="flex items-center cursor-pointer p-1"
                                 :class="{ 'bg-[url(@/image/other/searchopt.png)] bg-cover bg-center text-white scale-110 opacity-85': selectedIndex === index }">
                                 <font-awesome-icon :icon="item.icon" class="pr-2" />
@@ -391,6 +391,7 @@ export default {
             ],
             artist: null,
             countFollower: [],
+            currentSearchOption: 'All',
             message: '',
             defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
         }
@@ -398,7 +399,7 @@ export default {
     mounted() {
         document.addEventListener("click", this.clickOutside);
         this.fetchSearchResult();
-        console.log()
+        
     },
     methods: {
         togglePlay(index, song) {
@@ -484,7 +485,9 @@ export default {
                     followerCount: followerCountResults[index]?.data?.data || 0, // Giá trị mặc định là 0 nếu không có dữ liệu
                     isFollowed: followStatusResults[index]?.data?.data?.isFollowing || false, // Giá trị mặc định là false
                 }));
-
+                if (this.currentSearchOption === 'All') {
+                    this.artist = this.artist.slice(0, 5);
+                }
                 console.log('songs', this.songs);
                 console.log('artists', this.artist);
             } catch (error) {
@@ -496,6 +499,8 @@ export default {
         },
         searchOptionClick(index) {
             this.selectedIndex = index;
+            this.currentSearchOption = this.searchOptions[index].label;
+            console.log('currentSearchOption', this.currentSearchOption);
         },
         optionSong(index) {
             // this.songs[index].isMenuClick = !this.songs[index].isMenuClick;

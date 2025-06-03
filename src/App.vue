@@ -2,15 +2,18 @@
   <div id="app">
     <router-view></router-view>
   </div>
+  <PlaylistPanel />
   <Footer />
 </template>
 
 <script>
 import Footer from './components/Footer.vue';
+import PlaylistPanel from './components/PlaylistPanel.vue';
   export default {
     name: 'App',
     components: {
-      Footer
+      Footer,
+      PlaylistPanel
     }
   };
 </script>

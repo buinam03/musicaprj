@@ -12,13 +12,15 @@
             <div class="flex justify-between items-center h-auto w-full">
                 <div v-if="userById" class="text-left font-semibold p-4 text-2xl">
                     {{ userById.username }} is Following
-
+                </div>
+                <div v-else class="text-left font-semibold p-4 text-2xl">
+                    Following
                 </div>
 
                 <input v-model="usernameSearch" @keyup.enter="searchUserFollowing" class="no-clear border-[1px] w-80 p-4 h-10 rounded-[4px] cursor-text text-sm " type="search"
                     name="search" id="" placeholder="Search">
             </div>
-            <div
+            <div v-if="users && users.length > 0"
                 class="grid grid-cols-5 gap-4 mb-4 w-full xl:w-container  xl:grid-cols-5 xl:gap-4 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:grid-cols-3 md:gap-1">
                 <div v-for="(user, index) in users" :key="index" class=" h-[300px] p-4 bg-white shadow-lg rounded-2xl">
                     <div class="w-[180px] aspect-square mx-auto xl:w-[180px] lg:w-[150px] md:w-[120px]">
@@ -45,6 +47,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                <div class="text-[20px] text-gray-500">{{ userById ? userById.username : 'User' }} isn't following anyone yet.</div>
             </div>
         </div>
 

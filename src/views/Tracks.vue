@@ -19,7 +19,7 @@
                     </div>
                 </div>
             </div>
-            <div class="w-full">
+            <div v-if="songs && songs.length > 0" class="w-full">
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -63,6 +63,9 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
+                <div class="text-[20px] text-gray-500">You haven't uploaded any tracks yet.</div>
             </div>
         </div>
         <div v-if="isEditTracks && trackInfo"
