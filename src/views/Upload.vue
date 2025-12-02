@@ -1,124 +1,86 @@
 <template>
-    <Header></Header>
-    <div class="flex items-center justify-center min-h-screen xl:min-h-screen lg:min-h-[700px] md:min-h-[500px] ">
 
-        <div
-            class="w-[1200px] h-[700px] pt-16 m-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
-            <div class="h-full w-full flex items-center justify-center">
-                <div class="m-auto items-center w-[800px] h-[400px] rounded-md shadow-2xl flex justify-center">
-                    <div class="h-[200px] w-full">
-                        <div class="font-semibold pb-10">
-                            Upload your best music here
-                        </div>
-                        <button type="button" class="btn-warning hover:bg-orange-500 duration-300 hover:scale-110" :disabled="isUploading">
-                            <div v-if="!isUploading">
-                                <font-awesome-icon icon="fa-solid fa-upload" />
-                                Choose file to upload
-                            </div>
-                            <div v-else class="flex items-center justify-center">
-                                <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin mr-2" />
-                                Uploading...
-                            </div>
-                            <input type="file" @change="handleFileUpload" id="fileUpload"
-                                accept=".wav,.mp3,.flac,.alac,.aiff" :disabled="isUploading">
-                        </button>
-                        <div class="pt-20 text-xs">
-                            Provide FLAC, WAV, ALAC, or AIFF for highest audio quality
-                        </div>
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="w-[800px] h-[400px] rounded-md shadow-2xl flex justify-center items-center">
+            <div class="h-[200px] w-full text-center">
+                <div class="font-semibold pb-4">Upload your best music here</div>
+
+                <button class="btn-warning relative" :disabled="uploadStore.isUploading">
+                    <div v-if="!uploadStore.isUploading">
+                        <font-awesome-icon icon="fa-solid fa-upload" />
+                        Choose file to upload
                     </div>
+
+                    <div v-else class="flex items-center justify-center">
+                        <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin mr-2" />
+                        Uploading... {{ uploadStore.progress }}%
+                    </div>
+
+                    <input type="file" @change="handleFileUpload" accept=".wav,.mp3,.flac,.alac,.aiff"
+                        :disabled="uploadStore.isUploading" />
+                </button>
+
+                <div class="pt-4 text-xs">
+                    Provide FLAC, WAV, ALAC, or AIFF for highest audio quality
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
 <script>
-import Header from '@/components/Header.vue';
-import axios from 'axios';
+import { useUploadStore } from '@/js/uploadState.js';
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'UploadPage',
+    setup() {
+        const router = useRouter();
+        const uploadStore = useUploadStore();
 
-    data() {
-        return {
-            fileUpload: null,
-            isUploading: false,
-        }
-    },
-    components: {
-        Header,
-    },
-    methods: {
-        async getAudioDuration(file) {
+        const getAudioDuration = (file) => {
             return new Promise((resolve, reject) => {
                 const audio = new Audio();
                 audio.src = URL.createObjectURL(file);
-                console.log("Object URL:", audio.src );
 
-                audio.addEventListener("loadedmetadata", () => {
-                    resolve(audio.duration);
-                });
+                audio.addEventListener('loadedmetadata', () => resolve(audio.duration));
+                audio.addEventListener('error', () => reject('Cannot load audio file.'));
+            });
+        };
 
-                audio.addEventListener("error", (err) => {
-                    reject("Cannot load audio file.",err);
-                });
-            })
-        },
-
-        async handleFileUpload(event) {
+        const handleFileUpload = async (event) => {
             const file = event.target.files[0];
-            if (!file) {
-                alert("No file selected.");
-                return;
-            }
-            console.log(file);
-
-            this.isUploading = true;
+            if (!file) return;
 
             try {
-                const duration = await this.getAudioDuration(file);
-                console.log("Audio Duration:", duration); 
+                const duration = await getAudioDuration(file);
+                const result = await uploadStore.uploadFile(file, duration);
 
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("upload_preset", "ml_default");
-                formData.append("resource_type", "video"); 
-
-                const response = await axios.post(
-                    "https://api.cloudinary.com/v1_1/dxgqkbchh/video/upload",
-                    formData
-                );
-
-                const fileUrl = response.data.secure_url;
-                const fileName = file.name;
-
-                console.log(response.status);
-                console.log("Uploaded File URL:", fileUrl);
-
-                this.$router.push({
+                // Chuyển trang khi upload xong
+                event.target.value = ''; // reset input
+                event.target.value = ''; // reset input
+                router.push({
                     name: 'InfoSongUpload',
                     query: {
-                        fileUrl: fileUrl, 
-                        fileName: fileName,
-                        duration : duration
-                    },
+                        fileUrl: result.url,
+                        fileName: result.name,
+                        duration: result.duration
+                    }
                 });
-            } catch (error) {
-                console.error("Error uploading file:", error);
-                alert("Upload failed. Please try again.");
-            } finally {
-                this.isUploading = false;
+            } catch (err) {
+                console.error(err);
             }
-        },
+        };
+
+        return { uploadStore, handleFileUpload };
     }
-}
+};
 </script>
 
 <style scoped>
 .btn-warning {
     position: relative;
-    padding: 25px 31px;
+    padding: 20px 30px;
     font-size: 15px;
     line-height: 1.5;
     border-radius: 4px;
@@ -129,35 +91,13 @@ export default {
     overflow: hidden;
 }
 
-.btn-warning:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-@media (min-width: 1024px) {
-    .btn-warning {
-        padding: 20px 25px;
-    }
-}
-
-@media (min-width: 768px) {
-    .btn-warning {
-        padding: 20px 25px;
-    }
-}
-
 .btn-warning input[type="file"] {
     cursor: pointer;
     position: absolute;
     width: 100%;
     height: 100%;
-    left: 0%;
-    top: 0%;
+    left: 0;
+    top: 0;
     opacity: 0;
-}
-
-.btn-warning input[type="file"]:disabled {
-    cursor: not-allowed;
 }
 </style>

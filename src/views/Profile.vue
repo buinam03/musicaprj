@@ -23,14 +23,15 @@
                     </div>
                     <div v-if="isOpenDialogProfile"
                         class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-                        <div  class="bg-white rounded-lg shadow-xl w-1/3 h-1/2 p-4">
+                        <div class="bg-white rounded-lg shadow-xl w-1/3 h-1/2 p-4">
                             <h2 class="text-lg font-semibold mb-4">Change profile picture</h2>
                             <div class="relative flex justify-center items-center">
-                                <img :src="profile_picture_url || 'http://localhost:8080/images/other/Unknown_person.jpg'"
+                                <img :src="profile_picture_preview || 'http://localhost:8080/images/other/Unknown_person.jpg'"
                                     alt="Preview" class="w-72 h-72 object-cover rounded-full border" />
                                 <input @change="handleFileUpload"
                                     class="absolute w-full h-full inset-0 opacity-0 cursor-pointer " type="file"
                                     accept=".jpg,.png" />
+
                             </div>
 
                             <!-- Nút điều khiển -->
@@ -62,7 +63,7 @@
                             <h2 class="text-lg font-semibold mb-4">Change header picture</h2>
 
                             <div class="relative flex justify-center items-center bg-white">
-                                <img :src="header_picture_url || 'http://localhost:8080/images/other/header_default.png'"
+                                <img :src="header_picture_review || 'http://localhost:8080/images/other/header_default.png'"
                                     alt="Preview" class="w-full h-72 object-cover border cursor-pointer" />
                                 <input @change="handleHeaderFileUpload" type="file" accept=".jpg,.png"
                                     class="absolute w-full h-full inset-0 opacity-0 cursor-pointer" />
@@ -93,23 +94,27 @@
                                 <font-awesome-icon icon="fa-solid fa-check" size="xs" />
                             </div>
                         </div>
-                        <div @click="gotoFollower" v-if="countFollower" class="cursor-pointer text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
+                        <div @click="gotoFollower" v-if="countFollower"
+                            class="cursor-pointer text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
                             {{ countFollower || 0 }} followers
                         </div>
-                        <div @click="gotoFollower" v-else class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
+                        <div @click="gotoFollower" v-else
+                            class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
                             <router-link class="" to="/followers">0 followers</router-link>
                         </div>
-                        <div @click="gotoFollowing" v-if="countFollowing" class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
+                        <div @click="gotoFollowing" v-if="countFollowing"
+                            class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
                             <router-link class="" to="/following">{{ countFollowing || 0 }} following</router-link>
                         </div>
-                        <div @click="gotoFollowing" v-else class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
+                        <div @click="gotoFollowing" v-else
+                            class="text-xs text-left text-gray-400 hover:text-gray-600 hover:underline pt-1">
                             <router-link class="" to="/following">0 following</router-link>
                         </div>
                         <div class="pt-1 flex">
                             <div v-for="(picture, index) in firstFourFollowingPictures" :key="index"
                                 class="h-8 w-8 bg-blue-300 rounded-full mr-1">
-                                <img :src="picture"
-                                    class="rounded-full w-full h-full object-cover" alt="Following user profile picture">
+                                <img :src="picture" class="rounded-full w-full h-full object-cover"
+                                    alt="Following user profile picture">
                             </div>
                             <div
                                 class="h-8 w-8 rounded-full mr-1 flex justify-center items-center border-[2px] hover:bg-gray-200 cursor-pointer">
@@ -130,8 +135,7 @@
                             </div>
                         </div> -->
                         <div class="h-8 w-auto">
-                            <div @click="toggleEditProfile"
-                                class="border-[1px] text-md font-extralight text-white bg-orange-500 rounded-[4px] cursor-pointer px-3 py-1 flex items-center justify-center hover:border-gray-400
+                            <div @click="toggleEditProfile" class="border-[1px] text-md font-extralight text-white bg-orange-500 rounded-[4px] cursor-pointer px-3 py-1 flex items-center justify-center hover:border-gray-400
                                 
                                 ">
                                 <div class="pr-1">
@@ -202,8 +206,8 @@
                     <div v-for="(item, index) in lastestSong" :key="index"
                         class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
                         <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
-                            <img class="w-full h-full mx-auto rounded-sm object-cover " :src="item.artwork || defaultImage"
-                                alt="" />
+                            <img class="w-full h-full mx-auto rounded-sm object-cover "
+                                :src="item.artwork || defaultImage" alt="" />
                         </div>
                         <div class="w-full h-full flex justify-start items-center">
                             <div class="w-1/2 h-1/2 flex justify-between items-center">
@@ -234,7 +238,7 @@
                                     <font-awesome-icon
                                         :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
                                 </div>
-                                <div @click="addToPlaylist(index,item)"
+                                <div @click="addToPlaylist(index, item)"
                                     class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" />
                                 </div>
@@ -254,7 +258,7 @@
                     Most-Listened Track
                 </div>
                 <div v-if="mostListenSong && mostListenSong.length > 0">
-                    <div v-for="(item, index) in mostListenSong" :key="index" 
+                    <div v-for="(item, index) in mostListenSong" :key="index"
                         class="w-full h-40 mt-4 flex hover:bg-gray-200 rounded-sm xl:h-40 lg:h-36 md:h-32">
                         <div class="h-40 aspect-square flex-shrink-0 mr-4 xl:h-40 lg:h-36 md:h-32">
                             <img class="w-full h-full mx-auto rounded-sm object-cover "
@@ -286,7 +290,7 @@
                                     <font-awesome-icon
                                         :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
                                 </div>
-                                <div @click="addToPlaylist(index,item)"
+                                <div @click="addToPlaylist(index, item)"
                                     class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" />
                                 </div>
@@ -301,9 +305,10 @@
                 <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
                     <div class="text-[20px] text-gray-500">No tracks have been played yet.</div>
                 </div>
-                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
+                <div
+                    class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     All Tracks by {{ userById.username }}
-                </div>  
+                </div>
                 <div v-if="songUser.length > 0" class="h-[500px] w-full">
                     <div v-for="(item, index) in pageData" :key="item.id"
                         class="w-full h-20 mt-4 flex hover:bg-gray-200 rounded-sm  xl:h-20 lg:h-16 md:h-14">
@@ -319,7 +324,7 @@
                                         <router-link :to="`/trackinfo/${item.id}`">{{ item.title }}</router-link>
                                     </div>
                                     <div class="flex">
-                                        <div 
+                                        <div
                                             class="hover:underline hover:text-blue-500 text-ellipsis overflow-hidden whitespace-nowrap flex justify-center items-center text-sm">
                                             <a href="#">{{ item.User?.username }}</a>
                                         </div>
@@ -349,9 +354,9 @@
                                     class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-pen" />
                                 </div>
-                                <div @click="toggleLike(index, item.id)" 
-                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer" 
-                                    :class="{'text-orange-500 border-orange-500': likedSongs.includes(item.id)}">
+                                <div @click="toggleLike(index, item.id)"
+                                    class="mr-2 w-10 h-10 p-2 border-[1px] rounded-full flex justify-center items-center border-black hover:text-blue-500 hover:border-blue-500 cursor-pointer"
+                                    :class="{ 'text-orange-500 border-orange-500': likedSongs.includes(item.id) }">
                                     <font-awesome-icon icon="fa-solid fa-heart" />
                                 </div>
                             </div>
@@ -382,7 +387,8 @@
                         </li>
                     </ul>
                 </div>
-                <div class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
+                <div
+                    class="w-full h-auto text-left text-[30px] font-semibold mt-4 xl:text-[30px] lg:text-[26px] md:text-[24px]">
                     Likes by {{ userById.username }}
                 </div>
                 <div v-if="likeByUser && likeByUser.length > 0" class="h-[500px] w-full">
@@ -397,7 +403,8 @@
                                 <div class="text-left">
                                     <div
                                         class="font-semibold max-w-[320px] text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap xl:text-xl lg:text-base md:text-base">
-                                        <router-link :to="`/trackinfo/${item.Song.id}`">{{ item.Song.title }}</router-link>
+                                        <router-link :to="`/trackinfo/${item.Song.id}`">{{ item.Song.title
+                                            }}</router-link>
                                     </div>
                                     <div class="flex">
                                         <div
@@ -449,8 +456,8 @@
                         <li>
                             <button class="button-page flex justify-center items-center max-w-10"
                                 @click="currentLikePage = Math.min(this.totalLikePage, currentPage + 1)"
-                                :class="{ 'invisible': currentLikePage === totalLikePage }" type="button"><font-awesome-icon
-                                    icon="fa-solid fa-angles-right" /></button>
+                                :class="{ 'invisible': currentLikePage === totalLikePage }"
+                                type="button"><font-awesome-icon icon="fa-solid fa-angles-right" /></button>
                         </li>
                     </ul>
                 </div>
@@ -606,8 +613,10 @@
 
 <script>
 import apiClient from '@/apiService/apiClient';
+import { notification } from 'ant-design-vue';
 import Header from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
+import axios from 'axios';
 export default {
     name: 'ProfilePage',
     setup() {
@@ -635,6 +644,8 @@ export default {
             currentPage: 1,
             profile_picture_url: null,
             header_picture_url: null,
+            profile_picture_preview: null,
+            header_picture_review: null,
             follower: null,
             currentLikePage: 1,
             itemPerPage: 5,
@@ -666,18 +677,18 @@ export default {
         }
     },
     methods: {
-        gotoFollower(){
-            this.$router.push({path: '/followers/' + this.profileId})
+        gotoFollower() {
+            this.$router.push({ path: '/followers/' + this.profileId })
         },
-        gotoFollowing(){
-            this.$router.push({path: '/following/' + this.profileId})
+        gotoFollowing() {
+            this.$router.push({ path: '/following/' + this.profileId })
         },
         async fetchFollowing() {
             try {
                 const response = await apiClient.get(`http://localhost:3000/api/follow/getAllFollowing`, {
                     params: { id: this.profileId }
                 });
-                
+
                 // Lấy danh sách following users
                 const followingUsers = response.data.data;
 
@@ -687,7 +698,7 @@ export default {
                     .map(user => user.following.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg');
 
                 // Tạo mảng các promise để check follow status cho từng user
-                const followStatusPromises = followingUsers.map(user => 
+                const followStatusPromises = followingUsers.map(user =>
                     apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
                         params: {
                             follower_id: this.profileId,
@@ -750,10 +761,10 @@ export default {
         },
         async fetchLikedSongs() {
             if (!this.idUserCurrent) return; // Không fetch nếu chưa đăng nhập
-            
+
             try {
                 // Tạo một mảng promises để gọi API cho từng bài hát
-                const promises = this.songUser.map(song => 
+                const promises = this.songUser.map(song =>
                     apiClient.get(`http://localhost:3000/api/like/getLikeStatus`, {
                         params: {
                             user_id: this.idUserCurrent,
@@ -767,7 +778,7 @@ export default {
 
                 // Đợi tất cả các requests hoàn thành
                 const results = await Promise.all(promises);
-                
+
                 // Lọc ra những bài hát được like (isLiked = true)
                 this.likedSongs = results
                     .filter(result => result.isLiked)
@@ -781,14 +792,14 @@ export default {
         },
         async toggleLike(index, songId) {
             if (!this.idUserCurrent) return;
-            
+
             try {
                 const payload = {
                     song_id: songId,
                     user_id: this.idUserCurrent
                 }
                 await apiClient.post(`http://localhost:3000/api/like/toggleLike`, payload);
-                
+
                 // Đảm bảo likedSongs là mảng trước khi thao tác
                 if (!Array.isArray(this.likedSongs)) {
                     this.likedSongs = [];
@@ -944,52 +955,81 @@ export default {
         //     this.$refs.fileInput.click();
         // },
         async saveImage() {
+            const formData = new FormData();
+            formData.append("file", this.profile_picture_file);
+            formData.append("upload_preset", "ml_default");
+
+            const response = await axios.post(
+                "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
+                formData
+            );
+
+            const profile_picture_res = response.data.secure_url;
+
             const payload = {
-                profilePicture: this.profile_picture_url, // URL Base64
+                profilePicture: profile_picture_res, // URL Base64
             };
             try {
-                await apiClient.put('http://localhost:3000/api/users/updateProfilePicture', payload);
-                this.loadProfile();
+                await apiClient.put('/users/updateProfilePicture', payload);
                 this.isOpenDialogProfile = false;
+                this.loadProfile();
+                notification.success({
+                    message: 'Success',
+                    description: 'Your profile picture has been updated.',
+                    duration: 3,
+                });
+                window.location.reload();
             } catch (error) {
                 console.log("Error: ", error)
             }
         },
         async saveHeaderImage() {
+            const formData = new FormData();
+            formData.append("file", this.header_picture_file);
+            formData.append("upload_preset", "ml_default");
+
+            const response = await axios.post(
+                "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
+                formData
+            );
+
+            const header_picture_res = response.data.secure_url;
+
             const payload = {
-                headerpicture: this.header_picture_url, // URL Base64
+                headerpicture: header_picture_res,
             };
             try {
-                await apiClient.put('http://localhost:3000/api/users/updateHeaderPicture', payload);
-                console.log('success')
-                this.loadProfile();
+                await apiClient.put('/users/updateHeaderPicture', payload);
                 this.isOpenDialogHeaderProfile = false;
+                this.loadProfile();
+                notification.success({
+                    message: 'Success',
+                    description: 'Your header picture has been updated.',
+                    duration: 3,
+                });
             } catch (error) {
                 console.log("Error: ", error)
             }
         },
 
         handleFileUpload(event) {
-            const file = event.target.files[0]; // Lấy file đầu tiên
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.profile_picture_url = e.target.result; // Gán URL ảnh vào `imageUrl`
-                };
-                reader.readAsDataURL(file); // Đọc file dưới dạng DataURL
-                event.target.value = null;
-            }
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Lưu file object để upload sau này
+            this.profile_picture_preview = URL.createObjectURL(file);
+            this.profile_picture_file = file;
+            event.target.value = null;
         },
+
         handleHeaderFileUpload(event) {
-            const file = event.target.files[0]; // Lấy file đầu tiên
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.header_picture_url = e.target.result; // Gán URL ảnh vào `imageUrl`
-                };
-                reader.readAsDataURL(file); // Đọc file dưới dạng DataURL
-                event.target.value = null;
-            }
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Lưu file object để upload sau này
+            this.header_picture_file = file;
+            this.header_picture_review = URL.createObjectURL(file);
+            event.target.value = null;
         },
         handleFileUploadEdit(event) {
             const file = event.target.files[0]; // Lấy file đầu tiên
@@ -1113,10 +1153,10 @@ export default {
         },
         filteredSongs() {
             if (!this.songUser) return [];
-            
+
             console.log('isUserCurrent:', this.isUserCurrent);
             console.log('songUser:', this.songUser);
-            
+
             if (this.isUserCurrent) {
                 return this.songUser;
             } else {
@@ -1125,7 +1165,7 @@ export default {
                 return publicSongs;
             }
         },
-        filteredSongsLike(){
+        filteredSongsLike() {
             if (!this.likeByUser) return [];
             if (this.isUserCurrent) {
                 return this.likeByUser;

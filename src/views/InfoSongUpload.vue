@@ -1,6 +1,5 @@
 <template>
     <div>
-        <Header></Header>
         <div class="pt-16 notification-container fixed top-0 right-0 mt-2 mr-4" v-if="successMessage">
             <div class="notification bg-orange-500 text-white px-4 py-2 rounded-sm shadow-lg font-extralight">
                 {{ successMessage }}
@@ -59,10 +58,12 @@
                             <div class="text-red-500">*</div>
                         </div>
                         <div v-if="userById" class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" :value="username" readonly>
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" :value="username"
+                                readonly>
                         </div>
                         <div v-else class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" value="No artist" readonly>
+                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" value="No artist"
+                                readonly>
                         </div>
                     </div>
                     <div class="w-full h-auto">
@@ -124,7 +125,7 @@
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import Header from '@/components/Header.vue';
+import axios from 'axios';
 import { usePlayerStore } from '@/js/state';
 export default {
     name: 'InfoSongUpload',
@@ -162,7 +163,7 @@ export default {
             fileUrl: null,
             genreList: [],
             userById: null,
-            username : '',
+            username: '',
             selectedGenre: '',
         }
     },
@@ -176,10 +177,10 @@ export default {
         }
     },
     components: {
-        Header,
+        // Header,
     },
     methods: {
-        async getUserById(){
+        async getUserById() {
             try {
                 const response = await apiClient.get(`/users/getUserById/${this.playerStore.idUserLogin}`);
                 this.userById = response.data.data;
@@ -220,15 +221,37 @@ export default {
             try {
 
                 const formData = new FormData();
-                formData.append("artwork", this.artwork)
-                formData.append("title", this.title);
-                formData.append("genre", this.selectedGenre.name);
-                formData.append("bio", this.bio);
-                formData.append("duration", this.duration);
-                formData.append("privacy", this.privacy);
-                formData.append("path", this.fileUrl);
+                // formData.append("title", this.title);
+                // formData.append("genre", this.selectedGenre.name);
+                // formData.append("bio", this.bio);
+                // formData.append("duration", this.duration);
+                // formData.append("privacy", this.privacy);
+                // formData.append("path", this.fileUrl);
 
-                await apiClient.post("song/addNewSong", formData);
+                formData.append("artwork", this.artwork);
+                formData.append("file", this.artwork);
+                formData.append("upload_preset", "ml_default");
+
+                const response = await axios.post(
+                    "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
+                    formData
+                );
+
+                const artworkUrl = response.data.secure_url;
+                console.log("Uploaded Artwork URL:", artworkUrl);
+
+                // Lưu URL artwork lại để gửi lên backend
+                const songData = {
+                    title: this.title,
+                    genre: this.selectedGenre?.name || "",
+                    bio: this.bio,
+                    duration: this.duration,
+                    privacy: this.privacy,
+                    path: this.fileUrl,      // file nhạc (URL từ trang trước)
+                    artwork: artworkUrl      // ảnh bìa vừa upload
+                };
+
+                await apiClient.post("song/addNewSong", songData);
 
 
                 this.successMessage = 'Track upload successful!';

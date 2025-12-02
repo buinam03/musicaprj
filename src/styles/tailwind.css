@@ -11,3 +11,8 @@
     font-family: 'Forestyland-Regular';
     src: url('@/font/forestyland/Forestyland-Regular.ttf') format('truetype');
 }
+
+a {
+  color: inherit !important;
+  text-decoration: none;
+}
