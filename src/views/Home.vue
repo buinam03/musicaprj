@@ -141,8 +141,7 @@
                                 <font-awesome-icon icon="fa-solid fa-users" class="mr-2" />
                                 {{ item.followerCount || 0 }} followers
                             </div>
-                            <button @click="followToggle(index)"
-                                v-if="item.id != playerStore.idUserLogin"
+                            <button @click="followToggle(index)" v-if="item.id != playerStore.idUserLogin"
                                 class="mt-4 px-8 py-2 rounded-full transition-all duration-300 flex justify-center items-center"
                                 :class="artist[index].isFollowing ?
                                     'bg-orange-500 text-white hover:bg-orange-600' :
@@ -232,21 +231,24 @@
                                             </div>
                                         </li>
                                         <li @click="playerStore.play(item)" class="text-left">
-                                                <div class="flex px-4 py-2 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150">
+                                            <div
+                                                class="flex px-4 py-2 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150">
                                                 <div class="basis-1/6 flex items-center justify-center">
                                                     <font-awesome-icon icon="fa-solid fa-forward-step" />
                                                 </div>
-                                                Play 
-                                                </div>
+                                                Play
+                                            </div>
                                         </li>
                                         <li class="text-left">
-                                            <div @click="toggleLike(item)"
-                                                class="flex px-4 py-2 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150">
+                                            <div class="flex px-4 py-2 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150"
+                                                @click="toggleLike(item)">
                                                 <div class="basis-1/6 flex items-center justify-center">
-                                                    <font-awesome-icon icon="fa-regular fa-heart" :class="{'text-orange-500': item.isLiked}" />
+                                                    <font-awesome-icon icon="fa-regular fa-heart"
+                                                        :class="{ 'text-orange-500': item.isLiked }" />
                                                 </div>
                                                 Like
                                             </div>
+
                                         </li>
                                     </ul>
                                 </div>
@@ -340,7 +342,8 @@
                                             <div @click="toggleLike(item)"
                                                 class="flex px-4 py-2 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150">
                                                 <div class="basis-1/6 flex items-center justify-center">
-                                                    <font-awesome-icon icon="fa-regular fa-heart" :class="{'text-orange-500': item.isLiked}" />
+                                                    <font-awesome-icon icon="fa-regular fa-heart"
+                                                        :class="{ 'text-orange-500': item.isLiked }" />
                                                 </div>
                                                 Like
                                             </div>
@@ -360,7 +363,7 @@
 import apiClient from '@/apiService/apiClient';
 import HeaderPage from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
-
+import { notification } from 'ant-design-vue';
 export default {
     name: 'HomePage',
 
@@ -477,8 +480,10 @@ export default {
     methods: {
         async toggleLike(item) {
             if (!this.playerStore.idUserLogin) {
-                console.warn('User not logged in. Cannot like/unlike song.');
-                // Optionally, show a login prompt
+                notification.warning({
+                    message: 'Warning',
+                    description: 'You need to log in to like/unlike a song.',
+                });
                 return;
             }
 
@@ -487,27 +492,41 @@ export default {
                     song_id: item.id,
                     user_id: this.playerStore.idUserLogin
                 };
-                // Call the toggleLike API
                 await apiClient.post('http://localhost:3000/api/like/toggleLike', payload);
 
-                // Update the local state (isLiked property of the song item)
-                // Find the song in either songs or similarSong and update its isLiked status
+                // Update the local state
                 const songIndex = this.songs.findIndex(s => s.id === item.id);
                 if (songIndex !== -1) {
-                    this.$set(this.songs, songIndex, { ...this.songs[songIndex], isLiked: !this.songs[songIndex].isLiked });
+                    const newStatus = !this.songs[songIndex].isLiked;
+                    this.$set(this.songs, songIndex, { ...this.songs[songIndex], isLiked: newStatus });
+
+                    notification.success({
+                        message: 'Success',
+                        description: newStatus ? 'You liked the song.' : 'You unliked the song.',
+                    });
                 } else {
                     const similarSongIndex = this.similarSong.findIndex(s => s.id === item.id);
                     if (similarSongIndex !== -1) {
-                         this.$set(this.similarSong, similarSongIndex, { ...this.similarSong[similarSongIndex], isLiked: !this.similarSong[similarSongIndex].isLiked });
+                        const newStatus = !this.similarSong[similarSongIndex].isLiked;
+                        this.$set(this.similarSong, similarSongIndex, { ...this.similarSong[similarSongIndex], isLiked: newStatus });
+
+                        notification.success({
+                            message: 'Success',
+                            description: newStatus ? 'You liked the song.' : 'You unliked the song.',
+                        });
                     }
                 }
 
                 console.log(`Toggled like status for song ID ${item.id}`);
             } catch (error) {
                 console.error('Error toggling like:', error);
-                // Handle error, e.g., show a message to the user
+                notification.error({
+                    message: 'Error',
+                    description: 'Failed to toggle like status. Please try again later.',
+                });
             }
         },
+
         async getSimilarSong() {
             try {
                 console.log('Fetching similar songs with params:', {
@@ -609,14 +628,14 @@ export default {
                     songsData = songsData.map((song, index) => ({
                         ...song,
                         isMenuOpen: false,
-                        isLiked: likeStatusResults[index] || false 
+                        isLiked: likeStatusResults[index] || false
                     }));
                 }
                 else {
-                     songsData = songsData.map(song => ({
+                    songsData = songsData.map(song => ({
                         ...song,
                         isMenuOpen: false,
-                        isLiked: false 
+                        isLiked: false
                     }));
                 }
 
@@ -702,7 +721,7 @@ export default {
             }
 
             const rotateTonearms = document.querySelector('.rotate');
-            
+
             // Nếu đang phát thì pause, nếu đang pause thì play
             if (this.playerStore.isPlaying) {
                 this.playerStore.pause();
@@ -916,6 +935,7 @@ export default {
     0% {
         transform: translateX(100%);
     }
+
     100% {
         transform: translateX(-100%);
     }

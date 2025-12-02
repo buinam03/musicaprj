@@ -113,28 +113,28 @@
                                 </span>
                             </div>
                             <div v-if="isLogoDropdownOpen"
-                                class="absolute left-0 mt-4 w-40 bg-gray-200 xl:w-40 lg:w-28 md:w-24">
-                                <ul>
+                                class="absolute left-0 mt-4 w-40 xl:w-40 lg:w-28 md:w-24 bg-[#222021]">
+                                <ul class="mb-0">
                                     <li class="border-gray-300 border-b-2  hover:scale-110 transition-all duration-300"><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center"
+                                            class="px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center"
                                             :to="`/profile/${idUserCurrent}`">
                                             <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 text-left"/>
                                             Profile</router-link></li>
                                     <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300"><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/tracks">
+                                            class=" px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/tracks">
                                             <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-2"/>
                                             Tracks</router-link></li>
                                     <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/likes">
+                                            class=" px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/likes">
                                             <font-awesome-icon icon="fa-solid fa-heart" class="mr-2"/>
                                             Likes</router-link></li>
                                     <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/following/${playerStore.idUserLogin}`">
+                                            class=" px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/following/${playerStore.idUserLogin}`">
                                             <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2"/>
                                             Following</router-link>
                                     </li>
                                     <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/followers/${playerStore.idUserLogin}`">
+                                            class=" px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/followers/${playerStore.idUserLogin}`">
                                             <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2"/>
                                             Followers</router-link>
                                     </li>

@@ -14,7 +14,7 @@
                                 :icon="playerStore.currentSong && trackInfo && playerStore.currentSong.id === trackInfo.id && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
                                 size="2xl" class="absolute" />
                         </div>
-                        <div class="px-4 text-[32px] w-2/3 text-left text-white ">
+                        <div class="px-4 text-[32px] text-left text-white max-w-[600px] break-words">
                             {{ trackInfo.title }}
                             <div v-if="userById" class="text-white text-[16px] cursor-pointer">
                                 {{ userById.username }}
@@ -335,7 +335,7 @@ export default {
                     following_id: this.userById.id,
                     follower_id: this.playerStore.idUserLogin
                 }
-                
+
                 if (this.isFollowed) {
                     // Unfollow
                     await apiClient.delete(`/follow/unfollow`, { data: payload });
@@ -345,7 +345,7 @@ export default {
                     await apiClient.post('/follow/addNewFollower', payload);
                     this.followerCount++;
                 }
-                
+
                 this.isFollowed = !this.isFollowed;
             } catch (error) {
                 console.error("Failed to follow/unfollow:", error);

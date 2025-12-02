@@ -404,7 +404,7 @@
                                     <div
                                         class="font-semibold max-w-[320px] text-lg hover:text-purple-500 text-ellipsis overflow-hidden whitespace-nowrap xl:text-xl lg:text-base md:text-base">
                                         <router-link :to="`/trackinfo/${item.Song.id}`">{{ item.Song.title
-                                            }}</router-link>
+                                        }}</router-link>
                                     </div>
                                     <div class="flex">
                                         <div
@@ -809,9 +809,19 @@ export default {
                 if (this.likedSongs.includes(songId)) {
                     // Nếu đã like thì bỏ like
                     this.likedSongs = this.likedSongs.filter(id => id !== songId);
+                    notification.success({
+                        message: 'Success',
+                        description: 'Unike song succcessfully',
+                        duration: 3,
+                    });
                 } else {
                     // Nếu chưa like thì thêm vào
                     this.likedSongs.push(songId);
+                    notification.success({
+                        message: 'Success',
+                        description: 'Like song succcessfully',
+                        duration: 3,
+                    });
                 }
             } catch (error) {
                 console.error('Error toggling like:', error);
