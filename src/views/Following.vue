@@ -1,65 +1,104 @@
 <template>
-    <div>
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
         <Header></Header>
-        <div class="pt-16 notification-container fixed top-0 right-0 mt-2 mr-4" v-if="Message">
-            <div class="notification bg-orange-500 text-white px-4 py-2 rounded-sm shadow-lg font-extralight">
-                {{ Message }}
-            </div>
-        </div>
-        <div
-            class="pt-16 w-container mx-auto h-auto mb-16 xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
-
-            <div class="flex justify-between items-center h-auto w-full">
-                <div v-if="userById" class="text-left font-semibold p-4 text-2xl">
-                    {{ userById.username }} is Following
-                </div>
-                <div v-else class="text-left font-semibold p-4 text-2xl">
-                    Following
+        <div class="pt-16 sm:pt-20 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <!-- Header Section -->
+            <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-1">
+                        <span v-if="userById">{{ userById.username }}'s Following</span>
+                        <span v-else>Following</span>
+                    </h1>
+                    <p v-if="users && users.length > 0" class="text-gray-500 text-sm sm:text-base">
+                        {{ users.length }} {{ users.length === 1 ? 'person' : 'people' }}
+                    </p>
                 </div>
 
-                <input v-model="usernameSearch" @keyup.enter="searchUserFollowing" class="no-clear border-[1px] w-80 p-4 h-10 rounded-[4px] cursor-text text-sm " type="search"
-                    name="search" id="" placeholder="Search">
-            </div>
-            <div v-if="users && users.length > 0"
-                class="grid grid-cols-5 gap-4 mb-4 w-full xl:w-container  xl:grid-cols-5 xl:gap-4 lg:w-[960px] lg:grid-cols-4 lg:gap-2 md:grid-cols-3 md:gap-1">
-                <div v-for="(user, index) in users" :key="index" class=" h-[300px] p-4 bg-white shadow-lg rounded-2xl">
-                    <div class="w-[180px] aspect-square mx-auto xl:w-[180px] lg:w-[150px] md:w-[120px]">
-                        <img :src="user.following.profile_picture || defaultImage" alt="Profile picture"
-                            class="rounded-full mr-4 object-cover w-full h-full">
+                <!-- Search -->
+                <div class="relative w-full sm:w-auto sm:min-w-[300px]">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <font-awesome-icon icon="fa-solid fa-search" class="text-gray-400" />
                     </div>
-                    <div>
-                        <h2 class="text-lg font-semibold xl:text-lg lg:text-[14px] md:text-[12px]">{{
-                            user.following.username }}</h2>
+                    <input 
+                        v-model="usernameSearch" 
+                        @keyup.enter="searchUserFollowing"
+                        type="search"
+                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                        placeholder="Search following..."
+                    >
+                </div>
+            </div>
 
-                        <div @click="followToggle(user.following.id, index)"
-                            class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
-                            :class="{
-                                'bg-orange-500 text-white hover:border-white': !user.isFollowed,
-                                'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': user.isFollowed
-                            }">
-                            <div v-if="!user.isFollowed" class="pr-1">
-                                <font-awesome-icon icon="fa-solid fa-user-plus" />
-                            </div>
-                            <div v-if="user.isFollowed" class="pr-1 text-orange-500">
-                                <font-awesome-icon icon="fa-solid fa-user-check" />
-                            </div>
-                            {{ user.isFollowed ? 'Following' : 'Follow' }}
+            <!-- Users Grid -->
+            <div v-if="users && users.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                <div 
+                    v-for="(user, index) in users" 
+                    :key="index" 
+                    class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                >
+                    <div class="p-4 sm:p-6">
+                        <!-- Avatar -->
+                        <div class="flex justify-center mb-4">
+                            <router-link :to="`/profile/${user.following.id}`" class="relative group/avatar">
+                                <div class="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-4 border-white shadow-lg group-hover/avatar:border-orange-500 transition-all duration-300">
+                                    <img 
+                                        :src="user.following.profile_picture || defaultImage" 
+                                        alt="Profile picture"
+                                        class="w-full h-full object-cover"
+                                    >
+                                </div>
+                                <div class="absolute inset-0 rounded-full bg-orange-500/0 group-hover/avatar:bg-orange-500/20 transition-all duration-300"></div>
+                            </router-link>
                         </div>
+
+                        <!-- Username -->
+                        <div class="text-center mb-4">
+                            <router-link :to="`/profile/${user.following.id}`">
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-800 hover:text-orange-500 transition-colors truncate">
+                                    {{ user.following.username }}
+                                </h3>
+                            </router-link>
+                        </div>
+
+                        <!-- Follow Button -->
+                        <button
+                            @click="followToggle(user.following.id, index)"
+                            class="w-full py-2.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2"
+                            :class="{
+                                'bg-orange-500 hover:bg-orange-600 text-white shadow-md hover:shadow-lg': !user.isFollowed,
+                                'bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50': user.isFollowed
+                            }"
+                        >
+                            <font-awesome-icon 
+                                :icon="user.isFollowed ? 'fa-solid fa-user-check' : 'fa-solid fa-user-plus'" 
+                            />
+                            <span>{{ user.isFollowed ? 'Following' : 'Follow' }}</span>
+                        </button>
                     </div>
                 </div>
             </div>
-            <div v-else class="h-[160px] w-full flex justify-center items-center py-8">
-                <div class="text-[20px] text-gray-500">{{ userById ? userById.username : 'User' }} isn't following anyone yet.</div>
+
+            <!-- Empty State -->
+            <div v-else class="bg-white rounded-2xl shadow-xl p-12 sm:p-16 text-center">
+                <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 rounded-full bg-orange-100 flex items-center justify-center">
+                    <font-awesome-icon icon="fa-solid fa-users" class="text-orange-500 text-4xl sm:text-5xl" />
+                </div>
+                <h3 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
+                    No Following Yet
+                </h3>
+                <p class="text-gray-500 text-sm sm:text-base">
+                    {{ userById ? userById.username : 'This user' }} isn't following anyone yet.
+                </p>
             </div>
         </div>
-
     </div>
 </template>
 
 <script>
-
 import Header from '@/components/Header.vue';
 import apiClient from '@/apiService/apiClient';
+import { notification } from 'ant-design-vue';
+
 export default {
     name: 'FollowingPage',
     data() {
@@ -69,38 +108,55 @@ export default {
             defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
             userById: null,
             usernameSearch: '',
-            Message: '',
         };
     },
     methods: {
         async searchUserFollowing() {
+            if (!this.usernameSearch.trim()) {
+                this.fetchFollowing();
+                return;
+            }
+
             try {
-                const response = await apiClient.get(`http://localhost:3000/api/follow/searchFollowing`,{params: {username: this.usernameSearch,id: this.profileId}});
+                const response = await apiClient.get(`http://localhost:3000/api/follow/searchFollowing`, {
+                    params: { username: this.usernameSearch, id: this.profileId }
+                });
                 this.users = response.data.data;
-                if(this.users.length > 0){
+                
+                if (this.users.length > 0) {
                     this.users = this.users.map(user => ({
                         ...user,
-                        isFollowed: true // Set initial follow state to true for all users
+                        isFollowed: true
                     }));
-                }
-                else{
+                    notification.success({
+                        message: 'Search Complete',
+                        description: `Found ${this.users.length} result(s).`,
+                        duration: 2,
+                    });
+                } else {
                     this.fetchFollowing();
                     this.usernameSearch = '';
-                    this.Message = 'No user found';
-                    setTimeout(() => {
-                        this.Message = '';
-                    }, 1500);
+                    notification.info({
+                        message: 'No Results',
+                        description: 'No users found. Showing all following.',
+                        duration: 3,
+                    });
                 }
-                console.log('userById',this.users);
             } catch (error) {
                 console.error('Error fetching username:', error);
+                notification.error({
+                    message: 'Search Failed',
+                    description: 'Failed to search users. Please try again.',
+                    duration: 4,
+                });
             }
         },
         async fetchUsername() {
             try {
-                const response = await apiClient.get(`http://localhost:3000/api/users/getUserById/${this.profileId}`,{params: {id: this.profileId}});
+                const response = await apiClient.get(`http://localhost:3000/api/users/getUserById/${this.profileId}`, {
+                    params: { id: this.profileId }
+                });
                 this.userById = response.data.data;
-                console.log('userById',this.userById);
             } catch (error) {
                 console.error('Error fetching username:', error);
             }
@@ -111,10 +167,13 @@ export default {
                     params: { id: this.profileId }
                 });
                 
-                // Lấy danh sách following users
                 const followingUsers = response.data.data;
                 
-                // Tạo mảng các promise để check follow status cho từng user
+                if (followingUsers.length === 0) {
+                    this.users = [];
+                    return;
+                }
+
                 const followStatusPromises = followingUsers.map(user => 
                     apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
                         params: {
@@ -124,67 +183,64 @@ export default {
                     })
                 );
 
-                // Đợi tất cả các request hoàn thành
                 const followStatusResults = await Promise.all(followStatusPromises);
 
-                // Kết hợp dữ liệu user với trạng thái follow
                 this.users = followingUsers.map((user, index) => ({
                     ...user,
                     isFollowed: followStatusResults[index].data.data.isFollowing
                 }));
-
-                console.log('users with follow status:', this.users);
             } catch (error) {
                 console.error('Error fetching following:', error);
+                notification.error({
+                    message: 'Error',
+                    description: 'Failed to load following list. Please refresh the page.',
+                    duration: 4,
+                });
             }
         },
         async followToggle(id, index) {
             try {
                 const payload = {
                     following_id: id,
-                }
+                };
+                
                 await apiClient.post('http://localhost:3000/api/follow/addNewFollower', payload);
-                console.log('Success', payload);
+                
                 this.users[index].isFollowed = !this.users[index].isFollowed;
+                
+                notification.success({
+                    message: this.users[index].isFollowed ? 'Following' : 'Unfollowed',
+                    description: `You are now ${this.users[index].isFollowed ? 'following' : 'unfollowing'} ${this.users[index].following.username}.`,
+                    duration: 2,
+                });
             } catch (error) {
                 console.error("Failed to follow:", error);
+                notification.error({
+                    message: 'Action Failed',
+                    description: 'Failed to update follow status. Please try again.',
+                    duration: 4,
+                });
             }
         },
     },
     components: {
         Header,
-
     },
     mounted() {
         this.fetchFollowing();
-        // this.getFollowerById();
         this.fetchUsername();
     }
 };
 </script>
 
 <style scoped>
-.grid {
-    padding-top: 20px;
+/* Smooth transitions */
+button, a {
+    transition: all 0.2s ease;
 }
-.notification {
-    animation: fade-in-out 3s ease;
-}
-@keyframes fade-in-out {
-    0% {
-        opacity: 0;
-    }
 
-    10% {
-        opacity: 1;
-    }
-
-    90% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
+/* Custom hover effects */
+.group:hover .group-hover\:border-orange-500 {
+    border-color: #f97316;
 }
 </style>

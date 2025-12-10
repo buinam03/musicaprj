@@ -190,6 +190,7 @@ import apiClient from '@/apiService/apiClient';
 import Header from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
 import { formatDistanceToNow } from 'date-fns';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 
 export default {
     setup() {
@@ -299,8 +300,10 @@ export default {
     methods: {
         async getFollowerById() {
             try {
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
                 try {
-                    const res = await apiClient.get(`http://localhost:3000/api/follow/getFollowerById/${this.playerStore.idUserLogin}`);
+                    const res = await apiClient.get(`http://localhost:3000/api/follow/getFollowerById/${userId}`);
                     this.follower = res.data.data;
                     if (this.follower) {
                         this.isFollowed = true;
@@ -318,9 +321,11 @@ export default {
         },
         async checkFollowStatus() {
             try {
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
                 const response = await apiClient.get('/follow/getFollowStatus', {
                     params: {
-                        follower_id: this.playerStore.idUserLogin,
+                        follower_id: userId,
                         following_id: this.userById.id
                     }
                 });
@@ -331,9 +336,11 @@ export default {
         },
         async followUser() {
             try {
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
                 const payload = {
                     following_id: this.userById.id,
-                    follower_id: this.playerStore.idUserLogin
+                    follower_id: userId
                 }
 
                 if (this.isFollowed) {
@@ -374,19 +381,22 @@ export default {
         },
         async checkLikeStatus() {
             try {
-                const response = await apiClient.get(`/like/getLikeStatus?user_id=${this.playerStore.idUserLogin}&song_id=${this.trackInfo.id}`);
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
+                const response = await apiClient.get(`/like/getLikeStatus?user_id=${userId}&song_id=${this.trackInfo.id}`);
                 this.isLiked = response.data.isLiked;
             } catch (error) {
                 console.error('Error checking like status:', error);
             }
         },
         async toggleLike(songId) {
-            if (!this.playerStore.idUserLogin) return;
+            const userId = getUserIdFromJWT();
+            if (!userId) return;
 
             try {
                 const payload = {
                     song_id: songId,
-                    user_id: this.playerStore.idUserLogin
+                    user_id: userId
                 }
                 await apiClient.post(`/like/toggleLike`, payload);
 

@@ -135,14 +135,40 @@ export const usePlayerStore = defineStore("player", {
             if (!this.isLoggedIn) {
                  await this.loadPlaylistRandom();
             }
+            
+            // Extract duration from various possible structures
+            let duration = 0;
+            if (song.SongDetail?.duration) {
+                duration = Number(song.SongDetail.duration);
+            } else if (song.duration) {
+                duration = Number(song.duration);
+            }
+            
+            // Validate duration
+            if (isNaN(duration) || duration <= 0) {
+                duration = 0;
+            }
+
+            // Extract username from various possible structures
+            let username = 'Unknown Artist';
+            if (song.User?.username) {
+                username = song.User.username;
+            } else if (song.username) {
+                username = song.username;
+            } else if (song.SongArtists?.[0]?.User?.username) {
+                username = song.SongArtists[0].User.username;
+            }
+
             const songToPlay = {
                  id: song.id,
                  title: song.title || 'Unknown Title',
-                 artwork: song.artwork,
+                 artwork: song.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg',
                  path: song.path,
-                 duration: song.SongDetail?.duration || song.duration || 0, 
-                 username: song.User?.username || song.username || 'Unknown Artist' 
+                 duration: duration, 
+                 username: username
             };
+
+            console.log('Playing song:', songToPlay);
 
             if (!songToPlay.path) {
                  console.warn('Song path is missing', songToPlay);
@@ -175,11 +201,25 @@ export const usePlayerStore = defineStore("player", {
             this.currentSong = songToPlay;
             this.isPlaying = true;
             this.isPlayed = false; // Reset isPlayed for new song
+            this.currentTime = 0; // Reset current time
 
-            // // Log user listen if logged in
-            // if (this.idUserLogin && songToPlay.id) {
-            //      this.logUserListen(songToPlay.id);
-            // }
+            // Log user listen if logged in
+            if (this.idUserLogin && songToPlay.id) {
+                 this.logUserListen(songToPlay.id);
+            }
+
+            // Get duration from audio metadata if not available from song data
+            this.audio.onloadedmetadata = () => {
+                const audioDuration = this.audio.duration;
+                if (audioDuration && (!this.currentSong.duration || this.currentSong.duration === 0)) {
+                    // Update currentSong duration reactively
+                    this.currentSong = {
+                        ...this.currentSong,
+                        duration: audioDuration
+                    };
+                    console.log('Duration loaded from audio metadata:', audioDuration);
+                }
+            };
 
             // Set up audio events
             this.audio.ontimeupdate = () => {

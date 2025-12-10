@@ -59,16 +59,16 @@
                                     </span>
                                 </div>
                                 <div class="pt-[8px] flex justify-center">
-                                    <div v-if="item.id != playerStore.idUserLogin" @click="followToggle(item.id, index)"
+                                    <div v-if="item.id != getCurrentUserId()" @click="followToggle(item.id, index)"
                                         class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
                                         :class="{
                                             'bg-orange-500 text-white hover:border-white': !item.isFollowed,
                                             'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': item.isFollowed
                                         }">
-                                        <div v-if="!item.isFollowed && item.id != playerStore.idUserLogin" class="pr-1">
+                                        <div v-if="!item.isFollowed && item.id != getCurrentUserId()" class="pr-1">
                                             <font-awesome-icon icon="fa-solid fa-user-plus" />
                                         </div>
-                                        <div v-if="item.isFollowed && item.id != playerStore.idUserLogin"
+                                        <div v-if="item.isFollowed && item.id != getCurrentUserId()"
                                             class="pr-1 text-orange-500">
                                             <font-awesome-icon icon="fa-solid fa-user-check" />
                                         </div>
@@ -331,16 +331,16 @@
                                     </span>
                                 </div>
                                 <div class="pt-[8px] flex justify-center">
-                                    <div v-if="item.id != playerStore.idUserLogin" @click="followToggle(item.id, index)"
+                                    <div v-if="item.id != getCurrentUserId()" @click="followToggle(item.id, index)"
                                         class="w-[120px] max-w-[120px] flex items-center justify-center h-auto rounded-3xl border-[1px] mx-auto cursor-pointer my-4 p-2 text-sm xl:text-sm lg:text-[12px] md:text-[10px] "
                                         :class="{
                                             'bg-orange-500 text-white hover:border-white': !item.isFollowed,
                                             'bg-white border-orange-500 text-orange-500 hover:border-orange-500 ': item.isFollowed
                                         }">
-                                        <div v-if="!item.isFollowed && item.id != playerStore.idUserLogin" class="pr-1">
+                                        <div v-if="!item.isFollowed && item.id != getCurrentUserId()" class="pr-1">
                                             <font-awesome-icon icon="fa-solid fa-user-plus" />
                                         </div>
-                                        <div v-if="item.isFollowed && item.id != playerStore.idUserLogin"
+                                        <div v-if="item.isFollowed && item.id != getCurrentUserId()"
                                             class="pr-1 text-orange-500">
                                             <font-awesome-icon icon="fa-solid fa-user-check" />
                                         </div>
@@ -362,6 +362,7 @@
 import Header from '@/components/Header.vue';
 import apiClient from '@/apiService/apiClient';
 import { usePlayerStore } from '@/js/state';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 export default {
     setup() {
         const playerStore = usePlayerStore();
@@ -402,6 +403,9 @@ export default {
         
     },
     methods: {
+        getCurrentUserId() {
+            return getUserIdFromJWT();
+        },
         togglePlay(index, song) {
             const playerStore = usePlayerStore();
             const username = song.SongArtists?.[0]?.User?.username || "Unknown Artist";
@@ -464,10 +468,11 @@ export default {
                 );
 
                 // Tạo mảng các promise để lấy trạng thái follow
+                const userId = getUserIdFromJWT();
                 const followStatusPromises = artists.map(user =>
                     apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
                         params: {
-                            follower_id: this.playerStore.idUserLogin,
+                            follower_id: userId,
                             following_id: user.id
                         }
                     })

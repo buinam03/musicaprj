@@ -90,6 +90,7 @@
 import Header from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
 import apiClient from '@/apiService/apiClient';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 export default {
     name: 'LibraryPage',
     setup() {
@@ -117,7 +118,9 @@ export default {
             this.$router.push({name : 'LikesPage'});
         },
         gotoFollowing(){
-            this.$router.push({path: '/following/' + this.playerStore.idUserLogin})
+            const userId = getUserIdFromJWT();
+            if (!userId) return;
+            this.$router.push({path: '/following/' + userId})
         },
         playToggle(index, song) {
             const playerStore = usePlayerStore();
@@ -146,9 +149,11 @@ export default {
         },
         async fetchLikes() {
             try {
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
                 const response = await apiClient.get(`http://localhost:3000/api/like/getSongLikeById`, {
                     params: {
-                        user_id: this.playerStore.idUserLogin,
+                        user_id: userId,
                     }
                 });
 
@@ -170,8 +175,10 @@ export default {
         },
         async fetchFollowing() {
             try {
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
                 const response = await apiClient.get(`http://localhost:3000/api/follow/getAllFollowing`, {
-                    params: { id: this.playerStore.idUserLogin }
+                    params: { id: userId }
                 });
                 
                 // Lấy danh sách following users
@@ -181,7 +188,7 @@ export default {
                 const followStatusPromises = followingUsers.map(user => 
                     apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
                         params: {
-                            follower_id: this.playerStore.idUserLogin,
+                            follower_id: userId,
                             following_id: user.following.id
                         }
                     })

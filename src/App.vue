@@ -1,4 +1,5 @@
 <template>
+  <Header />
   <div id="app">
     <router-view></router-view>
   </div>
@@ -8,14 +9,16 @@
 
 <script>
 import Footer from './components/Footer.vue';
+import Header from './components/Header.vue';
 import PlaylistPanel from './components/PlaylistPanel.vue';
-  export default {
-    name: 'App',
-    components: {
-      Footer,
-      PlaylistPanel
-    }
-  };
+export default {
+  name: 'App',
+  components: {
+    Header,
+    Footer,
+    PlaylistPanel
+  }
+};
 </script>
 
 <style>

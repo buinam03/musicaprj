@@ -59,6 +59,7 @@
 import { usePlayerStore } from '@/js/state';
 import { ref } from 'vue';
 import apiClient from '@/apiService/apiClient';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 
 export default {
     name: 'PlaylistPanel',
@@ -107,12 +108,13 @@ export default {
         };
 
         const LikeToggle = async (index, songId) => {
-            if (!playerStore.idUserLogin) return;
+            const userId = getUserIdFromJWT();
+            if (!userId) return;
             
             try {
                 const payload = {
                     song_id: songId,
-                    user_id: playerStore.idUserLogin
+                    user_id: userId
                 };
                 await apiClient.post(`http://localhost:3000/api/like/toggleLike`, payload);
                 

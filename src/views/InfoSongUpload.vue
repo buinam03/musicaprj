@@ -1,121 +1,193 @@
 <template>
-    <div>
-        <div class="pt-16 notification-container fixed top-0 right-0 mt-2 mr-4" v-if="successMessage">
-            <div class="notification bg-orange-500 text-white px-4 py-2 rounded-sm shadow-lg font-extralight">
-                {{ successMessage }}
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+        <div class="pt-16 sm:pt-20 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-6 sm:mb-8 lg:mb-10">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">
+                    Add Track Details
+                </h1>
+                <p class="text-gray-600 text-sm sm:text-base">
+                    Complete the information below to publish your track
+                </p>
             </div>
-        </div>
-        <div
-            class="pt-16 mb-20 w-container mx-auto h-auto xl:w-[1200px] lg:w-[960px] md:w-[700px] xl:mx-auto lg:mx-auto md:mx-auto">
-            <div
-                class="grid grid-cols-[550px_1fr] gap-4 h-full mt-10 xl:grid-cols-[550px_1fr] lg:grid-cols-[450px_1fr] md:grid-cols-[300px_1fr]">
-                <div class="flex justify-center items-start relative">
-                    <div
-                        class="aspect-square h-[450px] border-[2px] border-gray-300 border-dashed rounded-md mx-auto xl:h-[450px] lg:h-[350px] md:h-[300px]">
-                        <button type="button" class="btn-warning" :class="{ 'cursor-default': isImageUpload }">
-                            <img v-if="imageURL" :src="imageURL" class="w-full h-full object-cover p-5 border-[10px]"
-                                alt="artwork">
-                            <div v-else class="flex flex-col items-center gap-10">
-                                <font-awesome-icon icon="fa-solid fa-upload" class="uploadIcon opacity-50" />
-                                <span class="opacity-50 text-xl">Add new artwork</span>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6 lg:gap-8">
+                <!-- Left: Artwork Upload -->
+                <div class="flex justify-center lg:justify-start">
+                    <div class="w-full max-w-md lg:max-w-none">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
+                            Album Artwork
+                        </label>
+                        <div class="relative group">
+                            <div
+                                class="aspect-square w-full border-2 border-dashed rounded-xl overflow-hidden transition-all duration-300"
+                                :class="imageURL ? 'border-orange-300 shadow-lg' : 'border-gray-300 hover:border-orange-400 hover:bg-orange-50/50'">
+                                <button 
+                                    type="button" 
+                                    class="w-full h-full relative"
+                                    :class="{ 'cursor-default': isImageUpload }"
+                                    @click="!isImageUpload && $refs.fileInput?.click()"
+                                >
+                                    <img 
+                                        v-if="imageURL" 
+                                        :src="imageURL" 
+                                        class="w-full h-full object-cover"
+                                        alt="Album artwork">
+                                    <div 
+                                        v-else 
+                                        class="flex flex-col items-center justify-center h-full gap-4 sm:gap-6 px-4">
+                                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-orange-100 flex items-center justify-center">
+                                            <font-awesome-icon 
+                                                icon="fa-solid fa-image" 
+                                                class="text-orange-500 text-2xl sm:text-3xl" />
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-gray-600 font-medium text-sm sm:text-base block mb-1">
+                                                Add artwork
+                                            </span>
+                                            <span class="text-gray-400 text-xs sm:text-sm">
+                                                JPG or PNG
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <input 
+                                        ref="fileInput" 
+                                        type="file" 
+                                        accept=".jpg,.jpeg,.png,.webp" 
+                                        @change="handleFileUpload"
+                                        class="hidden">
+                                </button>
                             </div>
 
-                            <input ref="fileInput" type="file" accept=".jpg,.png" @change="handleFileUpload"
-                                :class="{ 'hidden': isImageUpload }">
-                        </button>
-                        <div class="mt-10 h-20">
-                            <div class="flex justify-between">
-                                <div v-if="isImageUpload" @click="replaceImage"
-                                    class="h-20 w-20 border-[1px] border-gray-600 rounded-full flex justify-center items-center opacity-70 hover:scale-110 hover:opacity-90 duration-200 cursor-pointer">
-                                    <div class="scale-150 text-gray-600">
-                                        <font-awesome-icon icon="fa-solid fa-pencil" />
-                                    </div>
-                                </div>
-                                <div v-if="isImageUpload" @click="deleteImage" class="h-20 w-20 border-[1px] border-gray-600 rounded-full flex justify-center items-center opacity-70 
-                                hover:scale-110 duration-200 hover:opacity-90 cursor-pointer">
-                                    <div class="scale-150 text-gray-600">
-                                        <font-awesome-icon icon="fa-solid fa-trash" />
-                                    </div>
-                                </div>
+                            <!-- Action Buttons -->
+                            <div v-if="isImageUpload" class="flex justify-center gap-4 mt-4">
+                                <button 
+                                    @click="replaceImage"
+                                    class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-gray-300 hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md group"
+                                    title="Replace image">
+                                    <font-awesome-icon 
+                                        icon="fa-solid fa-pencil" 
+                                        class="text-gray-600 group-hover:text-orange-600 text-sm sm:text-base" />
+                                </button>
+                                <button 
+                                    @click="deleteImage"
+                                    class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md group"
+                                    title="Delete image">
+                                    <font-awesome-icon 
+                                        icon="fa-solid fa-trash" 
+                                        class="text-gray-600 group-hover:text-red-600 text-sm sm:text-base" />
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="">
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold text-sm">
-                            Track title
-                            <div class="text-red-500">*</div>
-                        </div>
-                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4"
-                                :value="fileNameWithoutExtend">
-                        </div>
+
+                <!-- Right: Form Fields -->
+                <div class="space-y-5 sm:space-y-6">
+                    <!-- Track Title -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Track Title <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            v-model="title"
+                            type="text" 
+                            class="w-full h-12 sm:h-14 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                            placeholder="Enter track title"
+                            required>
+                        <p v-if="errors.title" class="mt-1 text-sm text-red-500">{{ errors.title }}</p>
                     </div>
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
-                            Main Artist(s)
-                            <div class="text-red-500">*</div>
-                        </div>
-                        <div v-if="userById" class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" :value="username"
-                                readonly>
-                        </div>
-                        <div v-else class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input id="titleInput" type="text" class="w-full h-full rounded-sm p-4" value="No artist"
-                                readonly>
-                        </div>
+
+                    <!-- Main Artist -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Main Artist(s) <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            :value="username || 'No artist'"
+                            type="text" 
+                            class="w-full h-12 sm:h-14 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base bg-gray-50 cursor-not-allowed"
+                            readonly>
                     </div>
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
-                            Genre (Pop,Jazz,EDM...)
-                            <div class="text-red-500">*</div>
-                        </div>
-                        <div class="w-full h-12 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <select v-model="selectedGenre" class="w-full p-4 text-lg">
-                                <option value="">Select a genre</option>
-                                <option v-for="item in genreList" :key="item.id" :value="item">
-                                    {{ item.name }}
-                                </option>
-                            </select>
-                        </div>
+
+                    <!-- Genre -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Genre <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                            v-model="selectedGenre" 
+                            class="w-full h-12 sm:h-14 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white">
+                            <option value="">Select a genre</option>
+                            <option v-for="item in genreList" :key="item.id" :value="item">
+                                {{ item.name }}
+                            </option>
+                        </select>
+                        <p v-if="errors.genre" class="mt-1 text-sm text-red-500">{{ errors.genre }}</p>
                     </div>
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
-                            Decription
-                        </div>
-                        <div class="w-full h-24 border-[1px] border-gray-400 rounded-sm text-sm">
-                            <input v-model="bio" id="titleInput" type="text"
-                                class="w-full h-full rounded-sm pb-10 pl-4 pr-4"
-                                placeholder="Tracks with descriptions tend to get more plays and engagement.">
-                        </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea 
+                            v-model="bio"
+                            rows="4"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"
+                            placeholder="Tracks with descriptions tend to get more plays and engagement. Tell your listeners about your track..."
+                        ></textarea>
                     </div>
-                    <div class="w-full h-auto">
-                        <div class="text-left flex font-semibold mt-5 mb-2 text-sm">
+
+                    <!-- Privacy -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">
                             Track Privacy
-                        </div>
-                        <div class="w-full text-sm flex">
-                            <div class="flex justify-start items-center">
-                                <input v-model="privacy" value="1" type="radio" name="" id="">
-                                <div class="pl-2 font-semibold text-sm">
+                        </label>
+                        <div class="flex flex-wrap gap-4 sm:gap-6">
+                            <label class="flex items-center cursor-pointer group">
+                                <input 
+                                    v-model="privacy" 
+                                    value="1" 
+                                    type="radio" 
+                                    name="privacy"
+                                    class="w-5 h-5 text-orange-500 focus:ring-orange-500 focus:ring-2 border-gray-300 cursor-pointer">
+                                <span class="ml-3 text-sm sm:text-base font-medium text-gray-700 group-hover:text-orange-600 transition-colors">
+                                    <font-awesome-icon icon="fa-solid fa-globe" class="mr-2" />
                                     Public
-                                </div>
-                            </div>
-                            <div class="flex justify-start items-center ml-10">
-                                <input v-model="privacy" value="0" type="radio" name="" id="">
-                                <div class="pl-2 font-semibold text-sm">
+                                </span>
+                            </label>
+                            <label class="flex items-center cursor-pointer group">
+                                <input 
+                                    v-model="privacy" 
+                                    value="0" 
+                                    type="radio" 
+                                    name="privacy"
+                                    class="w-5 h-5 text-orange-500 focus:ring-orange-500 focus:ring-2 border-gray-300 cursor-pointer">
+                                <span class="ml-3 text-sm sm:text-base font-medium text-gray-700 group-hover:text-orange-600 transition-colors">
+                                    <font-awesome-icon icon="fa-solid fa-lock" class="mr-2" />
                                     Private
-                                </div>
-                            </div>
+                                </span>
+                            </label>
                         </div>
                     </div>
-                    <div class="w-full h-8 0 mt-5">
-                        <div @click="uploadMusic" class="flex justify-end items-center h-full">
-                            <div
-                                class="w-28 h-full bg-orange-500 rounded-2xl text-sm text-white flex items-center justify-center font-semibold cursor-pointer hover:bg-orange-400">
-                                Upload
-                            </div>
-                        </div>
+
+                    <!-- Upload Button -->
+                    <div class="pt-4 flex justify-end">
+                        <button 
+                            @click="uploadMusic"
+                            :disabled="isUploading"
+                            class="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl text-sm sm:text-base shadow-lg hover:shadow-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <font-awesome-icon 
+                                v-if="isUploading" 
+                                icon="fa-solid fa-spinner" 
+                                class="animate-spin" />
+                            <font-awesome-icon 
+                                v-else 
+                                icon="fa-solid fa-cloud-arrow-up" />
+                            <span>{{ isUploading ? 'Uploading...' : 'Upload Track' }}</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -127,6 +199,9 @@
 import apiClient from '@/apiService/apiClient';
 import axios from 'axios';
 import { usePlayerStore } from '@/js/state';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
+import { notification } from 'ant-design-vue';
+
 export default {
     name: 'InfoSongUpload',
     setup() {
@@ -137,34 +212,36 @@ export default {
     },
     mounted() {
         this.title = this.fileNameWithoutExtend;
-        console.log(this.title);
         this.getGenre();
         this.getUserById();
-
     },
     watch: {
         imageURL(newValue) {
-            this.artwork = newValue;
+            this.artworkFile = newValue;
         }
     },
     data() {
         return {
-            artwork: this.imageURL,
+            artworkFile: null,
             title: "",
             genre: "",
             bio: "",
             duration: null,
-            privacy: 1,
+            privacy: '1',
             fileName: '',
             imageURL: null,
             isImageUpload: false,
-            successMessage: '',
+            isUploading: false,
             audioFile: null,
             fileUrl: null,
             genreList: [],
             userById: null,
             username: '',
             selectedGenre: '',
+            errors: {
+                title: '',
+                genre: ''
+            }
         }
     },
     computed: {
@@ -182,12 +259,18 @@ export default {
     methods: {
         async getUserById() {
             try {
-                const response = await apiClient.get(`/users/getUserById/${this.playerStore.idUserLogin}`);
+                const userId = getUserIdFromJWT();
+                if (!userId) return;
+                const response = await apiClient.get(`/users/getUserById/${userId}`);
                 this.userById = response.data.data;
                 this.username = this.userById.username;
-                console.log('userById', this.userById);
             } catch (error) {
-                console.log('Error get genre', error);
+                console.error('Error getting user:', error);
+                notification.error({
+                    message: 'Error',
+                    description: 'Failed to load user information. Please refresh the page.',
+                    duration: 4,
+                });
             }
         },
         async getGenre() {
@@ -195,73 +278,170 @@ export default {
                 const response = await apiClient.get('http://localhost:3000/api/songdetail/getGenre');
                 this.genreList = response.data.data;
             } catch (error) {
-                console.log('Error get genre', error);
+                console.error('Error getting genres:', error);
+                notification.error({
+                    message: 'Error',
+                    description: 'Failed to load genres. Please refresh the page.',
+                    duration: 4,
+                });
             }
         },
         handleFileUpload(event) {
-            const file = event.target.files[0]; // Lấy file đầu tiên
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.imageURL = e.target.result; // Gán URL ảnh vào `imageUrl`
-                };
-                reader.readAsDataURL(file); // Đọc file dưới dạng DataURL
-                this.isImageUpload = true;
-                event.target.value = null;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                notification.error({
+                    message: 'Invalid File Type',
+                    description: 'Please select a valid image file (JPG, PNG, or WebP).',
+                    duration: 4,
+                });
+                event.target.value = '';
+                return;
             }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                notification.error({
+                    message: 'File Too Large',
+                    description: 'Image size must be less than 5MB. Please compress your image and try again.',
+                    duration: 4,
+                });
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.imageURL = e.target.result;
+                this.artworkFile = file; // Store the actual file for upload
+            };
+            reader.readAsDataURL(file);
+            this.isImageUpload = true;
+            event.target.value = '';
+
+            notification.success({
+                message: 'Image Selected',
+                description: 'Artwork image has been selected successfully.',
+                duration: 2,
+            });
         },
         deleteImage() {
             this.imageURL = null;
+            this.artworkFile = null;
             this.isImageUpload = false;
+            notification.info({
+                message: 'Image Removed',
+                description: 'Artwork image has been removed.',
+                duration: 2,
+            });
         },
         replaceImage() {
-            this.$refs.fileInput.click();
+            this.$refs.fileInput?.click();
+        },
+        validateForm() {
+            this.errors = { title: '', genre: '' };
+            let isValid = true;
+
+            if (!this.title || this.title.trim() === '') {
+                this.errors.title = 'Track title is required';
+                isValid = false;
+            }
+
+            if (!this.selectedGenre || this.selectedGenre === '') {
+                this.errors.genre = 'Please select a genre';
+                isValid = false;
+            }
+
+            if (!this.fileUrl) {
+                notification.error({
+                    message: 'Missing Audio File',
+                    description: 'Audio file URL is missing. Please go back and upload your audio file first.',
+                    duration: 5,
+                });
+                isValid = false;
+            }
+
+            return isValid;
         },
         async uploadMusic() {
+            // Validate form
+            if (!this.validateForm()) {
+                notification.warning({
+                    message: 'Validation Error',
+                    description: 'Please fill in all required fields.',
+                    duration: 4,
+                });
+                return;
+            }
+
+            this.isUploading = true;
+
             try {
+                let artworkUrl = '';
 
-                const formData = new FormData();
-                // formData.append("title", this.title);
-                // formData.append("genre", this.selectedGenre.name);
-                // formData.append("bio", this.bio);
-                // formData.append("duration", this.duration);
-                // formData.append("privacy", this.privacy);
-                // formData.append("path", this.fileUrl);
+                // Upload artwork to Cloudinary if image is selected
+                if (this.artworkFile) {
+                    notification.info({
+                        message: 'Uploading Artwork',
+                        description: 'Please wait while we upload your artwork...',
+                        duration: 2,
+                    });
 
-                formData.append("artwork", this.artwork);
-                formData.append("file", this.artwork);
-                formData.append("upload_preset", "ml_default");
+                    const formData = new FormData();
+                    formData.append("file", this.artworkFile);
+                    formData.append("upload_preset", "ml_default");
 
-                const response = await axios.post(
-                    "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
-                    formData
-                );
+                    const response = await axios.post(
+                        "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
+                        formData
+                    );
 
-                const artworkUrl = response.data.secure_url;
-                console.log("Uploaded Artwork URL:", artworkUrl);
+                    artworkUrl = response.data.secure_url;
+                }
 
-                // Lưu URL artwork lại để gửi lên backend
+                // Prepare song data
                 const songData = {
-                    title: this.title,
+                    title: this.title.trim(),
                     genre: this.selectedGenre?.name || "",
-                    bio: this.bio,
+                    bio: this.bio.trim(),
                     duration: this.duration,
-                    privacy: this.privacy,
-                    path: this.fileUrl,      // file nhạc (URL từ trang trước)
-                    artwork: artworkUrl      // ảnh bìa vừa upload
+                    privacy: Number(this.privacy),
+                    path: this.fileUrl,
+                    artwork: artworkUrl || 'http://localhost:8080/images/other/Unknown_person.jpg'
                 };
+
+                notification.info({
+                    message: 'Uploading Track',
+                    description: 'Please wait while we save your track information...',
+                    duration: 2,
+                });
 
                 await apiClient.post("song/addNewSong", songData);
 
+                notification.success({
+                    message: 'Upload Successful!',
+                    description: `"${this.title}" has been uploaded successfully. Redirecting to home...`,
+                    duration: 3,
+                });
 
-                this.successMessage = 'Track upload successful!';
-
+                // Redirect after short delay
                 setTimeout(() => {
-                    this.successMessage = '';
                     this.$router.push('/home');
                 }, 1500);
+
             } catch (error) {
-                console.log({ message: 'error when add new song', error: error });
+                console.error('Upload error:', error);
+                notification.error({
+                    message: 'Upload Failed',
+                    description: error.response?.data?.message || 'An error occurred while uploading your track. Please try again.',
+                    duration: 5,
+                });
+            } finally {
+                this.isUploading = false;
             }
         },
     },
@@ -274,64 +454,79 @@ export default {
         console.log("File Name:", this.fileName);
     },
     beforeRouteLeave(to, from, next) {
-        if (!this.isFormValid || confirm("Bạn chưa hoàn tất upload. Tiếp tục rời trang?")) {
-            next();
-        } else {
+        if (this.isUploading) {
+            notification.warning({
+                message: 'Upload in Progress',
+                description: 'Please wait for the upload to complete before leaving this page.',
+                duration: 3,
+            });
             next(false);
+            return;
         }
+        next();
     }
 }
 </script>
 
 <style scoped>
-.btn-warning {
+/* Custom radio button styling */
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    outline: none;
     position: relative;
-    width: 100%;
-    height: 100%;
-    font-size: 15px;
-    line-height: 1.5;
-    color: #000000;
-    background-color: #ffffff;
-    border: 0;
-    transition: 0.2s;
-    overflow: hidden;
-
-}
-
-.btn-warning input[type="file"] {
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="radio"]:checked {
+    border-color: #f97316;
+    background-color: #ffffff;
+}
+
+input[type="radio"]:checked::before {
+    content: '';
     position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0%;
-    top: 0%;
-    /* transform: scale(3); */
-    opacity: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f97316;
 }
 
-.uploadIcon {
-    transform: scale(5);
+input[type="radio"]:focus {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
-.notification {
-    animation: fade-in-out 3s ease;
+/* Select styling */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
 }
 
-@keyframes fade-in-out {
-    0% {
-        opacity: 0;
-    }
+/* Smooth transitions */
+input, textarea, select {
+    transition: all 0.2s ease;
+}
 
-    10% {
-        opacity: 1;
-    }
-
-    90% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
+/* Focus visible for accessibility */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
 }
 </style>
