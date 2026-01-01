@@ -46,6 +46,9 @@
                 </div>
             </div>
 
+            <!-- Recently Played Section -->
+            <RecentlyPlayed />
+
             <!-- Latest Upload Section -->
             <section class="mb-12 sm:mb-16">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-3 sm:gap-0">
@@ -67,7 +70,7 @@
                     class="grid grid-cols-1 lg:grid-cols-[192px_1fr] gap-4 sm:gap-6 lg:gap-10">
                     <!-- Vinyl Player - Hidden on mobile and tablet -->
                     <div
-                        class="hidden lg:grid h-48 border-4 border-[#F6E2EC] place-items-center rounded-xl shadow-lg bg-white">
+                        class="hidden lg:grid h-48 border-4 border-[#F6E2EC] place-items-center rounded-xl shadow-lg ">
                         <div class="w-5/6 h-5/6 relative">
                             <div class="rotate absolute w-5 h-2 bg-red-500 rounded-md z-50"
                                 :class="{ 'rotate-active': playerStore.isPlaying }">
@@ -75,7 +78,7 @@
                             </div>
                             <div class="relative w-full h-full">
                                 <img class="spin pointer-events-none select-none z-0"
-                                    src="@/image/banners/vinyl-record.png" alt="">
+                                    src="@/image/banners/image-removebg-preview.png" alt="">
                                 <div class="absolute inset-0 flex justify-center items-center text-white z-20 cursor-pointer"
                                     @click="PlayControlToggle">
                                     <font-awesome-icon v-if="playerStore.isPlaying" icon="fa-solid fa-pause"
@@ -142,7 +145,7 @@
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">ARTISTS YOU SHOULD FOLLOW</h2>
                 
                 <!-- Skeleton Loading for Artists -->
-                <div v-if="isLoadingArtists" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                <div v-if="isLoadingArtists" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
                     <div v-for="i in 10" :key="i" class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
                         <div class="flex flex-col items-center">
                             <div class="w-[120px] h-[120px] sm:w-[150px] sm:h-[150px] lg:w-[180px] lg:h-[180px] rounded-full bg-gray-200 animate-pulse mb-3 sm:mb-4"></div>
@@ -153,8 +156,8 @@
                     </div>
                 </div>
 
-                <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-                    <div v-for="(item, index) in artist" :key="index"
+                <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+                    <div v-for="(item, index) in artist.slice(0, 5)" :key="index"
                         class="bg-white rounded-xl shadow-lg p-4 sm:p-6 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
                         <div class="flex flex-col items-center">
                             <img :src="item.profile_picture || profilePicture"
@@ -189,6 +192,53 @@
                 </div>
             </section>
 
+                        <!-- Playlists by Genre Section -->
+                        <section class="mb-12 sm:mb-16">
+                <div class="flex justify-between items-center mb-6 sm:mb-8">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">PLAYLISTS BY GENRE</h2>
+                    <router-link to="/playlists/genre"
+                        class="px-4 sm:px-6 py-2 text-sm sm:text-base text-orange-500 hover:text-orange-600 font-medium transition-colors flex items-center gap-2">
+                        <span>View All</span>
+                        <font-awesome-icon icon="fa-solid fa-arrow-right" />
+                    </router-link>
+                </div>
+                
+                <!-- Skeleton Loading for Playlists -->
+                <div v-if="isLoadingPlaylists" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                    <div v-for="i in 10" :key="i" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <div class="aspect-square bg-gray-200 animate-pulse"></div>
+                        <div class="p-3 sm:p-4">
+                            <div class="h-4 w-3/4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                            <div class="h-3 w-1/2 bg-gray-200 rounded animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="cmsPlaylists && cmsPlaylists.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                    <div v-for="(playlist, index) in cmsPlaylists" :key="index"
+                        @click="goToPlaylist(playlist.id)"
+                        class="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl">
+                        <div class="aspect-square relative group">
+                            <img class="w-full h-full object-cover" 
+                                :src="playlist.artwork || defaultImage" 
+                                :alt="`${playlist.name} artwork`">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <font-awesome-icon icon="fa-solid fa-play" class="text-white text-3xl sm:text-4xl" />
+                            </div>
+                        </div>
+                        <div class="p-3 sm:p-4">
+                            <h3 class="font-semibold text-sm sm:text-base text-gray-800 hover:text-orange-500 transition-colors duration-300 truncate mb-1">
+                                {{ playlist.name }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="h-40 sm:h-48 w-full flex flex-col justify-center items-center py-8 bg-gray-50 rounded-xl border border-gray-200">
+                    <font-awesome-icon icon="fa-solid fa-music" class="text-gray-400 text-4xl mb-3" />
+                    <div class="text-base sm:text-lg text-gray-500 text-center px-4">Playlist not found</div>
+                </div>
+            </section>
+
             <!-- Random Songs Section -->
             <section class="mb-12 sm:mb-16">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">RANDOM SONGS NOW</h2>
@@ -208,7 +258,7 @@
                 </div>
 
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div v-for="(item, index) in songs" :key="index"
+                    <div v-for="(item, index) in songs.slice(0, 6)" :key="index"
                         class="bg-white rounded-xl shadow-lg p-3 sm:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <div class="flex items-center">
                             <div class="h-[60px] sm:h-[70px] w-[60px] sm:w-[70px] flex-shrink-0 aspect-square relative group">
@@ -274,6 +324,15 @@
                                                 <span>Add to Playlist</span>
                                             </div>
                                         </li>
+                                        <li class="text-left">
+                                            <div @click="downloadFile(item.path, item.title)"
+                                                class="flex items-center px-3 sm:px-4 py-2 sm:py-2.5 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150 text-sm sm:text-base">
+                                                <div class="w-6 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <font-awesome-icon icon="fa-solid fa-download" />
+                                                </div>
+                                                <span>Download</span>
+                                            </div>
+                                        </li>
                                         <li @click="playerStore.play(item)" class="text-left">
                                             <div
                                                 class="flex items-center px-3 sm:px-4 py-2 sm:py-2.5 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150 text-sm sm:text-base">
@@ -290,7 +349,7 @@
                                                     <font-awesome-icon icon="fa-regular fa-heart"
                                                         :class="{ 'text-orange-500': item.isLiked }" />
                                                 </div>
-                                                <span>Like</span>
+                                                <span>{{ item.isLiked ? 'Unlike' : 'Like' }}</span>
                                             </div>
                                         </li>
                                     </ul>
@@ -300,6 +359,8 @@
                     </div>
                 </div>
             </section>
+
+
 
             <!-- Recommended Songs Section -->
             <section class="mb-12 sm:mb-16">
@@ -320,7 +381,7 @@
                 </div>
 
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div v-for="(item, index) in similarSong" :key="index"
+                    <div v-for="(item, index) in similarSong.slice(0, 6)" :key="index"
                         class="bg-white rounded-xl shadow-lg p-3 sm:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <div class="flex items-center">
                             <div class="h-[60px] sm:h-[70px] w-[60px] sm:w-[70px] flex-shrink-0 aspect-square relative group">
@@ -356,12 +417,12 @@
                                     class="absolute w-[240px] sm:w-[280px] h-[auto] bg-[#9057e0] rounded-md right-0 bottom-full mb-2 block z-20 shadow-lg overflow-hidden">
                                     <ul>
                                         <div class="mb-2 p-2 border-b border-white/20">
-                                            <div class="flex items-center">
-                                                <div class="basis-1/4">
-                                                    <img class="rounded-md w-full h-full object-cover"
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-16 h-16 flex-shrink-0">
+                                                    <img class="rounded-md w-16 h-16 object-cover"
                                                         :src="item.artwork || defaultImage" alt="Artwork">
                                                 </div>
-                                                <div class="basis-3/4 pl-3">
+                                                <div class="flex-1 min-w-0">
                                                     <div
                                                         class="font-semibold text-white text-left hover:text-purple-300 truncate">
                                                         <a href="#">
@@ -370,10 +431,10 @@
                                                     </div>
                                                     <div class="flex text-white/80 text-sm truncate">
                                                         <span v-if="item.User" @click="gotoProfile(item.User.id)"
-                                                            class="hover:underline cursor-pointer">
+                                                            class="hover:underline cursor-pointer truncate">
                                                             {{ item.User.username }}
                                                         </span>
-                                                        <span v-else>Unknown Artist</span>
+                                                        <span v-else class="truncate">Unknown Artist</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -386,6 +447,15 @@
                                                     <font-awesome-icon icon="fa-solid fa-plus" />
                                                 </div>
                                                 <span>Add to Playlist</span>
+                                            </div>
+                                        </li>
+                                        <li class="text-left">
+                                            <div @click="downloadFile(item.path, item.title)"
+                                                class="flex items-center px-3 sm:px-4 py-2 sm:py-2.5 cursor-pointer text-white hover:bg-white/20 transition-colors duration-150 text-sm sm:text-base">
+                                                <div class="w-6 flex items-center justify-center mr-2 sm:mr-3">
+                                                    <font-awesome-icon icon="fa-solid fa-download" />
+                                                </div>
+                                                <span>Download</span>
                                             </div>
                                         </li>
                                         <li class="text-left">
@@ -404,7 +474,7 @@
                                                     <font-awesome-icon icon="fa-regular fa-heart"
                                                         :class="{ 'text-orange-500': item.isLiked }" />
                                                 </div>
-                                                <span>Like</span>
+                                                <span>{{ item.isLiked ? 'Unlike' : 'Like' }}</span>
                                             </div>
                                         </li>
                                     </ul>
@@ -415,15 +485,25 @@
                 </div>
             </section>
         </div>
+
+        <!-- Add to Playlist Modal -->
+        <AddToPlaylistModal 
+            :isOpen="isAddToPlaylistModalOpen"
+            :song="selectedSongForPlaylist"
+            @close="isAddToPlaylistModalOpen = false; selectedSongForPlaylist = null"
+        />
     </div>
 </template>
 
 <script>
 import apiClient from '@/apiService/apiClient';
 import HeaderPage from '@/components/Header.vue';
+import RecentlyPlayed from '@/components/RecentlyPlayed.vue';
 import { usePlayerStore } from '@/js/state';
 import { notification } from 'ant-design-vue';
 import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
+import { downloadFile } from '@/js/downloadFile';
+import AddToPlaylistModal from '@/components/AddToPlaylistModal.vue';
 export default {
     name: 'HomePage',
 
@@ -431,7 +511,7 @@ export default {
         const playerStore = usePlayerStore();
         return {
             playerStore,
-
+            downloadFile,
         }
     },
     async mounted() {
@@ -445,7 +525,8 @@ export default {
                 this.getRandomUser(),
                 this.getRandomSong(),
                 this.getLastestUpload(),
-                this.getSimilarSong()
+                this.getSimilarSong(),
+                this.getCmsPlaylists()
             ]);
             await this.getAllFollower();
         } catch (error) {
@@ -462,6 +543,7 @@ export default {
             isLoadingArtists: true,
             isLoadingRandomSongs: true,
             isLoadingRecommended: true,
+            isLoadingPlaylists: true,
             defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
             defaultArtwork: 'http://localhost:8080/images/artwork/pixelpig.jpg',
             cardWidth: 180,
@@ -475,50 +557,6 @@ export default {
             isUserPressNextOrPre: false,
             songs: [],
             artist: [],
-            items: [
-                {
-                    id: 1,
-                    title: "Feel Good - Illenium,Gryffin,Daya (Eulelia Remix)",
-                    artist: "Eulelia",
-                    image: require('@/image/artwork/feelgood.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 2,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 3,
-                    title: "W/n - 3107 (feat Nâu,Duongg) (Eulelia Bootleg)",
-                    artist: "Eulelia, W/n ,Nâu ,Dương",
-                    image: require('@/image/artwork/3107 artwork.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 4,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 5,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-                {
-                    id: 6,
-                    title: "Run Away (U & I) (Eulelia Remix)",
-                    artist: "Eulelia, Galantis",
-                    image: require('@/image/artwork/Galantis_-_Runaway_(U_&_I)_cover.jpg'),
-                    isLike: false,
-                },
-            ],
 
             queryString: [],
             lastestUpload: [],
@@ -543,6 +581,9 @@ export default {
                 }
             ],
             slideInterval: null,
+            isAddToPlaylistModalOpen: false,
+            selectedSongForPlaylist: null,
+            cmsPlaylists: [],
         }
     },
 
@@ -738,7 +779,8 @@ export default {
         async getRandomUser() {
             this.isLoadingArtists = true;
             try {
-                const res = await apiClient.get('/users/getRandomUser');
+
+                const res = await apiClient.get(`/users/getRandomUser`);
                 const artists = res.data.data;
                 this.artist = artists.slice(0, 10);
                 this.idUser = this.artist.map(user => user.id);
@@ -854,7 +896,8 @@ export default {
         },
 
         addToPlaylist(song) {
-            this.playerStore.addToPlaylist(song);
+            this.selectedSongForPlaylist = song;
+            this.isAddToPlaylistModalOpen = true;
         },
         likePlaylist(index) {
             this.playlist[index].isLike = !this.playlist[index].isLike;
@@ -904,7 +947,23 @@ export default {
             if (this.slideInterval) {
                 clearInterval(this.slideInterval);
             }
-        }
+        },
+        async getCmsPlaylists() {
+            this.isLoadingPlaylists = true;
+            try {
+                const res = await apiClient.get('/playlist/getPlaylistCMS');
+                this.cmsPlaylists = res.data.data || [];
+                console.log('CMS Playlists:', this.cmsPlaylists);
+            } catch (error) {
+                console.error('Error fetching CMS playlists:', error);
+                this.cmsPlaylists = [];
+            } finally {
+                this.isLoadingPlaylists = false;
+            }
+        },
+        goToPlaylist(id) {
+            this.$router.push({ name: 'PlaylistDetailPage', params: { id } });
+        },
     },
     computed: {
         profilePicture() {
@@ -921,6 +980,8 @@ export default {
     },
     components: {
         HeaderPage,
+        RecentlyPlayed,
+        AddToPlaylistModal,
     },
     beforeUnmount() {
         document.removeEventListener("click", this.clickOutside);
@@ -1062,9 +1123,6 @@ a:focus-visible {
 }
 
 /* Loading state improvements */
-img {
-    background-color: #f3f4f6;
-}
 
 /* Card hover improvements */
 .bg-white {

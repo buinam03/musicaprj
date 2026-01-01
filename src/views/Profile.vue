@@ -68,6 +68,34 @@
                             </button>
                         </div>
 
+                        <!-- Achievements Display -->
+                        <div v-if="selectedAchievements && selectedAchievements.length > 0" class="mb-4">
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                                <span class="text-xs sm:text-sm text-gray-600 font-medium">Achievements:</span>
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <div 
+                                        v-for="(achievement, index) in selectedAchievements" 
+                                        :key="index"
+                                        class="relative group"
+                                        :title="achievement.title"
+                                    >
+                                        <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full border-2 border-orange-500 bg-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center overflow-hidden cursor-pointer hover:scale-110">
+                                            <img 
+                                                :src="achievement.img" 
+                                                :alt="achievement.title"
+                                                class="w-full h-full object-contain p-1.5 sm:p-2"
+                                            />
+                                        </div>
+                                        <!-- Tooltip on hover -->
+                                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+                                            {{ achievement.title }}
+                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Following Avatars -->
                         <div v-if="firstFourFollowingPictures && firstFourFollowingPictures.length > 0" class="flex items-center gap-2 mb-4">
                             <div class="flex -space-x-2">
@@ -199,17 +227,17 @@
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity cursor-pointer"
                                 @click="togglePlay(index, item)">
                                 <font-awesome-icon 
-                                    :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
+                                    :icon="Number(playerStore.currentSong?.id) === Number(item.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
                                     class="text-white text-lg" />
                             </div>
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
-                            <div class="flex-grow min-w-0">
+                            <div class="flex-grow min-w-0 text-left">
                                 <div @click="goToTrack(item.id)" 
-                                    class="font-semibold text-base sm:text-lg text-gray-900 hover:text-orange-500 transition-colors cursor-pointer truncate mb-1">
+                                    class="font-semibold text-base sm:text-lg text-gray-900 hover:text-orange-500 transition-colors cursor-pointer truncate mb-1 text-left">
                                     {{ item.title }}
                                 </div>
-                                <div class="text-sm text-gray-600 truncate mb-2">
+                                <div class="text-sm text-gray-600 truncate mb-2 text-left">
                                     {{ item.User?.username || "Unknown Uploader" }}
                                 </div>
                                 <div class="flex items-center gap-4">
@@ -227,11 +255,15 @@
                                 <button @click.stop="togglePlay(index, item)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon
-                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
+                                        :icon="Number(playerStore.currentSong?.id) === Number(item.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
                                 </button>
                                 <button @click.stop="addToPlaylist(index, item)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" />
+                                </button>
+                                <button @click.stop="downloadFile(item.path, item.title)"
+                                    class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-download" />
                                 </button>
                                 <button v-if="isUserCurrent" @click.stop="toggleEditTracks(item.id)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
@@ -258,16 +290,18 @@
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity cursor-pointer"
                                 @click="togglePlay(index, item)">
                                 <font-awesome-icon 
-                                    :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
+                                    :icon="Number(playerStore.currentSong?.id) === Number(item.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
                                     class="text-white text-lg" />
                             </div>
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
-                            <div class="flex-grow min-w-0">
-                                <div class="font-semibold text-base sm:text-lg text-gray-900 hover:text-orange-500 transition-colors cursor-pointer truncate mb-1">
+                            <div class="flex-grow min-w-0 text-left">
+                                <router-link 
+                                    :to="`/trackinfo/${item.id}`"
+                                    class="font-semibold text-base sm:text-lg text-gray-900 hover:text-orange-500 transition-colors cursor-pointer truncate mb-1 text-left block">
                                     {{ item.title }}
-                                </div>
-                                <div class="text-sm text-gray-600 truncate mb-2">
+                                </router-link>
+                                <div class="text-sm text-gray-600 truncate mb-2 text-left">
                                     <span v-for="(artist, idx) in item.SongArtists" :key="idx">
                                         <span v-if="idx > 0">, </span>{{ artist.User?.username || "Unknown Uploader" }}
                                     </span>
@@ -284,11 +318,15 @@
                                 <button @click.stop="togglePlay(index, item)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon
-                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
+                                        :icon="Number(playerStore.currentSong?.id) === Number(item.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'" />
                                 </button>
                                 <button @click.stop="addToPlaylist(index, item)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" />
+                                </button>
+                                <button @click.stop="downloadFile(item.path, item.title)"
+                                    class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-download" />
                                 </button>
                                 <button v-if="isUserCurrent" @click.stop="toggleEditTracks(item.id)"
                                     class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
@@ -305,7 +343,7 @@
             </div>
             <!-- All Tracks Section -->
             <div class="mt-8 sm:mt-12">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">All Tracks by {{ userById.username }}</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-left">All Tracks by {{ userById.username }}</h2>
                 <div v-if="songUser.length > 0" class="space-y-2 sm:space-y-3">
                     <div v-for="(item, index) in pageData" :key="item.id"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all duration-300">
@@ -314,12 +352,12 @@
                                 alt="artwork" />
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
-                            <div class="flex-grow min-w-0">
+                            <div class="flex-grow min-w-0 text-left">
                                 <router-link :to="`/trackinfo/${item.id}`" 
-                                    class="font-semibold text-sm sm:text-base text-gray-900 hover:text-orange-500 transition-colors truncate block mb-1">
+                                    class="font-semibold text-sm sm:text-base text-gray-900 hover:text-orange-500 transition-colors truncate block mb-1 text-left">
                                     {{ item.title }}
                                 </router-link>
-                                <div class="text-xs sm:text-sm text-gray-600 truncate mb-1">
+                                <div class="text-xs sm:text-sm text-gray-600 truncate mb-1 text-left">
                                     {{ item.User?.username }}
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -337,12 +375,16 @@
                                 <button @click.stop="togglePlay(index, item)"
                                     class="w-9 h-9 sm:w-10 sm:h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon
-                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
+                                        :icon="Number(playerStore.currentSong?.id) === Number(item.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
                                         class="text-xs sm:text-sm" />
                                 </button>
                                 <button @click.stop="addToPlaylist(index, item)"
                                     class="w-9 h-9 sm:w-10 sm:h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" class="text-xs sm:text-sm" />
+                                </button>
+                                <button @click.stop="downloadFile(item.path, item.title)"
+                                    class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-download" />
                                 </button>
                                 <button v-if="idUserCurrent === userById.id" @click.stop="toggleEditTracks(item.id)"
                                     class="w-9 h-9 sm:w-10 sm:h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
@@ -388,7 +430,7 @@
             </div>
             <!-- Likes Section -->
             <div class="mt-8 sm:mt-12">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Likes by {{ userById.username }}</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-left">Likes by {{ userById.username }}</h2>
                 <div v-if="likeByUser && likeByUser.length > 0" class="space-y-2 sm:space-y-3">
                     <div v-for="(item, index) in pageLikeData" :key="item.id"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all duration-300">
@@ -397,12 +439,12 @@
                                 :src="item.Song.artwork || defaultImage" alt="" />
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
-                            <div class="flex-grow min-w-0">
+                            <div class="flex-grow min-w-0 text-left">
                                 <router-link :to="`/trackinfo/${item.Song.id}`" 
-                                    class="font-semibold text-sm sm:text-base text-gray-900 hover:text-orange-500 transition-colors truncate block mb-1">
+                                    class="font-semibold text-sm sm:text-base text-gray-900 hover:text-orange-500 transition-colors truncate block mb-1 text-left">
                                     {{ item.Song.title }}
                                 </router-link>
-                                <div class="text-xs sm:text-sm text-gray-600 truncate mb-1">
+                                <div class="text-xs sm:text-sm text-gray-600 truncate mb-1 text-left">
                                     {{ item.Song.User?.username || "Unknown Uploader" }}
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -420,12 +462,16 @@
                                 <button @click.stop="togglePlay(index, item.Song)"
                                     class="w-9 h-9 sm:w-10 sm:h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon
-                                        :icon="playerStore.currentPlayIndex === index && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
+                                        :icon="Number(playerStore.currentSong?.id) === Number(item.Song.id) && playerStore.isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play'"
                                         class="text-xs sm:text-sm" />
                                 </button>
                                 <button @click.stop="addToPlaylist(index, item.Song)"
                                     class="w-9 h-9 sm:w-10 sm:h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
                                     <font-awesome-icon icon="fa-solid fa-plus" class="text-xs sm:text-sm" />
+                                </button>
+                                <button @click.stop="downloadFile(item.path, item.title)"
+                                    class="w-10 h-10 flex justify-center items-center rounded-full border-2 border-gray-300 hover:border-orange-500 hover:text-orange-500 transition-all cursor-pointer">
+                                    <font-awesome-icon icon="fa-solid fa-download" />
                                 </button>
                             </div>
                         </div>
@@ -553,7 +599,7 @@
                                 <select v-model="selectedGenre" 
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-base">
                                     <option value="">Select a genre</option>
-                                    <option v-for="item in genreList" :key="item.id" :value="item">
+                                    <option v-for="item in genreList" :key="item.id" :value="item.id">
                                         {{ item.name }}
                                     </option>
                                 </select>
@@ -580,15 +626,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 rounded-b-2xl flex justify-end gap-3">
-                    <button @click="isEditTracks = false"
-                        class="px-6 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        Cancel
+                <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 rounded-b-2xl flex justify-between items-center">
+                    <button @click="confirmDeleteTrack"
+                        class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-md flex items-center gap-2">
+                        <font-awesome-icon icon="fa-solid fa-trash" />
+                        <span>Delete Track</span>
                     </button>
-                    <button @click="editTrack"
-                        class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all font-medium shadow-md">
-                        Save Changes
-                    </button>
+                    <div class="flex gap-3">
+                        <button @click="isEditTracks = false"
+                            class="px-6 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                            Cancel
+                        </button>
+                        <button @click="editTrack"
+                            class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all font-medium shadow-md">
+                            Save Changes
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,10 +650,12 @@
 
 <script>
 import apiClient from '@/apiService/apiClient';
-import { notification } from 'ant-design-vue';
+import { notification, Modal } from 'ant-design-vue';
 import Header from '@/components/Header.vue';
 import { usePlayerStore } from '@/js/state';
+import { downloadFile } from '@/js/downloadFile';
 import axios from 'axios';
+import { getSelectedAchievements } from '@/utils/achievements';
 export default {
     name: 'ProfilePage',
     setup() {
@@ -608,6 +663,7 @@ export default {
         const playerStore = usePlayerStore();
         return {
             playerStore,
+            downloadFile,
         }
     },
     data() {
@@ -658,6 +714,7 @@ export default {
             countFollowing: null,
             likeByUser: [],
             firstFourFollowingPictures: [],
+            selectedAchievements: [],
         }
     },
     methods: {
@@ -837,9 +894,11 @@ export default {
                 this.trackInfo = response.data.data;
                 this.imageURL = this.trackInfo.artwork;
                 this.editTitle = this.trackInfo.title;
-                this.selectedGenre = this.trackInfo.genre_id || '';
+                // Convert to number to match select option value type
+                this.selectedGenre = this.trackInfo.genre_id ? Number(this.trackInfo.genre_id) : '';
                 this.bioEdit = this.trackInfo.bio || '';
                 this.privacy = this.trackInfo.is_public ? '1' : '0';
+                console.log('Selected genre ID:', this.selectedGenre, 'Type:', typeof this.selectedGenre);
             } catch (error) {
                 console.log('Error get track info', error);
             }
@@ -866,7 +925,7 @@ export default {
                 const payload = {
                     artwork: this.imageURL,
                     title: this.editTitle,
-                    genre: this.selectedGenre.name,
+                    genre: this.selectedGenre || "",
                     bio: this.bioEdit || null,
                     privacy: parseInt(this.privacy),
                 }
@@ -894,11 +953,141 @@ export default {
                 });
             }
         },
-        toggleEditTracks(id) {
+        async toggleEditTracks(id) {
             this.isEditTracks = !this.isEditTracks;
             this.idSelected = id;
-            this.getTrackInfoById();
+            // Ensure genreList is loaded before getting track info
+            if (this.genreList.length === 0) {
+                await this.getGenre();
+            }
+            await this.getTrackInfoById();
             console.log('idSelected', this.idSelected);
+        },
+        confirmDeleteTrack() {
+            Modal.confirm({
+                title: 'Delete Track',
+                content: 'Are you sure you want to delete this track? This action cannot be undone and will also delete the audio file and artwork from Cloudinary.',
+                okText: 'Delete',
+                okType: 'danger',
+                cancelText: 'Cancel',
+                centered: true,
+                onOk: () => {
+                    this.deleteTrack();
+                }
+            });
+        },
+        extractPublicIdFromUrl(url) {
+            if (!url || !url.includes('cloudinary.com')) {
+                return null;
+            }
+            
+            try {
+                // Format: https://res.cloudinary.com/{cloud_name}/{resource_type}/upload/{version}/{public_id}.{format}
+                // Hoặc: https://res.cloudinary.com/{cloud_name}/{resource_type}/upload/{public_id}.{format}
+                const urlParts = url.split('/upload/');
+                if (urlParts.length < 2) return null;
+                
+                let publicIdWithVersion = urlParts[1];
+                
+                // Remove version if exists (v1234567890/)
+                if (publicIdWithVersion.startsWith('v')) {
+                    const versionEnd = publicIdWithVersion.indexOf('/');
+                    if (versionEnd > 0) {
+                        publicIdWithVersion = publicIdWithVersion.substring(versionEnd + 1);
+                    }
+                }
+                
+                // Remove file extension
+                const lastDotIndex = publicIdWithVersion.lastIndexOf('.');
+                if (lastDotIndex > 0) {
+                    publicIdWithVersion = publicIdWithVersion.substring(0, lastDotIndex);
+                }
+                
+                return publicIdWithVersion;
+            } catch (error) {
+                console.error('Error extracting public_id:', error);
+                return null;
+            }
+        },
+        async deleteFileFromCloudinary(publicId, resourceType = 'video') {
+            if (!publicId) return;
+            
+            try {
+                // Try to use backend endpoint first (recommended for security)
+                try {
+                    await apiClient.post('/cloudinary/delete', { 
+                        public_id: publicId, 
+                        resource_type: resourceType 
+                    });
+                    console.log('Successfully deleted from Cloudinary via backend:', publicId);
+                    return;
+                } catch (backendError) {
+                    // If backend endpoint doesn't exist, log warning but continue
+                    console.warn('Backend endpoint for Cloudinary deletion not available, skipping Cloudinary deletion:', backendError);
+                    // Note: In production, you should always use a backend endpoint
+                    // to securely handle Cloudinary API credentials
+                }
+            } catch (error) {
+                console.error('Error deleting from Cloudinary:', error);
+                // Continue with song deletion even if Cloudinary deletion fails
+            }
+        },
+        async deleteTrack() {
+            if (!this.idSelected) {
+                notification.error({
+                    message: 'Error',
+                    description: 'No track selected for deletion.',
+                    duration: 3,
+                });
+                return;
+            }
+
+            try {
+                // Get track info to extract Cloudinary URLs
+                const trackInfo = this.trackInfo || await apiClient.get(`http://localhost:3000/api/song/getSongById/${this.idSelected}`).then(res => res.data.data);
+                
+                // Extract public_ids from Cloudinary URLs
+                const audioPublicId = trackInfo.path ? this.extractPublicIdFromUrl(trackInfo.path) : null;
+                const artworkPublicId = trackInfo.artwork ? this.extractPublicIdFromUrl(trackInfo.artwork) : null;
+                
+                // Delete files from Cloudinary
+                if (audioPublicId) {
+                    await this.deleteFileFromCloudinary(audioPublicId, 'video');
+                }
+                if (artworkPublicId && artworkPublicId !== audioPublicId) {
+                    await this.deleteFileFromCloudinary(artworkPublicId, 'image');
+                }
+
+                // Delete song from database
+                const response = await apiClient.delete(`http://localhost:3000/api/song/deleteSongById/${this.idSelected}`);
+                
+                if (response.data) {
+                    this.isEditTracks = false;
+                    this.idSelected = null;
+                    
+                    // Reload profile to update the track list
+                    try {
+                        await this.loadProfile();
+                        await this.getLastestSong();
+                        await this.getMostListenTrack();
+                    } catch (error) {
+                        console.error('Error reloading profile:', error);
+                    }
+                    
+                    notification.success({
+                        message: 'Track Deleted',
+                        description: 'Track has been deleted successfully.',
+                        duration: 3,
+                    });
+                }
+            } catch (error) {
+                console.error('Error deleting track:', error);
+                notification.error({
+                    message: 'Delete Failed',
+                    description: error.response?.data?.message || 'Failed to delete track. Please try again later.',
+                    duration: 4,
+                });
+            }
         },
         async getLastestSong() {
             try {
@@ -1250,7 +1439,12 @@ export default {
         togglePlay(index, song) {
             const playerStore = usePlayerStore();
 
-            if (playerStore.currentPlayIndex === index) {
+            // Check by song ID instead of index to avoid conflicts between sections
+            // Convert to Number for accurate comparison
+            const currentSongId = Number(playerStore.currentSong?.id);
+            const songId = Number(song.id);
+            
+            if (currentSongId === songId && !isNaN(currentSongId) && !isNaN(songId)) {
                 if (playerStore.isPlaying) {
                     playerStore.pause();
                 } else {
@@ -1262,12 +1456,11 @@ export default {
                     id: song.id,
                     title: song.title,
                     artwork: song.artwork,
-                    username: song.User.username,
-                    duration: song.SongDetail.duration,
+                    username: song.User?.username || song.username,
+                    duration: song.SongDetail?.duration || song.duration || 0,
                     path: song.path,
                 });
                 playerStore.logUserListen(song.id);
-                playerStore.currentPlayIndex = index;
             }
         },
         nextPage() {
@@ -1336,6 +1529,9 @@ export default {
                 // Re-throw để caller có thể xử lý
                 throw error;
             }
+        },
+        loadSelectedAchievements() {
+            this.selectedAchievements = getSelectedAchievements();
         },
     },
     computed: {
@@ -1448,6 +1644,7 @@ export default {
         this.getMostListenTrack();
         this.fetchCountFollower();
         this.fetchCountFollowing();
+        this.loadSelectedAchievements();
     },
     components: {
         Header,

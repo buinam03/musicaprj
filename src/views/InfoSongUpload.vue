@@ -120,7 +120,7 @@
                             v-model="selectedGenre" 
                             class="w-full h-12 sm:h-14 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white">
                             <option value="">Select a genre</option>
-                            <option v-for="item in genreList" :key="item.id" :value="item">
+                            <option v-for="item in genreList" :key="item.id" :value="item.id">
                                 {{ item.name }}
                             </option>
                         </select>
@@ -260,22 +260,43 @@ export default {
         async getUserById() {
             try {
                 const userId = getUserIdFromJWT();
-                if (!userId) return;
+                if (!userId) {
+                    notification.error({
+                        message: 'Authentication Required',
+                        description: 'Please log in to upload tracks. Redirecting to login...',
+                        duration: 4,
+                    });
+                    setTimeout(() => {
+                        this.$router.push('/discover');
+                    }, 2000);
+                    return;
+                }
                 const response = await apiClient.get(`/users/getUserById/${userId}`);
                 this.userById = response.data.data;
                 this.username = this.userById.username;
             } catch (error) {
                 console.error('Error getting user:', error);
-                notification.error({
-                    message: 'Error',
-                    description: 'Failed to load user information. Please refresh the page.',
-                    duration: 4,
-                });
+                if (error.response?.status === 401 || error.response?.status === 404) {
+                    notification.error({
+                        message: 'Authentication Error',
+                        description: 'Your session has expired. Please log in again.',
+                        duration: 4,
+                    });
+                    setTimeout(() => {
+                        this.$router.push('/discover');
+                    }, 2000);
+                } else {
+                    notification.error({
+                        message: 'Error',
+                        description: 'Failed to load user information. Please refresh the page.',
+                        duration: 4,
+                    });
+                }
             }
         },
         async getGenre() {
             try {
-                const response = await apiClient.get('http://localhost:3000/api/songdetail/getGenre');
+                const response = await apiClient.get('/songdetail/getGenre');
                 this.genreList = response.data.data;
             } catch (error) {
                 console.error('Error getting genres:', error);
@@ -406,7 +427,7 @@ export default {
                 // Prepare song data
                 const songData = {
                     title: this.title.trim(),
-                    genre: this.selectedGenre?.name || "",
+                    genre: this.selectedGenre || "",
                     bio: this.bio.trim(),
                     duration: this.duration,
                     privacy: Number(this.privacy),

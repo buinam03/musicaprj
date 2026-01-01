@@ -6,10 +6,11 @@
             <div class="flex-shrink-0 font-neutra text-2xl sm:text-3xl lg:text-4xl text-white">
                 <router-link to="/home" class="hover:opacity-80 transition-opacity">MUSICA</router-link>
             </div>
-            
+
             <!-- Mobile Menu Button -->
-            <button v-if="playerStore.isLoggedIn === true" @click="toggleMobileMenu"
-                class="lg:hidden text-white p-2 hover:bg-white/10 rounded-md transition-colors">
+            <button v-if="playerStore.isLoggedIn === true" @click.stop="toggleMobileMenu" type="button"
+                class="lg:hidden text-white p-2 hover:bg-white/10 rounded-md transition-colors z-[70] relative"
+                aria-label="Toggle mobile menu">
                 <font-awesome-icon :icon="isMobileMenuOpen ? 'fa-solid fa-times' : 'fa-solid fa-bars'" size="lg" />
             </button>
 
@@ -17,11 +18,17 @@
             <div v-if="playerStore.isLoggedIn === true"
                 class="hidden lg:flex flex-grow items-center justify-start gap-2 xl:gap-4 ml-6 xl:text-[16px] lg:text-[14px]">
                 <div class="flex justify-center items-center w-full max-w-5xl">
-                    <div class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
                         <router-link to="/home" class="text-sm xl:text-base">Home</router-link>
                     </div>
-                    <div class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
                         <router-link to="/library" class="text-sm xl:text-base">Library</router-link>
+                    </div>
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/playlists" class="text-sm xl:text-base">Playlists</router-link>
                     </div>
                     <div class="px-2 xl:px-4 relative flex-1 max-w-md">
                         <input v-model="querryToSearch" @keydown.enter="search"
@@ -35,11 +42,13 @@
                     <div class="px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
                         <router-link to="/upload" class="text-sm xl:text-base">Upload</router-link>
                     </div>
-                    <div class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
                         <router-link to="/chart" class="text-sm xl:text-base">Chart</router-link>
                     </div>
-                    <div class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative hover:text-orange-400 transition-colors">
-                        <button @click="ToggleDropdown('bell')" class="focus:outline-none">
+                    <div class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative hover:text-orange-400 transition-colors"
+                        ref="bellButtonContainer">
+                        <button @click.stop="ToggleDropdown('bell')" class="focus:outline-none" ref="bellButton">
                             <font-awesome-icon icon="fa-solid fa-bell" class="text-lg" />
                         </button>
                     </div>
@@ -53,7 +62,8 @@
                     </div>
                     <!-- Shared Dropdown -->
                     <div v-if="isDropdownOpen" ref="dropdown"
-                        class="fixed lg:absolute mt-2 lg:mt-4 h-80 lg:h-96 w-[calc(100vw-2rem)] sm:w-96 lg:w-[450px] bg-white lg:bg-gray-50 shadow-xl lg:shadow-lg z-50 overflow-y-auto rounded-lg border border-gray-200 right-4 lg:right-auto overflow-x-hidden">
+                        class="fixed h-80 lg:h-96 w-[calc(100vw-2rem)] sm:w-96 lg:w-[450px] bg-white lg:bg-gray-50 shadow-xl lg:shadow-lg z-50 overflow-y-auto rounded-lg border border-gray-200 overflow-x-hidden"
+                        :style="dropdownStyle">
                         <template v-if="dropdownContent === 'bell'">
                             <div class="h-12 sticky top-0 border-b border-gray-300 bg-gray-50 z-50 rounded-t-lg">
                                 <p class="px-4 py-3 text-gray-800 font-semibold">Notifications</p>
@@ -89,7 +99,8 @@
                     <!-- Profile Dropdown -->
                     <div class="border-l border-white/30 px-3 xl:px-2 text-white relative">
                         <template v-if="playerStore.isLoggedIn === true">
-                            <button @click="ToggleLogoDropdown()" class="logo flex items-center hover:text-orange-400 transition-colors focus:outline-none">
+                            <button @click="ToggleLogoDropdown()"
+                                class="logo flex items-center hover:text-orange-400 transition-colors focus:outline-none">
                                 <div>
                                     <img class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white object-cover"
                                         :src="profilePicture" alt="User Profile Picture" />
@@ -128,7 +139,8 @@
                                     <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
                                         <router-link
                                             class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/following/${getCurrentUserId()}`" @click="isLogoDropdownOpen = false">
+                                            :to="`/following/${getCurrentUserId()}`"
+                                            @click="isLogoDropdownOpen = false">
                                             <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2 w-4" />
                                             Following
                                         </router-link>
@@ -136,7 +148,8 @@
                                     <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
                                         <router-link
                                             class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/followers/${getCurrentUserId()}`" @click="isLogoDropdownOpen = false">
+                                            :to="`/followers/${getCurrentUserId()}`"
+                                            @click="isLogoDropdownOpen = false">
                                             <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2 w-4" />
                                             Followers
                                         </router-link>
@@ -145,7 +158,8 @@
                                         <router-link
                                             class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
                                             to="/discover" @click="signOutClick">
-                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-2 w-4" />
+                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket"
+                                                class="mr-2 w-4" />
                                             Sign Out
                                         </router-link>
                                     </li>
@@ -158,70 +172,85 @@
 
             <!-- Mobile Menu Backdrop -->
             <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
-                class="lg:hidden fixed inset-0 bg-black/50 z-[55] cursor-pointer"
-                @click="toggleMobileMenu"></div>
-            
+                class="lg:hidden fixed inset-0 bg-black/50 z-[55] cursor-pointer mobile-menu-backdrop"
+                @click.stop="toggleMobileMenu"></div>
+
             <!-- Mobile Menu -->
             <transition name="slide">
                 <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
-                    class="lg:hidden fixed inset-x-0 top-14 sm:top-16 bg-[#222021] border-b border-gray-700 shadow-xl z-[60] max-h-[calc(100vh-3.5rem)] overflow-y-auto">
-                <div class="px-4 py-4 space-y-4">
-                    <!-- Mobile Search -->
-                    <div class="relative">
-                        <input v-model="querryToSearch" @keydown.enter="handleMobileSearch"
-                            class="no-clear w-full px-4 pr-10 h-10 rounded-md text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
-                            type="search" placeholder="Search...">
-                        <button @click="handleMobileSearch" type="button"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
-                            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
-                        </button>
+                    class="lg:hidden fixed inset-x-0 top-14 sm:top-16 bg-[#222021] border-b border-gray-700 shadow-xl z-[60] max-h-[calc(100vh-3.5rem)] overflow-y-auto mobile-menu-content">
+                    <div class="px-4 py-4 space-y-4">
+                        <!-- Mobile Search -->
+                        <div class="relative">
+                            <input v-model="querryToSearch" @keydown.enter="handleMobileSearch"
+                                class="no-clear w-full px-4 pr-10 h-10 rounded-md text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
+                                type="search" placeholder="Search...">
+                            <button @click="handleMobileSearch" type="button"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
+                                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
+                            </button>
+                        </div>
+
+                        <!-- Mobile Navigation Links -->
+                        <div class="space-y-1 text-white">
+                            <router-link to="/home" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-house" class="mr-3 w-5" />
+                                Home
+                            </router-link>
+                            <router-link to="/library" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-music" class="mr-3 w-5" />
+                                Library
+                            </router-link>
+                            <router-link to="/playlists" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-notes-medical" class="mr-3 w-5" />
+                                Playlists
+                            </router-link>
+                            <router-link to="/upload" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-upload" class="mr-3 w-5" />
+                                Upload
+                            </router-link>
+                            <router-link to="/chart" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-chart-column" class="mr-3 w-5" />
+                                Chart
+                            </router-link>
+                            <router-link to="/message" @click="getDESCRoom; isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-message" class="mr-3 w-5" />
+                                Messages
+                            </router-link>
+                            <router-link :to="`/profile/${idUserCurrent}`" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-regular fa-address-card" class="mr-3 w-5" />
+                                Profile
+                            </router-link>
+                            <router-link to="/tracks" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-3 w-5" />
+                                Tracks
+                            </router-link>
+                            <router-link to="/likes" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-heart" class="mr-3 w-5" />
+                                Likes
+                            </router-link>
+                            <router-link
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors"
+                                to="/discover" @click="signOutClick">
+                                <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-3 w-5" />
+                                Sign Out
+                            </router-link>
+                        </div>
                     </div>
-                    
-                    <!-- Mobile Navigation Links -->
-                    <div class="space-y-1">
-                        <router-link to="/home" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Home
-                        </router-link>
-                        <router-link to="/library" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Library
-                        </router-link>
-                        <router-link to="/upload" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Upload
-                        </router-link>
-                        <router-link to="/chart" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Chart
-                        </router-link>
-                        <button @click="ToggleDropdown('bell'); isMobileMenuOpen = false"
-                            class="w-full text-left px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Notifications
-                        </button>
-                        <router-link to="/message" @click="getDESCRoom; isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Messages
-                        </router-link>
-                        <router-link :to="`/profile/${idUserCurrent}`" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Profile
-                        </router-link>
-                        <router-link to="/tracks" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Tracks
-                        </router-link>
-                        <router-link to="/likes" @click="isMobileMenuOpen = false"
-                            class="block px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                            Likes
-                        </router-link>
-                    </div>
-                </div>
                 </div>
             </transition>
             <template v-if="playerStore.isLoggedIn === false">
                 <div class="flex gap-2 sm:gap-4 h-full justify-center items-center">
-                    <button @click="isSignInTemplate" 
+                    <button @click="isSignInTemplate"
                         class="text-white px-3 sm:px-4 py-1.5 sm:py-2 border border-white rounded-md text-xs sm:text-sm flex justify-center items-center whitespace-nowrap cursor-pointer hover:bg-white/10 transition-colors">
                         Sign In
                     </button>
@@ -237,8 +266,9 @@
     <div v-if="this.currentAction === 0"
         class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
         @click.self="closeModal">
-        <div class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button @click="closeModal" 
+        <div
+            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button @click="closeModal"
                 class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
                 <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
             </button>
@@ -260,12 +290,12 @@
                             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
                             <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
                                 src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-open.png" alt="Hide password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
                         </button>
                     </div>
                     <div class="text-right">
-                        <a href="#" class="text-sm text-gray-600 hover:text-orange-500 hover:underline transition-colors">
+                        <a href="#"
+                            class="text-sm text-gray-600 hover:text-orange-500 hover:underline transition-colors">
                             Forgot Password?
                         </a>
                     </div>
@@ -281,7 +311,8 @@
                     </div>
                     <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
                         Don't have an account? <button @click="isCreateAccount"
-                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Create Account</button>
+                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Create
+                            Account</button>
                     </div>
                 </div>
             </div>
@@ -291,8 +322,9 @@
     <div v-if="this.currentAction === 1"
         class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
         @click.self="closeModal">
-        <div class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button @click="closeModal" 
+        <div
+            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button @click="closeModal"
                 class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
                 <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
             </button>
@@ -319,8 +351,7 @@
                             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
                             <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
                                 src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-open.png" alt="Hide password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
                         </button>
                     </div>
                     <div class="relative">
@@ -331,8 +362,7 @@
                             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
                             <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
                                 src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-open.png" alt="Hide password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
                         </button>
                     </div>
                     <div>
@@ -344,7 +374,8 @@
                     </div>
                     <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
                         Already have an account? <button @click="isAlreadyAccount"
-                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Sign In</button>
+                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Sign
+                            In</button>
                     </div>
                 </div>
             </div>
@@ -357,6 +388,7 @@ import apiClient from '@/apiService/apiClient';
 import { usePlayerStore } from '@/js/state';
 import { formatDistanceToNow } from 'date-fns';
 import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
+import { notification } from 'ant-design-vue';
 export default {
     name: 'HeaderPage',
     setup() {
@@ -390,6 +422,7 @@ export default {
             currentAction: null,
             querryToSearch: '',
             descMessage: null,
+            dropdownStyle: {},
         }
     },
     mounted() {
@@ -462,6 +495,7 @@ export default {
             if (this.dropdownContent === type) {
                 this.dropdownContent = null;
                 this.isDropdownOpen = false;
+                this.dropdownStyle = {};
             }
             else {
                 this.isDropdownOpen = true;
@@ -477,24 +511,41 @@ export default {
             const dropdown = this.$refs.dropdown;
             if (!dropdown) return;
 
-            const bellTarget = document.querySelector('.nav-right .fa-bell');
-            const messageTarget = document.querySelector('.nav-right .fa-message');
+            // Use ref to find bell button container
+            const bellContainer = this.$refs.bellButtonContainer;
+            if (!bellContainer) return;
 
-            let target = this.dropdownContent === 'message' ? messageTarget : bellTarget;
+            const rect = bellContainer.getBoundingClientRect();
 
-            if (target) {
-                const rect = target.getBoundingClientRect();
-                // On mobile, center the dropdown
-                if (window.innerWidth < 1024) {
-                    dropdown.style.top = `${rect.bottom + window.scrollY + 12}px`;
-                    dropdown.style.left = '50%';
-                    dropdown.style.transform = 'translateX(-50%)';
-                    dropdown.style.right = 'auto';
-                } else {
-                    dropdown.style.top = `${rect.bottom + window.scrollY + 9}px`;
-                    dropdown.style.left = `${rect.left + rect.width / 2 - dropdown.offsetWidth / 2}px`;
-                    dropdown.style.transform = 'none';
+            // Always use fixed positioning for stability (no scrollY needed)
+            if (window.innerWidth < 1024) {
+                // Mobile: center horizontally, position below button
+                this.dropdownStyle = {
+                    top: `${rect.bottom + 8}px`,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    right: 'auto',
+                };
+            } else {
+                // Desktop: align with button, position below
+                const dropdownWidth = dropdown.offsetWidth || 450;
+                const buttonCenter = rect.left + rect.width / 2;
+                let left = buttonCenter - dropdownWidth / 2;
+
+                // Keep dropdown within viewport
+                const padding = 16;
+                if (left < padding) {
+                    left = padding;
+                } else if (left + dropdownWidth > window.innerWidth - padding) {
+                    left = window.innerWidth - dropdownWidth - padding;
                 }
+
+                this.dropdownStyle = {
+                    top: `${rect.bottom + 8}px`,
+                    left: `${left}px`,
+                    transform: 'none',
+                    right: 'auto',
+                };
             }
         },
         toggleMobileMenu() {
@@ -584,14 +635,33 @@ export default {
 
                 this.$router.push({ path: '/home' });
                 this.playerStore.isLoggedIn = true;
+
+                this.closeModal();
             } catch (error) {
-                if (error.response?.status === 404) {
-                    this.message = "User not found";
-                }
-                if (error.response?.status === 400) {
-                    this.message = "Wrong password";
-                }
                 console.error("Error :", error);
+
+                if (error.response?.status === 404) {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: 'User not found. Please check your email and try again.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                } else if (error.response?.status === 400) {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: 'Wrong password. Please try again.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                } else {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: error.response?.data?.message || 'An error occurred. Please try again later.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                }
             }
 
         },
@@ -620,15 +690,25 @@ export default {
             document.body.style.overflow = "";
         },
         handleClickOutside(event) {
+            // Check if click is on mobile menu button
+            const mobileMenuButton = event.target.closest('button[aria-label="Toggle mobile menu"]');
+            if (mobileMenuButton) {
+                // Don't close menu if clicking the toggle button itself
+                return;
+            }
+
             // Close mobile menu if clicked outside
-            if (this.isMobileMenuOpen && !event.target.closest('.mobile-menu') && !event.target.closest('button[aria-label]')) {
-                const menuButton = event.target.closest('button');
-                if (!menuButton || !menuButton.querySelector('.fa-bars') && !menuButton.querySelector('.fa-times')) {
+            if (this.isMobileMenuOpen) {
+                const mobileMenu = event.target.closest('.mobile-menu-content');
+                const mobileMenuBackdrop = event.target.closest('.mobile-menu-backdrop');
+
+                // Don't close if clicking inside menu or backdrop (backdrop click will be handled by its own @click)
+                if (!mobileMenu && !mobileMenuBackdrop) {
                     this.isMobileMenuOpen = false;
                     document.body.style.overflow = '';
                 }
             }
-            
+
             // Close dropdowns if clicked outside
             if (this.isDropdownOpen && this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
                 const bellButton = event.target.closest('button');
@@ -637,7 +717,7 @@ export default {
                     this.dropdownContent = null;
                 }
             }
-            
+
             // Close logo dropdown if clicked outside
             if (this.isLogoDropdownOpen && !event.target.closest('.logo') && !event.target.closest('button.logo')) {
                 this.isLogoDropdownOpen = false;
@@ -649,8 +729,8 @@ export default {
                 this.isMobileMenuOpen = false;
                 document.body.style.overflow = '';
             }
-            // Reposition dropdown on resize
-            if (this.isDropdownOpen) {
+            // Reposition dropdown on resize only if it's open
+            if (this.isDropdownOpen && this.dropdownContent) {
                 this.$nextTick(() => this.positionDropdown());
             }
         },
@@ -680,7 +760,9 @@ input.no-clear::-webkit-search-cancel-button {
 }
 
 /* Smooth transitions */
-button, a, input {
+button,
+a,
+input {
     transition: all 0.2s ease;
 }
 
@@ -725,15 +807,18 @@ a:focus-visible {
 }
 
 /* Mobile menu transitions */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
     opacity: 0;
 }
 
-.slide-enter-active, .slide-leave-active {
+.slide-enter-active,
+.slide-leave-active {
     transition: all 0.3s ease-out;
 }
 

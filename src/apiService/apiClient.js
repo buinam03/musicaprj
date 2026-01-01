@@ -1,6 +1,8 @@
 import router from "@/routers/router";
 import axios from "axios";
-
+import { Modal } from 'ant-design-vue';
+import { isJWTExpired } from '@/utils/getUserIdFromJWT';
+import { usePlayerStore } from '@/js/state';
 
 const apiClient = axios.create({
     baseURL: "http://localhost:3000/api", //url chung
@@ -8,6 +10,12 @@ const apiClient = axios.create({
         'Content-Type': 'application/json',
     }
 });
+
+// Flag để track xem đã show modal cảnh báo chưa
+let isShowingExpirationModal = false;
+
+// Flag để track pending request khi user đang xử lý modal
+let pendingRequestAfterRefresh = null;
 
 // Flag để tránh infinite loop khi refresh token
 let isRefreshing = false;
@@ -22,6 +30,136 @@ const processQueue = (error, token = null) => {
         }
     });
     failedQueue = [];
+};
+
+// Function để xử lý logout
+const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('refreshToken');
+    isShowingExpirationModal = false;
+    
+    // Clear player store state
+    try {
+        const playerStore = usePlayerStore();
+        playerStore.isLoggedIn = false;
+        playerStore.idUserLogin = null;
+        playerStore.currentSong = {
+            id: null,
+            title: "",
+            artwork: null,
+            username: "",
+            duration: 0,
+            path: "",
+            isLiked: false
+        };
+        playerStore.playlist = [];
+        playerStore.originalPlaylist = [];
+        playerStore.isPlaying = false;
+        playerStore.currentTime = 0;
+        playerStore.currentPlayIndex = null;
+    } catch (error) {
+        console.error('Error resetting player store:', error);
+    }
+    
+    // Redirect to discover page
+    if (router.currentRoute.value.path !== '/discover') {
+        router.push('/discover');
+    }
+};
+
+// Function để refresh token
+const handleRefreshToken = async () => {
+    try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            handleLogout();
+            return false;
+        }
+
+        // Tạo axios instance mới để không đi qua interceptor request
+        const refreshAxios = axios.create({
+            baseURL: "http://localhost:3000/api",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const response = await refreshAxios.post('/auth/refresh-token', { refreshTokens: refreshToken });
+        const newAccessToken = response.data.accessToken;
+        
+        localStorage.setItem('jwt', newAccessToken);
+        isShowingExpirationModal = false;
+        return true;
+    } catch (error) {
+        console.error('Failed to refresh token:', error);
+        handleLogout();
+        return false;
+    }
+};
+
+// Function để show modal cảnh báo JWT hết hạn
+const showExpirationWarning = (originalRequest = null) => {
+    if (isShowingExpirationModal) {
+        return; // Đã đang show modal, không show thêm
+    }
+
+    isShowingExpirationModal = true;
+    if (originalRequest) {
+        pendingRequestAfterRefresh = originalRequest;
+    }
+
+    Modal.confirm({
+        title: 'Phiên đăng nhập đã hết hạn',
+        content: 'Phiên đăng nhập của bạn đã hết hạn. Bạn muốn đăng nhập lại hay tiếp tục với token mới?',
+        okText: 'Tiếp tục',
+        cancelText: 'Đăng xuất',
+        okType: 'primary',
+        centered: true,
+        onOk: async () => {
+            // User chọn "Tiếp tục" - refresh token
+            const success = await handleRefreshToken();
+            if (!success) {
+                // Nếu refresh thất bại, vẫn logout
+                Modal.error({
+                    title: 'Lỗi',
+                    content: 'Không thể làm mới token. Vui lòng đăng nhập lại.',
+                    okText: 'Đồng ý',
+                    onOk: () => {
+                        handleLogout();
+                    }
+                });
+            } else {
+                Modal.success({
+                    title: 'Thành công',
+                    content: 'Token đã được làm mới. Bạn có thể tiếp tục sử dụng.',
+                    okText: 'Đồng ý',
+                    duration: 2,
+                });
+                
+                // Retry pending request nếu có
+                if (pendingRequestAfterRefresh) {
+                    const newToken = localStorage.getItem('jwt');
+                    pendingRequestAfterRefresh.headers.Authorization = `Bearer ${newToken}`;
+                    pendingRequestAfterRefresh._retry = false; // Reset retry flag
+                    try {
+                        await apiClient(pendingRequestAfterRefresh);
+                    } catch (error) {
+                        console.error('Error retrying request after token refresh:', error);
+                    }
+                    pendingRequestAfterRefresh = null;
+                }
+            }
+        },
+        onCancel: () => {
+            // User chọn "Đăng xuất"
+            pendingRequestAfterRefresh = null;
+            handleLogout();
+        },
+        afterClose: () => {
+            isShowingExpirationModal = false;
+            pendingRequestAfterRefresh = null;
+        }
+    });
 };
 
 //add interceptor để gắn token vào header để khi request tự động có token 
@@ -65,6 +203,14 @@ apiClient.interceptors.response.use(
                 });
             }
 
+            // Kiểm tra nếu JWT đã hết hạn và chưa show modal
+            if (isJWTExpired() && !isShowingExpirationModal) {
+                // Show modal cảnh báo cho user với original request
+                showExpirationWarning(originalRequest);
+                // Reject request để đợi user quyết định
+                return Promise.reject(error);
+            }
+
             originalRequest._retry = true;
             isRefreshing = true;
 
@@ -76,10 +222,20 @@ apiClient.interceptors.response.use(
                 localStorage.removeItem('refreshToken');
                 isRefreshing = false;
                 processQueue(new Error('No refresh token'), null);
-                // Chỉ redirect nếu không phải đang ở trang discover
-                if (router.currentRoute.value.path !== '/discover') {
-                    router.push('/discover');
+                
+                // Nếu chưa show modal, show modal logout
+                if (!isShowingExpirationModal) {
+                    Modal.warning({
+                        title: 'Phiên đăng nhập đã hết hạn',
+                        content: 'Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.',
+                        okText: 'Đồng ý',
+                        centered: true,
+                        onOk: () => {
+                            handleLogout();
+                        }
+                    });
                 }
+                
                 return Promise.reject(error);
             }
 
@@ -98,6 +254,7 @@ apiClient.interceptors.response.use(
 
                 // Lưu lại access token mới
                 localStorage.setItem('jwt', newAccessToken);
+                isShowingExpirationModal = false;
 
                 // Gắn token mới vào request cũ
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -115,10 +272,19 @@ apiClient.interceptors.response.use(
                 isRefreshing = false;
                 processQueue(refreshError, null);
                 
-                // Chỉ redirect nếu không phải đang ở trang discover
-                if (router.currentRoute.value.path !== '/discover') {
-                    router.push('/discover');
+                // Nếu chưa show modal, show modal logout
+                if (!isShowingExpirationModal) {
+                    Modal.error({
+                        title: 'Lỗi xác thực',
+                        content: 'Không thể làm mới token. Vui lòng đăng nhập lại.',
+                        okText: 'Đồng ý',
+                        centered: true,
+                        onOk: () => {
+                            handleLogout();
+                        }
+                    });
                 }
+                
                 return Promise.reject(refreshError);
             }
         }

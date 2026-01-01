@@ -1,5 +1,6 @@
 import apiClient from "@/apiService/apiClient";
 import { defineStore } from "pinia";
+import { addToRecentlyPlayed } from "@/utils/recentlyPlayed";
 
 export const usePlayerStore = defineStore("player", {
     state: () => ({
@@ -47,34 +48,41 @@ export const usePlayerStore = defineStore("player", {
                 }
             }
         },
+        // load playlist random song when play first time
         async loadPlaylist(){
             try{
-                //get user song 
-                const userSong = await apiClient.get(`http://localhost:3000/api/song/getAllSong/${this.idUserLogin}`);
-                const userSongData = userSong.data.data;
 
                 const randomSong = await apiClient.get(`http://localhost:3000/api/song/getRandomSong`);
                 const randomSongData = randomSong.data.data;
 
-                // Combine and shuffle the playlists (optional, but good for variety)
-                const allSongs = [...userSongData, ...randomSongData];
-                // const shuffledSongs = allSongs.sort(() => Math.random() - 0.5); // Optional shuffle
+                // Combine playlists
+                const allSongs = [ ...randomSongData];
 
-                // Map data consistently, handle potential missing nested objects
-                this.playlist = allSongs.map(song=>({
+                // Remove duplicates based on song ID
+                const uniqueSongsMap = new Map();
+                allSongs.forEach(song => {
+                    if (!uniqueSongsMap.has(song.id)) {
+                        uniqueSongsMap.set(song.id, song);
+                    }
+                });
+                const uniqueSongs = Array.from(uniqueSongsMap.values());
+
+                const mappedSongs = uniqueSongs.map(song=>({
                     id: song.id,
                     title: song.title,
                     artwork: song.artwork,
                     path: song.path,
-                    duration: song.SongDetail?.duration || song.duration || 0, // Handle nested or direct duration
-                    username: song.User?.username || song.username || 'Unknown Artist' // Handle nested or direct username
+                    duration: song.SongDetail?.duration || song.duration || 0, 
+                    username: song.User?.username || song.username || 'Unknown Artist' 
                 }));
+
+                this.playlist = mappedSongs;
 
                 return this.playlist;
             }
             catch(error){
                 console.error("Error loading playlist:", error);
-                this.playlist = []; // Clear playlist on error
+                this.playlist = []; 
                 return [];
             }
         },
@@ -168,19 +176,34 @@ export const usePlayerStore = defineStore("player", {
                  username: username
             };
 
-            console.log('Playing song:', songToPlay);
 
             if (!songToPlay.path) {
                  console.warn('Song path is missing', songToPlay);
                  return;
             }
 
+            if (!songToPlay.id) {
+                 console.warn('Song ID is missing', songToPlay);
+                 return;
+            }
+
             // Check if the song is already in the playlist, if not add it
             const existingIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
             if (existingIndex === -1) {
-                this.playlist.push(songToPlay);
-                this.loadPlaylist();
-                this.currentPlayIndex = this.playlist.length - 1; // Set index to the newly added song
+                // If playlist is empty, load it first, then put current song at index 0
+                if (this.playlist.length === 0) {
+                    // Load playlist from API
+                    await this.loadPlaylist();
+                    // Remove current song from loaded playlist if it exists (to avoid duplicate)
+                    const otherSongs = this.playlist.filter(item => item.id !== songToPlay.id);
+                    // Put current song at the beginning (index 0)
+                    this.playlist = [songToPlay, ...otherSongs];
+                    this.currentPlayIndex = 0;
+                } else {
+                    // Playlist already exists, just add the song to the end
+                    this.playlist.push(songToPlay);
+                    this.currentPlayIndex = this.playlist.length - 1;
+                }
             } else {
                 this.currentPlayIndex = existingIndex;
             }
@@ -208,6 +231,13 @@ export const usePlayerStore = defineStore("player", {
                  this.logUserListen(songToPlay.id);
             }
 
+            // Add to recently played (localStorage)
+            try {
+                addToRecentlyPlayed(songToPlay);
+            } catch (error) {
+                console.error('Error in addToRecentlyPlayed:', error);
+            }
+
             // Get duration from audio metadata if not available from song data
             this.audio.onloadedmetadata = () => {
                 const audioDuration = this.audio.duration;
@@ -217,7 +247,6 @@ export const usePlayerStore = defineStore("player", {
                         ...this.currentSong,
                         duration: audioDuration
                     };
-                    console.log('Duration loaded from audio metadata:', audioDuration);
                 }
             };
 
@@ -265,11 +294,22 @@ export const usePlayerStore = defineStore("player", {
         next() {
             if (this.currentPlayIndex !== null && this.playlist.length > 0) {
                 let nextIndex;
+                
                 if (this.isShuffle) {
-                    nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
+                    if (this.playlist.length === 1) {
+                        nextIndex = 0;
+                    } else {
+                        const availableIndices = this.playlist
+                            .map((_, index) => index)
+                            .filter(index => index !== this.currentPlayIndex);
+
+                        const randomIndex = Math.floor(Math.random() * availableIndices.length);
+                        nextIndex = availableIndices[randomIndex];
+                    }
                 } else {
                     nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
                 }
+                
                 const nextSong = this.playlist[nextIndex];
                 this.currentPlayIndex = nextIndex;
                 if (nextSong) {
@@ -321,7 +361,6 @@ export const usePlayerStore = defineStore("player", {
                     isLiked: false // Add isLiked property
                 };
                 this.playlist.push(fullSong);
-                console.log("Added to playlist:", fullSong);
             }
         },
         removeFromPlaylist(index) {

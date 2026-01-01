@@ -16,7 +16,7 @@
                 <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                         <div class="flex-1 w-full">
-                            <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
+                            <h2 class="text-lg text-left sm:text-xl font-semibold text-gray-800 mb-4">
                                 Selected Achievements <span class="text-gray-500 text-sm font-normal">(max 4)</span>
                             </h2>
                             <div class="flex flex-wrap gap-3 sm:gap-4">
@@ -131,6 +131,7 @@
 import { usePlayerStore } from '@/js/state';
 import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 import { notification } from 'ant-design-vue';
+import { saveSelectedAchievements, getSelectedAchievements } from '@/utils/achievements';
 
 export default {
     name: 'AchievementsPage',
@@ -145,60 +146,63 @@ export default {
             selectArchievement: [null, null, null, null],
         }
     },
+    mounted() {
+        this.loadSelectedAchievements();
+    },
     computed: {
         archievements() {
             return [
                 {
                     id: 1,
-                    img: require('@/image/archievements/check.png'),
+                    img: require('@/image/archievements/followers_100k.png'),
                     isCompleted: true,
                     title: 'Reach 100.000 followers'
                 },
                 {
                     id: 2,
-                    img: require('@/image/archievements/headphone.png'),
+                    img: require('@/image/archievements/plays_10k.png'),
                     isCompleted: true,
                     title: 'Reach 10.000 streams'
                 },
                 {
                     id: 3,
-                    img: require('@/image/archievements/headphone 100k.png'),
+                    img: require('@/image/archievements/plays_100k.png'),
                     isCompleted: true,
                     title: 'Reach 100.000 streams'
                 },
                 {
                     id: 4,
-                    img: require('@/image/archievements/headphone 1m.png'),
+                    img: require('@/image/archievements/plays_1m.png'),
                     isCompleted: false,
                     title: 'Reach 1.000.000 streams'
                 },
                 {
                     id: 5,
-                    img: require('@/image/archievements/headphone 10m.png'),
+                    img: require('@/image/archievements/plays_10m.png'),
                     isCompleted: false,
                     title: 'Reach 10.000.000 streams'
                 },
                 {
                     id: 6,
-                    img: require('@/image/archievements/top 1 musica.png'),
+                    img: require('@/image/archievements/top.png'),
                     isCompleted: true,
                     title: 'Top 1 Musica'
                 },
                 {
                     id: 7,
-                    img: require('@/image/archievements/top 1 musica.png'),
+                    img: require('@/image/archievements/top.png'),
                     isCompleted: true,
                     title: 'Top 2 Musica'
                 },
                 {
                     id: 8,
-                    img: require('@/image/archievements/top 1 musica.png'),
+                    img: require('@/image/archievements/top.png'),
                     isCompleted: true,
                     title: 'Top 3 Musica'
                 },
                 {
                     id: 9,
-                    img: require('@/image/archievements/fisrttimereachtop.png'),
+                    img: require('@/image/archievements/first_like.png'),
                     isCompleted: true,
                     title: 'Reach top first time!!'
                 },
@@ -220,6 +224,9 @@ export default {
                 });
                 return;
             }
+
+            // Save to localStorage
+            saveSelectedAchievements(this.selectArchievement);
 
             // TODO: Save to backend API
             // const userId = getUserIdFromJWT();
@@ -290,6 +297,24 @@ export default {
                     message: 'Achievement Removed',
                     description: `"${removedItem.title}" has been removed from your display.`,
                     duration: 2,
+                });
+            }
+        },
+        loadSelectedAchievements() {
+            const saved = getSelectedAchievements();
+            if (saved && saved.length > 0) {
+                // Map saved achievements back to the selectArchievement array
+                // First, we need to get full achievement data from archievements computed property
+                const achievementsMap = {};
+                this.archievements.forEach(ach => {
+                    achievementsMap[ach.id] = ach;
+                });
+
+                // Fill selectArchievement array up to 4 items
+                saved.slice(0, 4).forEach((savedAch, index) => {
+                    if (achievementsMap[savedAch.id]) {
+                        this.selectArchievement[index] = achievementsMap[savedAch.id];
+                    }
                 });
             }
         }
