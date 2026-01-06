@@ -152,10 +152,10 @@
                                     <span class="font-semibold text-sm sm:text-base text-gray-900">{{ item.User?.username || 'Unknown' }}</span>
                                     <span class="text-xs sm:text-sm text-gray-400">{{ formatTime(item.created_at) }}</span>
                                 </div>
-                                <p class="text-sm sm:text-base text-gray-700 mb-2 whitespace-pre-wrap break-words">
+                                <p class="text-sm text-left sm:text-base text-gray-700 mb-2 whitespace-pre-wrap break-words">
                                     {{ item.content }}
                                 </p>
-                                <button class="text-sm text-gray-500 hover:text-orange-500 transition-colors font-medium">
+                                <button class="text-sm float-left sm:text-gray-500 hover:text-orange-500 transition-colors font-medium">
                                     Reply
                                 </button>
                             </div>

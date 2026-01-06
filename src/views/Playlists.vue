@@ -58,9 +58,6 @@
                             <h3 class="font-semibold text-sm sm:text-base text-gray-900 truncate mb-1">
                                 {{ playlist.name }}
                             </h3>
-                            <p class="text-xs sm:text-sm text-gray-500 truncate">
-                                Genre Playlist
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -269,8 +266,7 @@ export default {
             this.isLoadingGenrePlaylists = true;
             try {
                 const response = await apiClient.get('/playlist/getPlaylistCMS');
-                this.genrePlaylists = response.data.data || [];
-                console.log('Genre Playlists:', this.genrePlaylists);
+                this.genrePlaylists = response.data.data.slice(0, 6) || [];
             } catch (error) {
                 console.error('Error fetching genre playlists:', error);
                 this.genrePlaylists = [];

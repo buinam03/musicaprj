@@ -606,7 +606,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                                <textarea v-model="bioEdit" 
+                                <textarea v-model="bio" 
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none text-base"
                                     rows="4" placeholder="Enter track description..."></textarea>
                             </div>
@@ -820,7 +820,6 @@ export default {
                     apiClient.get(`http://localhost:3000/api/like/getLikeStatus`, {
                         params: {
                             user_id: this.idUserCurrent,
-                            song_id: song.id
                         }
                     }).then(response => ({
                         songId: song.id,
@@ -895,8 +894,9 @@ export default {
                 this.imageURL = this.trackInfo.artwork;
                 this.editTitle = this.trackInfo.title;
                 // Convert to number to match select option value type
-                this.selectedGenre = this.trackInfo.genre_id ? Number(this.trackInfo.genre_id) : '';
-                this.bioEdit = this.trackInfo.bio || '';
+                this.selectedGenre = this.trackInfo.SongDetail.genre ? Number(this.trackInfo.SongDetail.genre) : '';
+                this.bio = this.trackInfo.SongDetail.bio || '';
+                console.log('bio', this.bio);
                 this.privacy = this.trackInfo.is_public ? '1' : '0';
                 console.log('Selected genre ID:', this.selectedGenre, 'Type:', typeof this.selectedGenre);
             } catch (error) {

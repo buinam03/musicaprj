@@ -302,9 +302,11 @@
                                                 <div class="flex-1 min-w-0">
                                                     <div
                                                         class="font-semibold text-white text-left hover:text-purple-300 truncate text-sm sm:text-base">
-                                                        {{ item.title }}
+                                                        <a :href="`/trackinfo/${item.id}`">
+                                                            {{ item.title }}
+                                                        </a>
                                                     </div>
-                                                    <div class="text-white/80 text-xs sm:text-sm truncate mt-0.5">
+                                                    <div class="text-white/80  text-xs sm:text-sm truncate mt-0.5 ">
                                                         <span v-if="item.User" @click="gotoProfile(item.User.id)"
                                                             class="hover:underline cursor-pointer">
                                                             {{ item.User.username }}
@@ -425,7 +427,7 @@
                                                 <div class="flex-1 min-w-0">
                                                     <div
                                                         class="font-semibold text-white text-left hover:text-purple-300 truncate">
-                                                        <a href="#">
+                                                        <a :href="`/trackinfo/${item.id}`">
                                                             {{ item.title }}
                                                         </a>
                                                     </div>
@@ -952,8 +954,7 @@ export default {
             this.isLoadingPlaylists = true;
             try {
                 const res = await apiClient.get('/playlist/getPlaylistCMS');
-                this.cmsPlaylists = res.data.data || [];
-                console.log('CMS Playlists:', this.cmsPlaylists);
+                this.cmsPlaylists = res.data.data.slice(0, 5) || [];
             } catch (error) {
                 console.error('Error fetching CMS playlists:', error);
                 this.cmsPlaylists = [];

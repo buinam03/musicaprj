@@ -13,7 +13,6 @@ import Header from './components/Header.vue';
 import PlaylistPanel from './components/PlaylistPanel.vue';
 import { usePlayerStore } from '@/js/state';
 import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
-
 export default {
   name: 'App',
   components: {
@@ -59,7 +58,7 @@ export default {
     return {
       playerStore
     };
-  }
+  },
 };
 </script>
 

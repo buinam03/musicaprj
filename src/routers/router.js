@@ -18,7 +18,7 @@ import Message from "@/views/Message.vue";
 import Playlists from "@/views/Playlists.vue";
 import PlaylistDetail from "@/views/PlaylistDetail.vue";
 import GenrePlaylists from "@/views/GenrePlaylists.vue";
-import { usePlayerStore } from "@/js/state";
+// import { usePlayerStore } from "@/js/state";
 
 const routes = [
     {
@@ -163,8 +163,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const userStore = usePlayerStore();
-    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    const token = localStorage.getItem('jwt');
+    if (to.meta.requiresAuth && !token) {
         next({ name: "DiscoverPage" });
     } else {
         next();

@@ -209,12 +209,12 @@ export const usePlayerStore = defineStore("player", {
             }
 
             // Pause current audio if exists
-            if (this.audio) {
-                this.audio.pause();
-                this.audio.ontimeupdate = null;
-                this.audio.onended = null;
-                this.audio = null;
+            if (!this.audio) {
+                this.audio = new Audio();
             }
+            
+            // đổi source thôi
+            this.audio.pause();
 
             // Create and play new audio
             this.audio = new Audio(songToPlay.path);
@@ -243,10 +243,11 @@ export const usePlayerStore = defineStore("player", {
                 const audioDuration = this.audio.duration;
                 if (audioDuration && (!this.currentSong.duration || this.currentSong.duration === 0)) {
                     // Update currentSong duration reactively
-                    this.currentSong = {
-                        ...this.currentSong,
-                        duration: audioDuration
-                    };
+                    // this.currentSong = {
+                    //     ...this.currentSong,
+                    //     duration: audioDuration
+                    // };
+                    this.currentSong.duration = audioDuration
                 }
             };
 

@@ -4,10 +4,10 @@
         <div class="pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <!-- Header -->
             <div class="mb-6 sm:mb-8">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+                <h1 class="text-2xl text-left sm:text-3xl lg:text-4xl font-bold text-gray-800">
                     Playlists by Genre
                 </h1>
-                <p class="text-gray-600 text-sm sm:text-base mt-2">
+                <p class="text-gray-600 text-sm text-left sm:text-base mt-2">
                     Discover curated playlists for every genre
                 </p>
             </div>

@@ -84,7 +84,6 @@ export default {
     },
     mounted() {
         this.loadRecentlyPlayed();
-        console.log('RecentlyPlayed mounted, data:', this.recentlyPlayed);
         // Listen for storage changes (from other tabs)
         window.addEventListener('storage', this.handleStorageChange);
         // Poll for changes (same tab)
@@ -102,7 +101,6 @@ export default {
         loadRecentlyPlayed() {
             const data = getRecentlyPlayed();
             this.recentlyPlayed = data;
-            console.log('RecentlyPlayed loaded:', data.length, 'items');
         },
         handleStorageChange(event) {
             if (event.key === 'musica_recently_played') {
