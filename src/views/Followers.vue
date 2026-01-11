@@ -132,22 +132,10 @@ export default {
                 this.users = response.data.data;
                 
                 if (this.users.length > 0) {
-                    const followers = response.data.data;
-
-                    const followStatusPromises = followers.map(user =>
-                        apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
-                            params: {
-                                follower_id: this.profileId,
-                                following_id: user.follower.id
-                            }
-                        })
-                    );
-
-                    const followStatusResults = await Promise.all(followStatusPromises);
-
-                    this.users = followers.map((user, index) => ({
+                    // Sử dụng isFollowed từ response (API đã tính sẵn)
+                    this.users = this.users.map((user) => ({
                         ...user,
-                        isFollowed: followStatusResults[index].data.data.isFollowing
+                        isFollowed: user.isFollowed || false
                     }));
 
                     notification.success({
@@ -186,22 +174,10 @@ export default {
                     return;
                 }
 
-                const followers = response.data.data;
-
-                const followStatusPromises = followers.map(user =>
-                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
-                        params: {
-                            follower_id: this.profileId,
-                            following_id: user.follower.id
-                        }
-                    })
-                );
-
-                const followStatusResults = await Promise.all(followStatusPromises);
-
-                this.users = followers.map((user, index) => ({
+                // Sử dụng isFollowed từ response (API đã tính sẵn)
+                this.users = this.users.map((user) => ({
                     ...user,
-                    isFollowed: followStatusResults[index].data.data.isFollowing
+                    isFollowed: user.isFollowed || false
                 }));
             } catch (error) {
                 console.error('Error fetching followers:', error);

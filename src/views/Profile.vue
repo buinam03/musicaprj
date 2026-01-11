@@ -3,7 +3,7 @@
         <Header></Header>
         <div v-if="this.userById" class="pt-14 sm:pt-16 pb-8 sm:pb-16 w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <!-- Header Section with Background -->
-            <div class="relative w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-t-2xl overflow-hidden shadow-xl mb-4"
+            <div class="relative w-full aspect-square h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-t-2xl overflow-hidden shadow-xl mb-4"
                 :style="{
                     backgroundImage: `url('${userById.header_picture || 'http://localhost:8080/images/other/header_default.png'}')`,
                     backgroundSize: 'cover',
@@ -15,14 +15,14 @@
                 <div class="absolute top-1/2 left-4 sm:left-8 md:left-12 transform -translate-y-1/2">
                     <div class="relative">
                         <div v-if="isUserCurrent" @click="ProfilePictureOpenDialog"
-                            class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-white p-1 shadow-xl cursor-pointer hover:shadow-2xl transition-all hover:scale-105">
+                            class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full aspect-square bg-white p-1 shadow-xl cursor-pointer hover:shadow-2xl transition-all hover:scale-105">
                             <img :src="userById.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                class="rounded-full w-full h-full object-cover" alt="profile">
+                                class="rounded-full w-full h-full aspect-square object-cover" alt="profile" loading="lazy">
                         </div>
                         <div v-else
-                            class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-white p-1 shadow-xl">
+                            class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full aspect-square bg-white p-1 shadow-xl">
                             <img :src="userById.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                class="rounded-full w-full h-full object-cover" alt="profile">
+                                class="rounded-full w-full h-full aspect-square object-cover" alt="profile" loading="lazy">
                         </div>
                         <button v-if="isUserCurrent" @click.stop="ProfilePictureOpenDialog" type="button"
                             class="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 flex justify-center items-center rounded-full bg-white hover:bg-gray-100 shadow-lg border-2 border-gray-200 cursor-pointer transition-all hover:scale-110 z-10">
@@ -84,6 +84,7 @@
                                                 :src="achievement.img" 
                                                 :alt="achievement.title"
                                                 class="w-full h-full object-contain p-1.5 sm:p-2"
+                                                loading="lazy"
                                             />
                                         </div>
                                         <!-- Tooltip on hover -->
@@ -102,7 +103,7 @@
                                 <div v-for="(picture, index) in firstFourFollowingPictures" :key="index"
                                     class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white overflow-hidden">
                                     <img :src="picture" class="w-full h-full object-cover"
-                                        alt="Following user profile picture">
+                                        alt="Following user profile picture" loading="lazy">
                                 </div>
                             </div>
                             <router-link :to="'/following/' + profileId" 
@@ -168,7 +169,7 @@
                     <div class="relative flex justify-center items-center mb-6">
                         <div class="w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-gray-200 cursor-pointer hover:border-orange-400 transition-colors">
                             <img :src="profile_picture_preview || userById.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                alt="Preview" class="w-full h-full object-cover" />
+                                alt="Preview" class="w-full h-full object-cover" loading="lazy" />
                         </div>
                         <input @change="handleFileUpload"
                             class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file"
@@ -199,7 +200,7 @@
                     <h2 class="text-xl font-semibold mb-4 text-gray-900 pr-8">Change Header Picture</h2>
                     <div class="relative flex justify-center items-center mb-6 bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-orange-400 transition-all">
                         <img :src="header_picture_review || userById.header_picture || 'http://localhost:8080/images/other/header_default.png'"
-                            alt="Preview" class="w-full h-64 sm:h-80 object-cover" />
+                            alt="Preview" class="w-full h-64 sm:h-80 object-cover" loading="lazy" />
                         <input @change="handleHeaderFileUpload" type="file" accept=".jpg,.png"
                             class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                     </div>
@@ -222,8 +223,8 @@
                     <div v-for="(item, index) in lastestSong" :key="index"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-400 hover:shadow-lg transition-all duration-300">
                         <div class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 relative group-hover:scale-105 transition-transform">
-                            <img class="w-full h-full rounded-lg object-cover shadow-md" 
-                                :src="item.artwork || defaultImage" alt="" />
+                            <img class="w-full h-full aspect-square rounded-lg object-cover shadow-md" 
+                                :src="item.artwork || defaultImage" alt="" loading="lazy" />
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity cursor-pointer"
                                 @click="togglePlay(index, item)">
                                 <font-awesome-icon 
@@ -285,8 +286,8 @@
                     <div v-for="(item, index) in mostListenSong" :key="index"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-400 hover:shadow-lg transition-all duration-300">
                         <div class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 relative group-hover:scale-105 transition-transform">
-                            <img class="w-full h-full rounded-lg object-cover shadow-md" 
-                                :src="item.artwork || defaultImage" alt="" />
+                            <img class="w-full h-full aspect-square rounded-lg object-cover shadow-md" 
+                                :src="item.artwork || defaultImage" alt="" loading="lazy" />
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg flex items-center justify-center transition-opacity cursor-pointer"
                                 @click="togglePlay(index, item)">
                                 <font-awesome-icon 
@@ -348,8 +349,8 @@
                     <div v-for="(item, index) in pageData" :key="item.id"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all duration-300">
                         <div class="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 relative">
-                            <img class="w-full h-full rounded-lg object-cover" :src="item.artwork || defaultImage"
-                                alt="artwork" />
+                            <img class="w-full h-full aspect-square rounded-lg object-cover" :src="item.artwork || defaultImage"
+                                alt="artwork" loading="lazy" />
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
                             <div class="flex-grow min-w-0 text-left">
@@ -435,8 +436,8 @@
                     <div v-for="(item, index) in pageLikeData" :key="item.id"
                         class="group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all duration-300">
                         <div class="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 relative">
-                            <img class="w-full h-full rounded-lg object-cover" 
-                                :src="item.Song.artwork || defaultImage" alt="" />
+                            <img class="w-full h-full aspect-square rounded-lg object-cover" 
+                                :src="item.Song.artwork || defaultImage" alt="" loading="lazy" />
                         </div>
                         <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
                             <div class="flex-grow min-w-0 text-left">
@@ -560,85 +561,129 @@
             </div>
         </div>
         <!-- Edit Track Modal -->
-        <div v-if="isEditTracks"
-            class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm z-50 p-4 overflow-y-auto"
-            @click.self="isEditTracks = false">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-8">
-                <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl flex justify-between items-center">
-                    <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Edit Track</h2>
-                    <button @click="isEditTracks = false" class="text-gray-500 hover:text-gray-700 transition-colors">
-                        <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
+        <div 
+            v-if="isEditTracks && trackInfo"
+            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            @click.self="isEditTracks = false"
+        >
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="sticky top-0 bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 flex justify-between items-center rounded-t-2xl">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white">Edit Track</h2>
+                    <button 
+                        @click="isEditTracks = false"
+                        class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors flex items-center justify-center"
+                    >
+                        <font-awesome-icon icon="fa-solid fa-times" />
                     </button>
                 </div>
-                <div class="p-4 sm:p-6">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                        <input v-model="editTitle" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-base"
-                            type="text" placeholder="Enter track title">
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Modal Body -->
+                <div class="p-6 sm:p-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                        <!-- Left: Artwork -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Artwork</label>
-                            <div class="relative aspect-square border-2 border-dashed border-gray-300 rounded-lg overflow-hidden hover:border-orange-400 transition-colors">
-                                <button type="button" class="w-full h-full relative">
-                                    <img v-if="imageURL" :src="imageURL"
-                                        class="w-full h-full object-cover" alt="artwork">
-                                    <div v-else class="flex flex-col items-center justify-center h-full gap-4 text-gray-400">
-                                        <font-awesome-icon icon="fa-solid fa-upload" class="text-4xl" />
-                                        <span class="text-base sm:text-lg">Add new artwork</span>
-                                    </div>
-                                    <input ref="fileInput" type="file" accept=".jpg,.png" @change="handleFileUploadEdit"
-                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                </button>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">Artwork</label>
+                            <div class="relative group">
+                                <div class="aspect-square w-full border-2 border-dashed rounded-xl overflow-hidden transition-all"
+                                    :class="imageURL ? 'border-orange-300 shadow-lg' : 'border-gray-300 hover:border-orange-400 hover:bg-orange-50/50'">
+                                    <button type="button" class="w-full h-full relative" @click="$refs.fileInput?.click()">
+                                        <img v-if="imageURL" :src="imageURL" class="w-full h-full aspect-square object-cover" alt="artwork" loading="lazy">
+                                        <div v-else class="flex flex-col items-center justify-center h-full gap-4 px-4">
+                                            <div class="w-16 h-16  rounded-full bg-orange-100 flex items-center justify-center">
+                                                <font-awesome-icon icon="fa-solid fa-image" class="text-orange-500 text-2xl" />
+                                            </div>
+                                            <span class="text-gray-600 font-medium text-sm sm:text-base">Add artwork</span>
+                                            <span class="text-gray-400 text-xs">JPG or PNG</span>
+                                        </div>
+                                        <input ref="fileInput" type="file" accept=".jpg,.jpeg,.png,.webp" @change="handleFileUploadEdit" class="hidden">
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="space-y-4">
+
+                        <!-- Right: Form Fields -->
+                        <div class="space-y-5">
+                            <!-- Title -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Genre</label>
-                                <select v-model="selectedGenre" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all text-base">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                                <input 
+                                    v-model="editTitle" 
+                                    type="text"
+                                    class="w-full h-12 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                                    placeholder="Enter track title"
+                                >
+                            </div>
+
+                            <!-- Genre -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Genre</label>
+                                <select 
+                                    v-model="selectedGenre" 
+                                    class="w-full h-12 px-4 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white"
+                                >
                                     <option value="">Select a genre</option>
-                                    <option v-for="item in genreList" :key="item.id" :value="item.id">
+                                    <option v-for="item in genreList" :key="item.id" :value="item">
                                         {{ item.name }}
                                     </option>
                                 </select>
                             </div>
+
+                            <!-- Bio -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                                <textarea v-model="bio" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all resize-none text-base"
-                                    rows="4" placeholder="Enter track description..."></textarea>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                <textarea 
+                                    v-model="bio" 
+                                    rows="4"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all resize-none"
+                                    placeholder="Enter track description..."
+                                ></textarea>
                             </div>
+
+                            <!-- Privacy -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-3">Track Privacy</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Track Privacy</label>
                                 <div class="flex gap-6">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input v-model="privacy" value="1" type="radio" class="w-4 h-4 text-orange-500 focus:ring-orange-500">
-                                        <span class="ml-2 text-sm font-medium text-gray-700">Public</span>
+                                    <label class="flex items-center cursor-pointer group">
+                                        <input v-model="privacy" value="1" type="radio" name="privacy" class="w-5 h-5 text-orange-500 focus:ring-orange-500 cursor-pointer">
+                                        <span class="ml-3 text-sm sm:text-base font-medium text-gray-700 group-hover:text-orange-600 transition-colors">
+                                            <font-awesome-icon icon="fa-solid fa-globe" class="mr-2" />
+                                            Public
+                                        </span>
                                     </label>
-                                    <label class="flex items-center cursor-pointer">
-                                        <input v-model="privacy" value="0" type="radio" class="w-4 h-4 text-orange-500 focus:ring-orange-500">
-                                        <span class="ml-2 text-sm font-medium text-gray-700">Private</span>
+                                    <label class="flex items-center cursor-pointer group">
+                                        <input v-model="privacy" value="0" type="radio" name="privacy" class="w-5 h-5 text-orange-500 focus:ring-orange-500 cursor-pointer">
+                                        <span class="ml-3 text-sm sm:text-base font-medium text-gray-700 group-hover:text-orange-600 transition-colors">
+                                            <font-awesome-icon icon="fa-solid fa-lock" class="mr-2" />
+                                            Private
+                                        </span>
                                     </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 rounded-b-2xl flex justify-between items-center">
-                    <button @click="confirmDeleteTrack"
-                        class="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium shadow-md flex items-center gap-2">
+
+                <!-- Modal Footer -->
+                <div class="sticky bottom-0 bg-gray-50 px-6 py-4 flex justify-end gap-3 rounded-b-2xl border-t border-gray-200">
+                    <button 
+                        @click="confirmDeleteTrack"
+                        class="px-6 py-2.5 bg-red-500 text-white rounded-xl hover:bg-red-600 font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                    >
                         <font-awesome-icon icon="fa-solid fa-trash" />
                         <span>Delete Track</span>
                     </button>
                     <div class="flex gap-3">
-                        <button @click="isEditTracks = false"
-                            class="px-6 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                        <button 
+                            @click="isEditTracks = false"
+                            class="px-6 py-2.5 border-2 border-gray-300 rounded-xl hover:bg-gray-100 font-semibold text-gray-700 transition-all"
+                        >
                             Cancel
                         </button>
-                        <button @click="editTrack"
-                            class="px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all font-medium shadow-md">
+                        <button 
+                            @click="editTrack"
+                            class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg"
+                        >
                             Save Changes
                         </button>
                     </div>
@@ -701,11 +746,12 @@ export default {
             lastestSong: null,
             defaultImage: 'http://localhost:8080/images/other/Unknown_person.jpg',
             isEditTracks: false,
+            trackInfo: null,
             genreList: [],
             selectedGenre: '',
             editTitle: '',
             imageURL: null,
-            bioEdit: '',
+            artworkFile: null,
             privacy: '1',
             idSelected: null,
             mostListenSong: null,
@@ -766,8 +812,6 @@ export default {
                     ...user,
                     isFollowed: followStatusResults[index].data.data.isFollowing
                 }));
-
-                console.log('users with follow status:', this.users);
             } catch (error) {
                 console.error('Error fetching following:', error);
             }
@@ -780,7 +824,6 @@ export default {
                     }
                 });
                 this.countFollower = response.data.data;
-                console.log('countFollower', this.countFollower);
             } catch (error) {
                 console.error('Error fetching count follower:', error);
             }
@@ -793,7 +836,6 @@ export default {
                     }
                 });
                 this.countFollowing = response.data.data;
-                console.log('countFollower', this.countFollower);
             } catch (error) {
                 console.error('Error fetching count follower:', error);
             }
@@ -806,36 +848,27 @@ export default {
                     }
                 });
                 this.likeByUser = response.data.data;
-                console.log('likeByUser', this.likeByUser);
             } catch (error) {
                 console.error('Error fetching liked songs:', error);
             }
+        },
+        async getLikeStatus(user_id) {
+            if (!user_id) return [];
+
+            const res = await apiClient.get(
+                'http://localhost:3000/api/like/getLikeStatus',
+                { params: { user_id } }
+            );
+
+            return res.data.likedSongIds || [];
         },
         async fetchLikedSongs() {
             if (!this.idUserCurrent) return; // Không fetch nếu chưa đăng nhập
 
             try {
-                // Tạo một mảng promises để gọi API cho từng bài hát
-                const promises = this.songUser.map(song =>
-                    apiClient.get(`http://localhost:3000/api/like/getLikeStatus`, {
-                        params: {
-                            user_id: this.idUserCurrent,
-                        }
-                    }).then(response => ({
-                        songId: song.id,
-                        isLiked: response.data.isLiked
-                    }))
-                );
-
-                // Đợi tất cả các requests hoàn thành
-                const results = await Promise.all(promises);
-
-                // Lọc ra những bài hát được like (isLiked = true)
-                this.likedSongs = results
-                    .filter(result => result.isLiked)
-                    .map(result => result.songId);
-
-                console.log("Fetched liked songs:", this.likedSongs);
+                // Gọi API một lần để lấy tất cả liked song IDs
+                const likedIds = await this.getLikeStatus(this.idUserCurrent);
+                this.likedSongs = likedIds;
             } catch (error) {
                 console.error('Error fetching liked songs:', error);
                 this.likedSongs = []; // Reset về mảng rỗng nếu có lỗi
@@ -882,9 +915,8 @@ export default {
             try {
                 const response = await apiClient.get(`http://localhost:3000/api/song/getMostListenTrack/${this.profileId}`);
                 this.mostListenSong = response.data.data;
-                console.log('mostListenSong', this.mostListenSong);
             } catch (error) {
-                console.log('Error get most listen song', error);
+                // Error handled
             }
         },
         async getTrackInfoById() {
@@ -893,14 +925,19 @@ export default {
                 this.trackInfo = response.data.data;
                 this.imageURL = this.trackInfo.artwork;
                 this.editTitle = this.trackInfo.title;
-                // Convert to number to match select option value type
-                this.selectedGenre = this.trackInfo.SongDetail.genre ? Number(this.trackInfo.SongDetail.genre) : '';
-                this.bio = this.trackInfo.SongDetail.bio || '';
-                console.log('bio', this.bio);
+                
+                // Find and set the genre object (similar to Tracks.vue)
+                const genreObj = this.genreList.find(g => 
+                    g.id === this.trackInfo.SongDetail?.genre_id || 
+                    g.id === Number(this.trackInfo.SongDetail?.genre) ||
+                    g.name === this.trackInfo.SongDetail?.genre
+                );
+                this.selectedGenre = genreObj || '';
+                
+                this.bio = this.trackInfo.SongDetail?.bio || '';
                 this.privacy = this.trackInfo.is_public ? '1' : '0';
-                console.log('Selected genre ID:', this.selectedGenre, 'Type:', typeof this.selectedGenre);
             } catch (error) {
-                console.log('Error get track info', error);
+                // Error handled
             }
         },
         async getGenre() {
@@ -908,7 +945,7 @@ export default {
                 const response = await apiClient.get('http://localhost:3000/api/songdetail/getGenre');
                 this.genreList = response.data.data;
             } catch (error) {
-                console.log('Error get genre', error);
+                // Error handled
             }
         },
         async editTrack() {
@@ -921,20 +958,53 @@ export default {
                 return;
             }
 
+            if (!this.selectedGenre || !this.selectedGenre.name) {
+                notification.warning({
+                    message: 'Validation Error',
+                    description: 'Please select a genre.',
+                    duration: 3,
+                });
+                return;
+            }
+
             try {
-                const payload = {
-                    artwork: this.imageURL,
-                    title: this.editTitle,
-                    genre: this.selectedGenre || "",
-                    bio: this.bioEdit || null,
-                    privacy: parseInt(this.privacy),
+                let artworkUrl = this.imageURL;
+
+                // Upload new artwork if file was selected
+                if (this.artworkFile) {
+                    const formData = new FormData();
+                    formData.append("file", this.artworkFile);
+                    formData.append("upload_preset", "ml_default");
+
+                    notification.info({
+                        message: 'Uploading Artwork',
+                        description: 'Please wait...',
+                        duration: 2,
+                    });
+
+                    const uploadResponse = await axios.post(
+                        "https://api.cloudinary.com/v1_1/dxgqkbchh/image/upload",
+                        formData
+                    );
+                    artworkUrl = uploadResponse.data.secure_url;
                 }
-                console.log('payload', payload);
+
+                const payload = {
+                    artwork: artworkUrl,
+                    title: this.editTitle.trim(),
+                    genre: this.selectedGenre.name,
+                    bio: this.bio.trim() || null,
+                    privacy: parseInt(this.privacy),
+                };
+                
                 const response = await apiClient.put(`http://localhost:3000/api/song/updateSong/${this.idSelected}`, payload);
                 if (response.data) {
                     this.isEditTracks = false;
+                    this.artworkFile = null;
                     try {
                         await this.loadProfile();
+                        await this.getLastestSong();
+                        await this.getMostListenTrack();
                     } catch (error) {
                         console.error('Error reloading profile:', error);
                     }
@@ -945,23 +1015,25 @@ export default {
                     });
                 }
             } catch (error) {
-                console.log('Error edit track', error);
                 notification.error({
                     message: 'Update Failed',
-                    description: 'Failed to update track. Please try again later.',
-                    duration: 3,
+                    description: error.response?.data?.message || 'Failed to update track. Please try again later.',
+                    duration: 4,
                 });
             }
         },
         async toggleEditTracks(id) {
-            this.isEditTracks = !this.isEditTracks;
+            // Open modal reliably on first click
+            this.isEditTracks = true;
             this.idSelected = id;
+            this.trackInfo = null;
+            this.artworkFile = null;
+
             // Ensure genreList is loaded before getting track info
             if (this.genreList.length === 0) {
                 await this.getGenre();
             }
             await this.getTrackInfoById();
-            console.log('idSelected', this.idSelected);
         },
         confirmDeleteTrack() {
             Modal.confirm({
@@ -1019,7 +1091,6 @@ export default {
                         public_id: publicId, 
                         resource_type: resourceType 
                     });
-                    console.log('Successfully deleted from Cloudinary via backend:', publicId);
                     return;
                 } catch (backendError) {
                     // If backend endpoint doesn't exist, log warning but continue
@@ -1094,9 +1165,8 @@ export default {
                 const id = this.$route.params.id;
                 const res = await apiClient.get(`http://localhost:3000/api/song/getLastestSong/${id}`);
                 this.lastestSong = res.data.data;
-                console.log('last: ', this.lastestSong)
             } catch (error) {
-                console.log('Error when get lastest song : ', error)
+                // Error handled
             }
         },
         getRoomId(u1, u2) {
@@ -1135,14 +1205,12 @@ export default {
             }
         },
         async followUser() {
-            console.log(this.profileId)
             try {
                 const payload = {
                     following_id: this.profileId,
                 }
                 await apiClient.post('http://localhost:3000/api/follow/addNewFollower', payload);
                 this.getFollowerById();
-                console.log('Success', payload);
                 notification.success({
                     message: 'Success',
                     description: `You are now following ${this.userById?.username || 'this user'}.`,
@@ -1166,7 +1234,6 @@ export default {
                     bio: this.bio
                 }
                 await apiClient.put('http://localhost:3000/api/users/updateUserInfo', payload);
-                console.log('Success', payload);
                 try {
                     await this.loadProfile();
                 } catch (error) {
@@ -1235,7 +1302,6 @@ export default {
                     duration: 3,
                 });
             } catch (error) {
-                console.log("Error: ", error);
                 notification.error({
                     message: 'Upload Failed',
                     description: 'Failed to update profile picture. Please try again later.',
@@ -1283,7 +1349,6 @@ export default {
                     duration: 3,
                 });
             } catch (error) {
-                console.log("Error: ", error);
                 notification.error({
                     message: 'Upload Failed',
                     description: 'Failed to update header picture. Please try again later.',
@@ -1396,6 +1461,9 @@ export default {
                     return;
                 }
 
+                // Lưu file để upload sau
+                this.artworkFile = file;
+                
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.imageURL = e.target.result; // Gán URL ảnh vào `imageUrl`
@@ -1420,7 +1488,6 @@ export default {
 
             if (!isAlreadyInPlaylist) {
                 this.playerStore.addToPlaylist(song);
-                console.log("Added to playlist:", this.playerStore.playlist);
                 notification.success({
                     message: 'Added to Playlist',
                     description: `${song.title} has been added to your playlist.`,
@@ -1460,7 +1527,6 @@ export default {
                     duration: song.SongDetail?.duration || song.duration || 0,
                     path: song.path,
                 });
-                playerStore.logUserListen(song.id);
             }
         },
         nextPage() {
@@ -1485,7 +1551,6 @@ export default {
         },
         async loadProfile() {
             try {
-                console.log(this.profileId);
                 const [songResponse, userResponse, userByIdRes] = await Promise.all([
                     apiClient.get(`/song/getAllSong/${this.profileId}`),
                     apiClient.get("/users/getCurrentUser"),
@@ -1493,14 +1558,12 @@ export default {
                 ]);
 
                 this.songUser = songResponse.data.data;
-                console.log(this.songUser)
                 if (this.songUser.length == 0) {
                     this.messageSong = songResponse.data.message;
                 }
                 else {
                     this.messageSong = ""; // Xóa thông báo nếu có bài hát
                 }
-                console.log(this.messageSong);
 
                 this.currentUser = userResponse.data.data || {};
                 this.idUserCurrent = this.currentUser.id || null;
@@ -1516,7 +1579,6 @@ export default {
                 else {
                     this.isUserCurrent = true;
                 }
-                console.log('isUserCurrent', this.isUserCurrent);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 // Chỉ log error, không redirect vì interceptor đã xử lý redirect nếu cần
@@ -1543,14 +1605,10 @@ export default {
         filteredSongs() {
             if (!this.songUser) return [];
 
-            console.log('isUserCurrent:', this.isUserCurrent);
-            console.log('songUser:', this.songUser);
-
             if (this.isUserCurrent) {
                 return this.songUser;
             } else {
                 const publicSongs = this.songUser.filter(song => Number(song.is_public) === 1);
-                console.log('publicSongs:', publicSongs);
                 return publicSongs;
             }
         },
@@ -1622,11 +1680,9 @@ export default {
     watch: {
         profile_picture_url(newValue) {
             this.user_image_profile.profile_picture = newValue;
-            console.log('New image URL:', newValue);
         },
         header_picture_url(newValue) {
             this.user_image_profile.header_picture = newValue;
-            console.log('New image URL:', newValue);
         },
         '$route.params.id': async function (newId, oldId) {
             if (newId !== oldId) {
@@ -1731,5 +1787,14 @@ img {
 
 .group:hover img {
     transform: scale(1.05);
+}
+
+/* Limit image sizes to prevent UI drop and resource consumption */
+img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover;
+    width: auto;
+    height: auto;
 }
 </style>

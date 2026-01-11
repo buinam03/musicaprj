@@ -81,6 +81,11 @@
                                     <font-awesome-icon icon="fa-solid fa-notes-medical" />
                                     <span class="text-sm sm:text-base">Add to Playlist</span>
                                 </button>
+                                <button @click.stop="downloadFile(trackInfo.path, trackInfo.title)"
+                                    class="px-4 sm:px-6 py-2 border-2 border-gray-400 text-gray-300 hover:border-orange-500 hover:text-orange-500 rounded-full font-medium transition-all flex items-center gap-2">
+                                    <font-awesome-icon icon="fa-solid fa-download" />
+                                    <span class="text-sm sm:text-base">Download</span>
+                                </button>
                                 <div class="flex items-center gap-4 sm:gap-6 ml-auto">
                                     <div class="text-gray-300 text-sm sm:text-base flex items-center gap-2">
                                         <font-awesome-icon icon="fa-solid fa-play" />
@@ -155,9 +160,9 @@
                                 <p class="text-sm text-left sm:text-base text-gray-700 mb-2 whitespace-pre-wrap break-words">
                                     {{ item.content }}
                                 </p>
-                                <button class="text-sm float-left sm:text-gray-500 hover:text-orange-500 transition-colors font-medium">
+                                <!-- <button class="text-sm float-left sm:text-gray-500 hover:text-orange-500 transition-colors font-medium">
                                     Reply
-                                </button>
+                                </button> -->
                             </div>
                         </div>
                         <div v-if="cmtSong.length === 0" class="text-center py-8 text-gray-400">
@@ -238,12 +243,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
 import AddToPlaylistModal from '@/components/AddToPlaylistModal.vue';
 import { notification } from 'ant-design-vue';
+import { downloadFile } from '@/js/downloadFile';
 
 export default {
     setup() {
         const playerStore = usePlayerStore();
         return {
             playerStore,
+            downloadFile,
         };
     },
     name: 'TracksInfoPage',
@@ -437,9 +444,7 @@ export default {
                     }
                 });
                 
-                console.log('Like status response:', response.data);
                 this.isLiked = response.data.isLiked || false;
-                console.log('isLiked set to:', this.isLiked);
             } catch (error) {
                 console.error('Error checking like status:', error);
                 this.isLiked = false;
@@ -507,7 +512,7 @@ export default {
                     duration: this.trackInfo.SongDetail?.duration || 0,
                     path: this.trackInfo.path,
                 });
-                playerStore.logUserListen(this.trackInfo.id);
+                // playerStore.logUserListen(this.trackInfo.id);
                 playerStore.currentPlayIndex = 0;
             }
         },
@@ -516,7 +521,6 @@ export default {
                 const id = this.$route.params.id;
                 const response = await apiClient.get(`/comment/getAllComment/${id}?time=${this.sortOrder}`);
                 this.cmtSong = response.data.data;
-                console.log("Fetched comments:", this.cmtSong);
             } catch (error) {
                 console.error("Error fetching comments:", error);
             }
@@ -533,7 +537,7 @@ export default {
             try {
                 await apiClient.post('/follow/addNewFollower', this.user_current);
             } catch (error) {
-                console.log(error);
+                // Error handled
             }
         },
         async commentSong() {
@@ -557,7 +561,6 @@ export default {
                 newComment.user = {
                     ...this.user,
                 };
-                console.log(newComment);
                 this.cmtSong.unshift(newComment);
                 this.commentValue = "";
 
@@ -567,7 +570,6 @@ export default {
                     duration: 2,
                 });
             } catch (error) {
-                console.log(error);
                 notification.error({
                     message: 'Error',
                     description: 'Failed to post comment. Please try again.',

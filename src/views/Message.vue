@@ -29,14 +29,16 @@
                                 }"
                                 class="flex items-center p-3 sm:p-4 cursor-pointer transition-all duration-200 group">
                                 <div class="flex-shrink-0 relative">
-                                    <img :src="item.partner.profile_picture || unknownAvatar"
-                                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200 group-hover:border-orange-400 transition-colors"
+                                    <img @click.stop="gotoProfile(item.partner.id)" 
+                                        :src="item.partner.profile_picture || unknownAvatar"
+                                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-gray-200 group-hover:border-orange-400 transition-colors cursor-pointer"
                                         :alt="item.partner.username">
                                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                                 </div>
                                 <div class="flex-grow min-w-0 ml-3">
                                     <div class="flex items-center justify-between mb-1">
-                                        <div class="font-semibold text-sm sm:text-base text-gray-900 truncate">
+                                        <div @click.stop="gotoProfile(item.partner.id)" 
+                                            class="font-semibold text-sm sm:text-base text-gray-900 truncate cursor-pointer hover:text-orange-500 transition-colors">
                                             {{ item.partner.username }}
                                         </div>
                                         <div class="text-xs text-gray-500 ml-2 flex-shrink-0">
@@ -69,11 +71,13 @@
                                 class="sm:hidden p-2 hover:bg-gray-100 rounded-full transition-colors mr-1">
                                 <font-awesome-icon icon="fa-solid fa-arrow-left" class="text-gray-700" />
                             </button>
-                            <img :src="userById.profile_picture || unknownAvatar"
-                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200"
+                            <img @click="gotoProfile(userById.id)" 
+                                :src="userById.profile_picture || unknownAvatar"
+                                class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-200 cursor-pointer hover:border-orange-400 transition-colors"
                                 :alt="userById.username">
                             <div>
-                                <div class="font-semibold text-base sm:text-lg text-gray-900">{{ userById.username }}</div>
+                                <div @click="gotoProfile(userById.id)" 
+                                    class="font-semibold text-base sm:text-lg text-gray-900 cursor-pointer hover:text-orange-500 transition-colors">{{ userById.username }}</div>
                                 <div class="text-xs text-green-500 flex items-center gap-1">
                                     <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                                     Online
@@ -104,8 +108,9 @@
                                 }">
                                 
                                 <!-- Avatar -->
-                                <img :src="item.sender.profile_picture || unknownAvatar"
-                                    class="w-8 h-8 rounded-full object-cover flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                <img @click.stop="gotoProfile(item.sender.id)" 
+                                    :src="item.sender.profile_picture || unknownAvatar"
+                                    class="w-8 h-8 rounded-full object-cover flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:ring-2 hover:ring-orange-400"
                                     :alt="item.sender.username">
 
                                 <!-- Message Bubble -->
@@ -202,8 +207,6 @@ export default {
         
         // Listen for incoming messages
         socket.on('receive', msg => {
-            console.log('📩 Received message:', msg);
-            
             // Only add message if it belongs to current room
             if (msg.room_id === this.roomId) {
                 // Prevent duplicates
@@ -267,12 +270,10 @@ export default {
                 
                 // Join the room via socket
                 socket.emit('room', roomId);
-                console.log('🚪 Joined room:', roomId);
                 
                 // Fetch messages from API
                 const res = await apiClient.get(`http://localhost:3000/api/message/getRoomMessage/${roomId}`);
                 this.messageByUser = res.data.data || [];
-                console.log(`📝 Fetched ${this.messageByUser.length} messages for room ${roomId}`);
                 
                 // Scroll to bottom after loading messages
                 this.$nextTick(() => {
@@ -285,7 +286,6 @@ export default {
         
         toggleEmoji() {
             // Placeholder for emoji picker
-            console.log('Emoji picker - to be implemented');
         },
 
         getRoomId(u1, u2) {
@@ -304,7 +304,6 @@ export default {
                 this.currentId = this.userCurrent.id;
                 
                 if (!this.roomId) {
-                    console.log('⚠️ No room ID yet');
                     return;
                 }
                 
@@ -366,7 +365,6 @@ export default {
                 msg: this.inputMessage.trim()
             };
             
-            console.log('📤 Sending message:', messageData);
             socket.emit('send', messageData);
             
             // Clear input immediately for better UX
@@ -388,6 +386,10 @@ export default {
                 // On mobile: show room list if no room selected, hide if room is selected
                 this.showRoomList = !this.roomId;
             }
+        },
+        
+        gotoProfile(id) {
+            this.$router.push({ name: 'ProfilePage', params: { id } });
         }
     },
     

@@ -113,7 +113,6 @@ export default {
             try {
                 const res = await apiClient.get('/song/getSongByDescPlays');
                 this.songs = res.data.data || [];
-                console.log('songs top 10: ', this.songs);
             } catch (error) {
                 console.error("Lỗi:", error.response?.data);
             }

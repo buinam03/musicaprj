@@ -185,9 +185,24 @@ apiClient.interceptors.request.use(
 
 // Thêm interceptor để xử lý lỗi từ server
 apiClient.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Kiểm tra nếu response thành công nhưng có message "Invalid Token"
+        if (response.data && response.data.message === 'Invalid Token') {
+            console.warn('Invalid Token detected in successful response, logging out...');
+            handleLogout();
+            return Promise.reject(new Error('Invalid Token'));
+        }
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
+
+        // Kiểm tra message "Invalid Token" trong error response
+        if (error.response && error.response.data && error.response.data.message === 'Invalid Token') {
+            console.warn('Invalid Token detected in error response, logging out...');
+            handleLogout();
+            return Promise.reject(error);
+        }
 
         // Chỉ xử lý 401 và tránh retry request refresh token
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
@@ -223,18 +238,8 @@ apiClient.interceptors.response.use(
                 isRefreshing = false;
                 processQueue(new Error('No refresh token'), null);
                 
-                // Nếu chưa show modal, show modal logout
-                if (!isShowingExpirationModal) {
-                    Modal.warning({
-                        title: 'Phiên đăng nhập đã hết hạn',
-                        content: 'Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.',
-                        okText: 'Đồng ý',
-                        centered: true,
-                        onOk: () => {
-                            handleLogout();
-                        }
-                    });
-                }
+                // Tự động logout và redirect về discover
+                handleLogout();
                 
                 return Promise.reject(error);
             }
@@ -272,18 +277,8 @@ apiClient.interceptors.response.use(
                 isRefreshing = false;
                 processQueue(refreshError, null);
                 
-                // Nếu chưa show modal, show modal logout
-                if (!isShowingExpirationModal) {
-                    Modal.error({
-                        title: 'Lỗi xác thực',
-                        content: 'Không thể làm mới token. Vui lòng đăng nhập lại.',
-                        okText: 'Đồng ý',
-                        centered: true,
-                        onOk: () => {
-                            handleLogout();
-                        }
-                    });
-                }
+                // Tự động logout và redirect về discover
+                handleLogout();
                 
                 return Promise.reject(refreshError);
             }

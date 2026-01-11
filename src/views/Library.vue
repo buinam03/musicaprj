@@ -68,12 +68,14 @@
                          :key="index"
                          class="group bg-white rounded-2xl p-4 sm:p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <div class="flex flex-col items-center">
-                            <div class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 aspect-square mb-4 relative overflow-hidden rounded-full group-hover:ring-4 group-hover:ring-orange-200 transition-all duration-300">
+                            <div @click="gotoProfile(user.following.id)" 
+                                 class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 aspect-square mb-4 relative overflow-hidden rounded-full group-hover:ring-4 group-hover:ring-orange-200 transition-all duration-300 cursor-pointer">
                                 <img :src="user.following.profile_picture || defaultImage" 
                                     alt="Profile picture"
                                     class="w-full h-full object-cover rounded-full transform group-hover:scale-110 transition-transform duration-300" />
                             </div>
-                            <h3 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4 text-center truncate w-full">
+                            <h3 @click="gotoProfile(user.following.id)" 
+                                class="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4 text-center truncate w-full cursor-pointer hover:text-orange-500 transition-colors duration-200">
                                 {{ user.following.username }}
                             </h3>
                             <button @click="followToggle(user.following.id, index)"
@@ -170,11 +172,19 @@ export default {
                 });
 
                 this.songs = response.data.data;
-
-                console.log('liked songs:', this.songs);
             } catch (error) {
                 console.error('Error fetching likes:', error);
             }
+        },
+        async getFollowStatus(userId) {
+            if (!userId) return;
+
+            const res = await apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
+                params: {
+                    user_id: userId,
+                }
+            })
+            return res.data.data;
         },
         async fetchFollowing() {
             try {
@@ -187,26 +197,15 @@ export default {
                 // Lấy danh sách following users
                 const followingUsers = response.data.data;
                 
-                // Tạo mảng các promise để check follow status cho từng user
-                const followStatusPromises = followingUsers.map(user => 
-                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
-                        params: {
-                            follower_id: userId,
-                            following_id: user.following.id
-                        }
-                    })
-                );
-
-                // Đợi tất cả các request hoàn thành
-                const followStatusResults = await Promise.all(followStatusPromises);
+                // Lấy trạng thái follow một lần
+                const followerList = await this.getFollowStatus(userId);
+                const followerSet = new Set(followerList.map(u => u.id));
 
                 // Kết hợp dữ liệu user với trạng thái follow
-                this.followingUsers = followingUsers.map((user, index) => ({
+                this.followingUsers = followingUsers.map((user) => ({
                     ...user,
-                    isFollowed: followStatusResults[index].data.data.isFollowing
+                    isFollowed: followerSet.has(user.following.id) || false
                 }));
-
-                console.log('users with follow status:', this.followingUsers);
             } catch (error) {
                 console.error('Error fetching following:', error);
             }
@@ -222,6 +221,9 @@ export default {
             } catch (error) {
                 console.error("Failed to follow:", error);
             }
+        },
+        gotoProfile(id) {
+            this.$router.push({ name: 'ProfilePage', params: { id } });
         },
     },
     components: {

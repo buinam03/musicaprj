@@ -85,7 +85,6 @@ export default {
             try {
                 const response = await apiClient.get('/playlist/getAllPlaylistCMS');
                 this.playlists = response.data.data || [];
-                console.log('CMS Playlists:', this.playlists);
             } catch (error) {
                 console.error('Error fetching CMS playlists:', error);
                 notification.error({

@@ -198,7 +198,7 @@ export default {
             this.items[index].isLike = !this.items[index].isLike;
         },
         ShuffleMusicToggle() {
-            this.playerStore.shufflePlaylist();
+            this.playerStore.toggleShuffle();
         },
         RepeatMusicToggle() {
             this.repeatState = (this.repeatState + 1) % 2; 
@@ -219,13 +219,11 @@ export default {
         },
         updateVolume(value = this.volumeVal) {
             const v = Math.max(0, Math.min(value, 1));
-            console.log("Volume to set:", v);
 
             this.playerStore.volume = v;
 
             if (this.playerStore.audio) {
                 this.playerStore.audio.volume = v;
-                console.log("Audio volume set to:", this.playerStore.audio.volume);
             } else {
                 console.error("Audio object not initialized.");
             }

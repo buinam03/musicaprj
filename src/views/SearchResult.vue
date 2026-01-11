@@ -112,7 +112,7 @@
                                 <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
                                     <div class="flex-grow min-w-0">
                                         <div @click="redirectTrackInfo(item.id)"
-                                            class="font-semibold text-sm sm:text-base md:text-lg text-gray-900 hover:text-orange-500 cursor-pointer truncate mb-1 transition-colors">
+                                            class="font-semibold text-left text-sm sm:text-base md:text-lg text-gray-900 hover:text-orange-500 cursor-pointer truncate mb-1 transition-colors">
                                             {{ item.title }}
                                         </div>
                                         <div class="flex flex-wrap gap-x-2 gap-y-1">
@@ -225,14 +225,14 @@
                                 <div class="flex-grow min-w-0 flex items-center justify-between gap-3 sm:gap-4">
                                     <div class="flex-grow min-w-0">
                                         <div @click="redirectTrackInfo(item.id)"
-                                            class="font-semibold text-sm sm:text-base md:text-lg text-gray-900 hover:text-orange-500 cursor-pointer truncate mb-1 transition-colors">
+                                            class="font-semibold text-left text-sm sm:text-base md:text-lg text-gray-900 hover:text-orange-500 cursor-pointer truncate mb-1 transition-colors">
                                             {{ item.title }}
                                         </div>
                                         <div class="flex flex-wrap gap-x-2 gap-y-1">
                                             <div v-for="(artist, artistIndex) in item.SongArtists" 
                                                 :key="artistIndex"
                                                 @click="redirectToProfile(artist.User.id)"
-                                                class="text-xs sm:text-sm text-gray-500 hover:text-orange-500 hover:underline cursor-pointer">
+                                                class="text-xs text-left sm:text-sm text-gray-500 hover:text-orange-500 hover:underline cursor-pointer">
                                                 {{ artist.User.username }}
                                             </div>
                                         </div>
@@ -252,10 +252,10 @@
                                                             :alt="item.title" />
                                                         <div class="flex-1 min-w-0">
                                                             <div @click="redirectTrackInfo(item.id)"
-                                                                class="font-semibold text-sm sm:text-base text-white hover:text-purple-200 cursor-pointer truncate mb-1">
+                                                                class="font-semibold text-left text-sm sm:text-base text-white hover:text-purple-200 cursor-pointer truncate mb-1">
                                                                 {{ item.title }}
                                                             </div>
-                                                            <div class="text-xs text-white/80 truncate">
+                                                            <div class="text-xs text-left text-white/80 truncate">
                                                                 <span v-for="(artist, artistIndex) in item.SongArtists" 
                                                                     :key="artistIndex">
                                                                     {{ artist.User.username }}<span v-if="artistIndex < item.SongArtists.length - 1">, </span>
@@ -419,6 +419,16 @@ export default {
         
     },
     methods: {
+        async getFollowStatus(userId) {
+            if (!userId) return;
+
+            const res = await apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
+                params: {
+                    user_id: userId,
+                }
+            })
+            return res.data.data;
+        },
         getCurrentUserId() {
             return getUserIdFromJWT();
         },
@@ -461,7 +471,6 @@ export default {
                     following_id: id,
                 }
                 await apiClient.post('http://localhost:3000/api/follow/addNewFollower', payload);
-                console.log('Success', payload);
                 this.artist[index].isFollowed = !this.artist[index].isFollowed;
             } catch (error) {
                 console.error("Failed to follow:", error);
@@ -478,41 +487,37 @@ export default {
                 this.songs = response.data.data.songs;
                 const artists = response.data.data.users;
 
-                // Tạo mảng các promise để lấy số lượng follower
+                // Tạo mảng các promise để lấy số lượng follower (nếu API search chưa trả về)
                 const followerCountPromises = artists.map(user =>
                     apiClient.get('http://localhost:3000/api/follow/getCountFollower', {
                         params: { id: user.id }
                     })
                 );
 
-                // Tạo mảng các promise để lấy trạng thái follow
+                // Lấy trạng thái follow một lần
                 const userId = getUserIdFromJWT();
-                const followStatusPromises = artists.map(user =>
-                    apiClient.get('http://localhost:3000/api/follow/getFollowStatus', {
-                        params: {
-                            follower_id: userId,
-                            following_id: user.id
-                        }
-                    })
-                );
+                let followerSet = new Set();
+                if (userId) {
+                    const followerList = await this.getFollowStatus(userId);
+                    if (followerList && Array.isArray(followerList) && followerList.length > 0) {
+                        followerSet = new Set(followerList.map(u => u.id || u.following_id || u.following?.id || u));
+                    }
+                }
 
                 // Đợi tất cả các request hoàn thành
-                const [followerCountResults, followStatusResults] = await Promise.all([
+                const [followerCountResults] = await Promise.all([
                     Promise.all(followerCountPromises),
-                    Promise.all(followStatusPromises)
                 ]);
 
-                // Kết hợp dữ liệu user với số lượng follower và trạng thái follow
+                // Kết hợp dữ liệu user với số lượng follower (nếu API search chưa trả về) và trạng thái follow
                 this.artist = artists.map((user, index) => ({
                     ...user,
-                    followerCount: followerCountResults[index]?.data?.data || 0, // Giá trị mặc định là 0 nếu không có dữ liệu
-                    isFollowed: followStatusResults[index]?.data?.data?.isFollowing || false, // Giá trị mặc định là false
+                    followerCount: user.followerCount || followerCountResults[index]?.data?.data || 0, // Ưu tiên dữ liệu từ API search
+                    isFollowed: followerSet.has(user.id) || false,
                 }));
                 if (this.currentSearchOption === 'All') {
                     this.artist = this.artist.slice(0, 5);
                 }
-                console.log('songs', this.songs);
-                console.log('artists', this.artist);
             } catch (error) {
                 console.error('Error fetching search result:', error);
             }
@@ -523,11 +528,8 @@ export default {
         searchOptionClick(index) {
             this.selectedIndex = index;
             this.currentSearchOption = this.searchOptions[index].label;
-            console.log('currentSearchOption', this.currentSearchOption);
         },
         optionSong(index) {
-            // this.songs[index].isMenuClick = !this.songs[index].isMenuClick;
-            // console.log(this.songs[index].isMenuClick);
             if (this.openMenuIndex === index) {
                 this.openMenuIndex = null;
             } else {
@@ -572,5 +574,13 @@ export default {
 }
 </script>
 
-<style scoped></style>
-<style scoped></style>
+<style scoped>
+/* Limit image sizes to prevent UI drop and resource consumption */
+img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover;
+    width: auto;
+    height: auto;
+}
+</style>

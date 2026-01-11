@@ -73,7 +73,7 @@
                                         <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-lg overflow-hidden shadow-md">
                                             <img 
                                                 :src="item.artwork || defaultImage"
-                                                class="w-full h-full object-cover" 
+                                                class="w-full h-full aspect-square object-cover" 
                                                 :alt="item.title"
                                             >
                                         </div>
@@ -121,10 +121,10 @@
                                 class="w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer flex-shrink-0" 
                                 type="checkbox"
                             >
-                            <div class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden shadow-md">
+                            <div class="w-16 h-16 aspect-square flex-shrink-0 rounded-lg overflow-hidden shadow-md">
                                 <img 
                                     :src="item.artwork || defaultImage"
-                                    class="w-full h-full object-cover" 
+                                    class="w-full h-full aspect-square object-cover" 
                                     :alt="item.title"
                                 >
                             </div>
@@ -204,7 +204,7 @@
                                 <div class="aspect-square w-full border-2 border-dashed rounded-xl overflow-hidden transition-all"
                                     :class="imageURL ? 'border-orange-300 shadow-lg' : 'border-gray-300 hover:border-orange-400 hover:bg-orange-50/50'">
                                     <button type="button" class="w-full h-full relative" @click="$refs.fileInput?.click()">
-                                        <img v-if="imageURL" :src="imageURL" class="w-full h-full object-cover" alt="artwork">
+                                        <img v-if="imageURL" :src="imageURL" class="w-full h-full aspect-square object-cover" alt="artwork">
                                         <div v-else class="flex flex-col items-center justify-center h-full gap-4 px-4">
                                             <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
                                                 <font-awesome-icon icon="fa-solid fa-image" class="text-orange-500 text-2xl" />
@@ -367,10 +367,10 @@ export default {
                 this.editTitle = this.trackInfo.title;
                 
                 // Find and set the genre object
-                const genreObj = this.genreList.find(g => g.id === this.trackInfo.genre_id || g.name === this.trackInfo.genre);
+                const genreObj = this.genreList.find(g => g.id === this.trackInfo.SongDetail.genre || g.name === this.trackInfo.SongDetail.genre);
                 this.selectedGenre = genreObj || '';
                 
-                this.bio = this.trackInfo.bio || '';
+                this.bio = this.trackInfo.SongDetail.bio || '';
                 this.privacy = this.trackInfo.is_public ? '1' : '0';
             } catch (error) {
                 console.error('Error get track info', error);
@@ -599,5 +599,14 @@ select {
     background-position: right 1rem center;
     background-size: 1.5em 1.5em;
     padding-right: 2.5rem;
+}
+
+/* Limit image sizes to prevent UI drop and resource consumption */
+img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: cover;
+    width: auto;
+    height: auto;
 }
 </style>

@@ -32,14 +32,25 @@ export const usePlayerStore = defineStore("player", {
     }),
 
     actions: {
+        toggleShuffle() {
+            this.isShuffle = !this.isShuffle;
+            this.shufflePlaylist();
+        },
         shufflePlaylist() {
             if (this.isShuffle) {
-                this.originalPlaylist = [...this.playlist];
-                this.playlist = this.playlist.sort(() => Math.random() - 0.5);
+                // Save original playlist if not already saved
+                if (this.originalPlaylist.length === 0 || this.originalPlaylist.length !== this.playlist.length) {
+                    this.originalPlaylist = [...this.playlist];
+                }
+                // Shuffle the playlist
+                const shuffled = [...this.playlist].sort(() => Math.random() - 0.5);
+                this.playlist = shuffled;
+                // Update current index if song is playing
                 if (this.currentSong.id) {
                     this.currentPlayIndex = this.playlist.findIndex(song => song.id === this.currentSong.id);
                 }
             } else {
+                // Restore original playlist
                 if (this.originalPlaylist.length > 0) {
                     this.playlist = [...this.originalPlaylist];
                     if (this.currentSong.id) {
@@ -48,6 +59,18 @@ export const usePlayerStore = defineStore("player", {
                 }
             }
         },
+        //clean audio when redirect new song
+        cleanupAudio() {
+            if (this.audio) {
+                this.audio.pause();
+                this.audio.ontimeupdate = null;
+                this.audio.onended = null;
+                this.audio.onloadedmetadata = null;
+                this.audio = null;
+            }
+        },
+    
+
         // load playlist random song when play first time
         async loadPlaylist(){
             try{
@@ -100,6 +123,11 @@ export const usePlayerStore = defineStore("player", {
                     duration: song.duration || 0,
                     username: song.username || 'Unknown Artist'
                 }));
+                
+                // Shuffle if enabled
+                if (this.isShuffle) {
+                    this.shufflePlaylist();
+                }
                 
                 return this.playlist;
             }
@@ -198,23 +226,32 @@ export const usePlayerStore = defineStore("player", {
                     const otherSongs = this.playlist.filter(item => item.id !== songToPlay.id);
                     // Put current song at the beginning (index 0)
                     this.playlist = [songToPlay, ...otherSongs];
-                    this.currentPlayIndex = 0;
+                    // Shuffle playlist if shuffle is enabled
+                    if (this.isShuffle) {
+                        this.shufflePlaylist();
+                        // After shuffling, find the current song index again
+                        this.currentPlayIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
+                    } else {
+                        this.currentPlayIndex = 0;
+                    }
                 } else {
                     // Playlist already exists, just add the song to the end
                     this.playlist.push(songToPlay);
-                    this.currentPlayIndex = this.playlist.length - 1;
+                    // If shuffle is enabled, shuffle the playlist
+                    if (this.isShuffle) {
+                        this.shufflePlaylist();
+                        // After shuffling, find the current song index again
+                        this.currentPlayIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
+                    } else {
+                        this.currentPlayIndex = this.playlist.length - 1;
+                    }
                 }
             } else {
                 this.currentPlayIndex = existingIndex;
             }
 
             // Pause current audio if exists
-            if (!this.audio) {
-                this.audio = new Audio();
-            }
-            
-            // đổi source thôi
-            this.audio.pause();
+            this.cleanupAudio();
 
             // Create and play new audio
             this.audio = new Audio(songToPlay.path);
@@ -227,9 +264,9 @@ export const usePlayerStore = defineStore("player", {
             this.currentTime = 0; // Reset current time
 
             // Log user listen if logged in
-            if (this.idUserLogin && songToPlay.id) {
-                 this.logUserListen(songToPlay.id);
-            }
+            // if (this.idUserLogin && songToPlay.id) {
+            //      this.logUserListen(songToPlay.id);
+            // }
 
             // Add to recently played (localStorage)
             try {
@@ -296,20 +333,9 @@ export const usePlayerStore = defineStore("player", {
             if (this.currentPlayIndex !== null && this.playlist.length > 0) {
                 let nextIndex;
                 
-                if (this.isShuffle) {
-                    if (this.playlist.length === 1) {
-                        nextIndex = 0;
-                    } else {
-                        const availableIndices = this.playlist
-                            .map((_, index) => index)
-                            .filter(index => index !== this.currentPlayIndex);
-
-                        const randomIndex = Math.floor(Math.random() * availableIndices.length);
-                        nextIndex = availableIndices[randomIndex];
-                    }
-                } else {
-                    nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
-                }
+                // When shuffle is enabled, playlist is already shuffled, so just go to next index
+                // When shuffle is disabled, go to next index in order
+                nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
                 
                 const nextSong = this.playlist[nextIndex];
                 this.currentPlayIndex = nextIndex;

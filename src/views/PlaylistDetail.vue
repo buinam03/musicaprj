@@ -194,7 +194,6 @@ export default {
         },
     },
     mounted() {
-        console.log('PlaylistDetailPage mounted', this.songs);
         this.playlistId = this.$route.params.id;
         if (this.playlistId) {
             this.fetchPlaylistDetail();
@@ -272,7 +271,6 @@ export default {
             }
         },
         playPlaylist() {
-            console.log('playPlaylist called, songs:', this.songs);
             if (this.songs && this.songs.length > 0) {
                 // Load all songs from playlist into playerStore first
                 let playlistSongs = this.songs.map(song => {
@@ -284,7 +282,6 @@ export default {
                         duration: song.SongDetail?.duration || song.duration || 0,
                         path: song.path,
                     };
-                    console.log('Mapping song:', song, 'to:', mappedSong);
                     return mappedSong;
                 });
                 
@@ -292,8 +289,6 @@ export default {
                 if (this.isShuffled) {
                     playlistSongs = this.shuffleArray([...playlistSongs]);
                 }
-                
-                console.log('PlaylistSongs mapped:', playlistSongs);
                 
                 // Set playlist in playerStore FIRST
                 this.playerStore.playlist = playlistSongs;
@@ -303,7 +298,6 @@ export default {
                 
                 // Play first song directly using playerStore.play() instead of playSong()
                 const firstSong = playlistSongs[0];
-                console.log('Playing first song from playlist:', firstSong);
                 
                 if (firstSong && firstSong.path) {
                     this.playerStore.play(firstSong);

@@ -115,7 +115,7 @@
                                     <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
                                         <router-link
                                             class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/profile/${idUserCurrent}`" @click="isLogoDropdownOpen = false">
+                                            :to="`/profile/${getCurrentUserId()}`" @click="isLogoDropdownOpen = false">
                                             <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 w-4" />
                                             Profile
                                         </router-link>
@@ -223,7 +223,7 @@
                                 <font-awesome-icon icon="fa-solid fa-message" class="mr-3 w-5" />
                                 Messages
                             </router-link>
-                            <router-link :to="`/profile/${idUserCurrent}`" @click="isMobileMenuOpen = false"
+                            <router-link :to="`/profile/${getCurrentUserId()}`" @click="isMobileMenuOpen = false"
                                 class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
                                 <font-awesome-icon icon="fa-regular fa-address-card" class="mr-3 w-5" />
                                 Profile
@@ -436,6 +436,24 @@ export default {
         window.removeEventListener('resize', this.handleResize);
         document.body.style.overflow = '';
     },
+    watch: {
+        '$route'() {
+            // Refresh user info when route changes, especially after login
+            if (this.playerStore.isLoggedIn) {
+                this.getAllInfoUser();
+            }
+        },
+        'playerStore.isLoggedIn'(newVal) {
+            // Refresh user info when login state changes
+            if (newVal) {
+                this.getAllInfoUser();
+            } else {
+                // Clear user info when logged out
+                this.user = null;
+                this.idUserCurrent = null;
+            }
+        }
+    },
     computed: {
         profilePicture() {
             // const baseUrl = process.env.VUE_APP_API_BASE_URL || ''; // Fallback nếu base URL chưa được thiết lập
@@ -474,16 +492,15 @@ export default {
                 this.idUserCurrent = this.user.data.id || null;
 
             } catch (error) {
-                console.log("Error :", error);
+                // Error handled
             }
         },
         async getNotifications() {
             try {
                 const res = await apiClient.get("http://localhost:3000/api/notification/getAllNotification");
                 this.notifications = res.data.data;
-                console.log(this.notifications);
             } catch (error) {
-                console.log("Error :", error);
+                // Error handled
             }
         },
         formatTime(timestamp) {
@@ -630,12 +647,12 @@ export default {
 
                 this.playerStore.idUserLogin = userId;
 
-                console.log('Decoded userId from JWT:', userId);
-                console.log('playerStore', this.playerStore.idUserLogin);
+                this.playerStore.isLoggedIn = true;
+                
+                // Refresh user info after login
+                await this.getAllInfoUser();
 
                 this.$router.push({ path: '/home' });
-                this.playerStore.isLoggedIn = true;
-
                 this.closeModal();
             } catch (error) {
                 console.error("Error :", error);
@@ -669,16 +686,62 @@ export default {
             this.playerStore.isLoggedIn = false
         },
         async createAccountClick() {
-            console.log(this.form);
             try {
-                const res = await apiClient.post('/users/register', this.form);
+                await apiClient.post('/users/register', this.form);
 
-                console.log("Đăng ký thành công:", res.data);
-                window.alert("Register Success!");
-                this.isRegisted = true;
-                window.location.reload();
+                notification.success({
+                    message: 'Registration Successful',
+                    description: 'Your account has been created successfully. Logging you in...',
+                    duration: 3,
+                });
+
+                // Auto-login with the newly created account
+                try {
+                    const loginRes = await apiClient.post('/users/login', {
+                        email: this.form.email,
+                        password: this.form.password
+                    });
+                    
+                    const accessToken = loginRes.data.accessToken;
+                    const refreshToken = loginRes.data.refreshToken;
+
+                    // Clear old tokens first
+                    localStorage.removeItem('jwt');
+                    localStorage.removeItem('refreshToken');
+
+                    // Save new tokens
+                    localStorage.setItem('jwt', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+
+                    // Decode JWT token để lấy userId
+                    const userId = getUserIdFromJWT();
+
+                    this.playerStore.idUserLogin = userId;
+                    this.playerStore.isLoggedIn = true;
+                    
+                    // Refresh user info after login
+                    await this.getAllInfoUser();
+
+                    // Close modal and redirect
+                    this.closeModal();
+                    this.$router.push({ path: '/home' });
+                } catch (loginError) {
+                    console.error("Auto-login failed:", loginError);
+                    notification.warning({
+                        message: 'Registration Successful',
+                        description: 'Please log in manually with your new account.',
+                        duration: 4,
+                    });
+                    this.closeModal();
+                    this.$router.push({ path: '/discover' });
+                }
             } catch (error) {
                 console.error("Error :", error);
+                notification.error({
+                    message: 'Registration Failed',
+                    description: error.response?.data?.message || 'Failed to create account. Please try again.',
+                    duration: 4,
+                });
             }
         },
         cancelTemplate() {

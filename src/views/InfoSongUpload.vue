@@ -470,9 +470,6 @@ export default {
         this.fileUrl = this.$route.query.fileUrl;
         this.fileName = this.$route.query.fileName;
         this.duration = this.$route.query.duration;
-
-        console.log("File URL:", this.fileUrl);
-        console.log("File Name:", this.fileName);
     },
     beforeRouteLeave(to, from, next) {
         if (this.isUploading) {
