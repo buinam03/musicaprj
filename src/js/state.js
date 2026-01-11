@@ -1,5 +1,6 @@
 import apiClient from "@/apiService/apiClient";
 import { defineStore } from "pinia";
+import { addToRecentlyPlayed } from "@/utils/recentlyPlayed";
 
 export const usePlayerStore = defineStore("player", {
     state: () => ({
@@ -31,14 +32,25 @@ export const usePlayerStore = defineStore("player", {
     }),
 
     actions: {
+        toggleShuffle() {
+            this.isShuffle = !this.isShuffle;
+            this.shufflePlaylist();
+        },
         shufflePlaylist() {
             if (this.isShuffle) {
-                this.originalPlaylist = [...this.playlist];
-                this.playlist = this.playlist.sort(() => Math.random() - 0.5);
+                // Save original playlist if not already saved
+                if (this.originalPlaylist.length === 0 || this.originalPlaylist.length !== this.playlist.length) {
+                    this.originalPlaylist = [...this.playlist];
+                }
+                // Shuffle the playlist
+                const shuffled = [...this.playlist].sort(() => Math.random() - 0.5);
+                this.playlist = shuffled;
+                // Update current index if song is playing
                 if (this.currentSong.id) {
                     this.currentPlayIndex = this.playlist.findIndex(song => song.id === this.currentSong.id);
                 }
             } else {
+                // Restore original playlist
                 if (this.originalPlaylist.length > 0) {
                     this.playlist = [...this.originalPlaylist];
                     if (this.currentSong.id) {
@@ -47,34 +59,53 @@ export const usePlayerStore = defineStore("player", {
                 }
             }
         },
+        //clean audio when redirect new song
+        cleanupAudio() {
+            if (this.audio) {
+                this.audio.pause();
+                this.audio.ontimeupdate = null;
+                this.audio.onended = null;
+                this.audio.onloadedmetadata = null;
+                this.audio = null;
+            }
+        },
+    
+
+        // load playlist random song when play first time
         async loadPlaylist(){
             try{
-                //get user song 
-                const userSong = await apiClient.get(`http://localhost:3000/api/song/getAllSong/${this.idUserLogin}`);
-                const userSongData = userSong.data.data;
 
                 const randomSong = await apiClient.get(`http://localhost:3000/api/song/getRandomSong`);
                 const randomSongData = randomSong.data.data;
 
-                // Combine and shuffle the playlists (optional, but good for variety)
-                const allSongs = [...userSongData, ...randomSongData];
-                // const shuffledSongs = allSongs.sort(() => Math.random() - 0.5); // Optional shuffle
+                // Combine playlists
+                const allSongs = [ ...randomSongData];
 
-                // Map data consistently, handle potential missing nested objects
-                this.playlist = allSongs.map(song=>({
+                // Remove duplicates based on song ID
+                const uniqueSongsMap = new Map();
+                allSongs.forEach(song => {
+                    if (!uniqueSongsMap.has(song.id)) {
+                        uniqueSongsMap.set(song.id, song);
+                    }
+                });
+                const uniqueSongs = Array.from(uniqueSongsMap.values());
+
+                const mappedSongs = uniqueSongs.map(song=>({
                     id: song.id,
                     title: song.title,
                     artwork: song.artwork,
                     path: song.path,
-                    duration: song.SongDetail?.duration || song.duration || 0, // Handle nested or direct duration
-                    username: song.User?.username || song.username || 'Unknown Artist' // Handle nested or direct username
+                    duration: song.SongDetail?.duration || song.duration || 0, 
+                    username: song.User?.username || song.username || 'Unknown Artist' 
                 }));
+
+                this.playlist = mappedSongs;
 
                 return this.playlist;
             }
             catch(error){
                 console.error("Error loading playlist:", error);
-                this.playlist = []; // Clear playlist on error
+                this.playlist = []; 
                 return [];
             }
         },
@@ -92,6 +123,11 @@ export const usePlayerStore = defineStore("player", {
                     duration: song.duration || 0,
                     username: song.username || 'Unknown Artist'
                 }));
+                
+                // Shuffle if enabled
+                if (this.isShuffle) {
+                    this.shufflePlaylist();
+                }
                 
                 return this.playlist;
             }
@@ -135,37 +171,87 @@ export const usePlayerStore = defineStore("player", {
             if (!this.isLoggedIn) {
                  await this.loadPlaylistRandom();
             }
+            
+            // Extract duration from various possible structures
+            let duration = 0;
+            if (song.SongDetail?.duration) {
+                duration = Number(song.SongDetail.duration);
+            } else if (song.duration) {
+                duration = Number(song.duration);
+            }
+            
+            // Validate duration
+            if (isNaN(duration) || duration <= 0) {
+                duration = 0;
+            }
+
+            // Extract username from various possible structures
+            let username = 'Unknown Artist';
+            if (song.User?.username) {
+                username = song.User.username;
+            } else if (song.username) {
+                username = song.username;
+            } else if (song.SongArtists?.[0]?.User?.username) {
+                username = song.SongArtists[0].User.username;
+            }
+
             const songToPlay = {
                  id: song.id,
                  title: song.title || 'Unknown Title',
-                 artwork: song.artwork,
+                 artwork: song.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg',
                  path: song.path,
-                 duration: song.SongDetail?.duration || song.duration || 0, 
-                 username: song.User?.username || song.username || 'Unknown Artist' 
+                 duration: duration, 
+                 username: username
             };
+
 
             if (!songToPlay.path) {
                  console.warn('Song path is missing', songToPlay);
                  return;
             }
 
+            if (!songToPlay.id) {
+                 console.warn('Song ID is missing', songToPlay);
+                 return;
+            }
+
             // Check if the song is already in the playlist, if not add it
             const existingIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
             if (existingIndex === -1) {
-                this.playlist.push(songToPlay);
-                this.loadPlaylist();
-                this.currentPlayIndex = this.playlist.length - 1; // Set index to the newly added song
+                // If playlist is empty, load it first, then put current song at index 0
+                if (this.playlist.length === 0) {
+                    // Load playlist from API
+                    await this.loadPlaylist();
+                    // Remove current song from loaded playlist if it exists (to avoid duplicate)
+                    const otherSongs = this.playlist.filter(item => item.id !== songToPlay.id);
+                    // Put current song at the beginning (index 0)
+                    this.playlist = [songToPlay, ...otherSongs];
+                    // Shuffle playlist if shuffle is enabled
+                    if (this.isShuffle) {
+                        this.shufflePlaylist();
+                        // After shuffling, find the current song index again
+                        this.currentPlayIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
+                    } else {
+                        this.currentPlayIndex = 0;
+                    }
+                } else {
+                    // Playlist already exists, just add the song to the end
+                    this.playlist.push(songToPlay);
+                    // If shuffle is enabled, shuffle the playlist
+                    if (this.isShuffle) {
+                        this.shufflePlaylist();
+                        // After shuffling, find the current song index again
+                        this.currentPlayIndex = this.playlist.findIndex(item => item.id === songToPlay.id);
+                    } else {
+                        this.currentPlayIndex = this.playlist.length - 1;
+                    }
+                }
             } else {
                 this.currentPlayIndex = existingIndex;
             }
 
             // Pause current audio if exists
-            if (this.audio) {
-                this.audio.pause();
-                this.audio.ontimeupdate = null;
-                this.audio.onended = null;
-                this.audio = null;
-            }
+            this.cleanupAudio();
 
             // Create and play new audio
             this.audio = new Audio(songToPlay.path);
@@ -175,11 +261,32 @@ export const usePlayerStore = defineStore("player", {
             this.currentSong = songToPlay;
             this.isPlaying = true;
             this.isPlayed = false; // Reset isPlayed for new song
+            this.currentTime = 0; // Reset current time
 
-            // // Log user listen if logged in
+            // Log user listen if logged in
             // if (this.idUserLogin && songToPlay.id) {
             //      this.logUserListen(songToPlay.id);
             // }
+
+            // Add to recently played (localStorage)
+            try {
+                addToRecentlyPlayed(songToPlay);
+            } catch (error) {
+                console.error('Error in addToRecentlyPlayed:', error);
+            }
+
+            // Get duration from audio metadata if not available from song data
+            this.audio.onloadedmetadata = () => {
+                const audioDuration = this.audio.duration;
+                if (audioDuration && (!this.currentSong.duration || this.currentSong.duration === 0)) {
+                    // Update currentSong duration reactively
+                    // this.currentSong = {
+                    //     ...this.currentSong,
+                    //     duration: audioDuration
+                    // };
+                    this.currentSong.duration = audioDuration
+                }
+            };
 
             // Set up audio events
             this.audio.ontimeupdate = () => {
@@ -225,11 +332,11 @@ export const usePlayerStore = defineStore("player", {
         next() {
             if (this.currentPlayIndex !== null && this.playlist.length > 0) {
                 let nextIndex;
-                if (this.isShuffle) {
-                    nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
-                } else {
-                    nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
-                }
+                
+                // When shuffle is enabled, playlist is already shuffled, so just go to next index
+                // When shuffle is disabled, go to next index in order
+                nextIndex = (this.currentPlayIndex + 1) % this.playlist.length;
+                
                 const nextSong = this.playlist[nextIndex];
                 this.currentPlayIndex = nextIndex;
                 if (nextSong) {
@@ -281,7 +388,6 @@ export const usePlayerStore = defineStore("player", {
                     isLiked: false // Add isLiked property
                 };
                 this.playlist.push(fullSong);
-                console.log("Added to playlist:", fullSong);
             }
         },
         removeFromPlaylist(index) {

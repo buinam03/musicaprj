@@ -15,7 +15,10 @@ import SearchResult from "@/views/SearchResult.vue";
 import TracksInfo from "@/views/TracksInfo.vue";
 import Discover from "@/views/Discover.vue";
 import Message from "@/views/Message.vue";
-import { usePlayerStore } from "@/js/state";
+import Playlists from "@/views/Playlists.vue";
+import PlaylistDetail from "@/views/PlaylistDetail.vue";
+import GenrePlaylists from "@/views/GenrePlaylists.vue";
+// import { usePlayerStore } from "@/js/state";
 
 const routes = [
     {
@@ -28,7 +31,7 @@ const routes = [
         path: '/upload',
         name: 'UploadPage',
         component: Upload,
-        meta: { title: 'Upload' },
+        meta: { title: 'Upload', requiresAuth: true },
 
     },
     {
@@ -117,6 +120,24 @@ const routes = [
 
     },
     {
+        path: '/playlists',
+        name: 'PlaylistsPage',
+        component: Playlists,
+        meta: { title: 'Playlists' },
+    },
+    {
+        path: '/playlist/:id',
+        name: 'PlaylistDetailPage',
+        component: PlaylistDetail,
+        meta: { title: 'Playlist Detail' },
+    },
+    {
+        path: '/playlists/genre',
+        name: 'GenrePlaylistsPage',
+        component: GenrePlaylists,
+        meta: { title: 'Playlists by Genre' },
+    },
+    {
         path: '/discover',
         name: 'DiscoverPage',
         component: Discover,
@@ -127,7 +148,7 @@ const routes = [
         path: '/upload/infomation',
         name: 'InfoSongUpload',
         component: InfoSongUpload,
-        meta: { title: 'Upload' },
+        meta: { title: 'Upload', requiresAuth: true },
     },
     {
         path: '/',
@@ -142,8 +163,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const userStore = usePlayerStore();
-    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    const token = localStorage.getItem('jwt');
+    if (to.meta.requiresAuth && !token) {
         next({ name: "DiscoverPage" });
     } else {
         next();

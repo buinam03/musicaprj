@@ -24,16 +24,17 @@
                     </div>
                 </div>
                 <div class="pl-4 h-full w-2/3 flex justify-center items-center xl:scale-100 lg:scale-90 md:scale-90">
-                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentTime) }}</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentTime || 0) }}</div>
                     <div class="relative w-3/6 h-full ">
 
                         <div class="absolute top-1/2 transform -translate-y-1/2 translate-x-0 w-full">
                             <input :style="progressPercentage" @input="updateProgressPlay($event.target.value)"
-                                v-model="playerStore.currentTime" min="0" :max="playerStore.currentSong.duration"
-                                step="0.1" type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full">
+                                :value="playerStore.currentTime || 0" min="0" :max="playerStore.currentSong?.duration || 0"
+                                step="0.1" type="range" class="playSlider h-1 block mx-auto cursor-pointer w-full"
+                                :disabled="!playerStore.currentSong || !playerStore.currentSong.duration">
                         </div>
                     </div>
-                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentSong.duration) }}</div>
+                    <div class="w-1/12 text-white text-xs">{{ formatDuration(playerStore.currentSong?.duration || 0) }}</div>
                     <div class="w-1/3 flex justify-center items-center relative">
                         <div @click="VolumeToggle" class="cursor-pointer"
                             :class="{ 'hidden': playerStore.volume != 0 }">
@@ -53,18 +54,28 @@
                 </div>
                 <div class="w-3/12 h-full flex items-center justify-start xl:h-16 lg:h-12 md:h-10">
                     <div class="h-16 w-16 flex items-center justify-center flex-shrink-0  xl:h-16 lg:h-12 md:h-10">
-                        <a class="flex items-center justify-center xl:h-16 lg:h-12 md:h-10" href="#"><img
-                                class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded"
-                                :src="playerStore.currentSong.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                alt=""></a>
+                        <router-link v-if="playerStore.currentSong?.id" :to="`/trackinfo/${playerStore.currentSong.id}`"
+                            class="flex items-center justify-center xl:h-16 lg:h-12 md:h-10">
+                            <img class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded"
+                                :src="playerStore.currentSong?.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
+                                :alt="playerStore.currentSong?.title || 'Song artwork'">
+                        </router-link>
+                        <div v-else class="flex items-center justify-center xl:h-16 lg:h-12 md:h-10">
+                            <img class="h-4/5 aspect-square rounded-lg items-center justify-center object-cover xl:rounded-lg lg:rounded-md md:rounded"
+                                :src="playerStore.currentSong?.artwork || 'http://localhost:8080/images/other/Unknown_person.jpg'"
+                                alt="Song artwork">
+                        </div>
                     </div>
                     <div
                         class="pl-3 h-14 w-4/6 flex flex-col justify-center xl:text-[14px] xl:pl-3 lg:text-[14px] lg:pl-1 md:text-[12px] md:pl-1">
                         <div class="text-white text-left text-ellipsis whitespace-nowrap overflow-hidden ">
-                            <router-link :to="`/trackinfo/${playerStore.currentSong.id}`">{{ playerStore.currentSong.title || 'Pick a song to set the vibe!' }}</router-link>
+                            <router-link v-if="playerStore.currentSong?.id" :to="`/trackinfo/${playerStore.currentSong.id}`">
+                                {{ playerStore.currentSong?.title || 'Pick a song to set the vibe!' }}
+                            </router-link>
+                            <span v-else>{{ playerStore.currentSong?.title || 'Pick a song to set the vibe!' }}</span>
                         </div>
                         <div class="text-white text-left text-xs ">
-                            <a href="#" class="">{{ playerStore.currentSong.username || 'The DJ is missing!' }}</a>
+                            <span>{{ playerStore.currentSong?.username || 'The DJ is missing!' }}</span>
                         </div>
                     </div>
                 </div>
@@ -187,7 +198,7 @@ export default {
             this.items[index].isLike = !this.items[index].isLike;
         },
         ShuffleMusicToggle() {
-            this.playerStore.shufflePlaylist();
+            this.playerStore.toggleShuffle();
         },
         RepeatMusicToggle() {
             this.repeatState = (this.repeatState + 1) % 2; 
@@ -208,20 +219,17 @@ export default {
         },
         updateVolume(value = this.volumeVal) {
             const v = Math.max(0, Math.min(value, 1));
-            console.log("Volume to set:", v);
 
             this.playerStore.volume = v;
 
             if (this.playerStore.audio) {
                 this.playerStore.audio.volume = v;
-                console.log("Audio volume set to:", this.playerStore.audio.volume);
             } else {
                 console.error("Audio object not initialized.");
             }
         },
 
-        updateProgressPlay(value = this.playVal) {
-
+        updateProgressPlay(value) {
             if (!this.playerStore.currentSong || !this.playerStore.currentSong.duration) return;
 
             const validValue = Math.max(0, Math.min(value, this.playerStore.currentSong.duration));
@@ -234,10 +242,13 @@ export default {
     },
     computed: {
         progressPercentage() {
-            const percentage =
-                this.playerStore.currentSong.duration && this.playerStore.currentTime
-                    ? (this.playerStore.currentTime / this.playerStore.currentSong.duration) * 100
-                    : 0;
+            if (!this.playerStore.currentSong || !this.playerStore.currentSong.duration) {
+                return { '--progressPlay': '0%' };
+            }
+            
+            const percentage = this.playerStore.currentTime && this.playerStore.currentSong.duration
+                ? (this.playerStore.currentTime / this.playerStore.currentSong.duration) * 100
+                : 0;
 
             return {
                 '--progressPlay': `${percentage}%`,

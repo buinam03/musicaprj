@@ -4,20 +4,21 @@ import router from './routers/router'
 import { createPinia } from 'pinia'
 import '@/styles/tailwind.css'
 import piniaPluginPersistedState from 'pinia-plugin-persistedstate'
-
+import Antd from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 /* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faHeart as faHeartRegular, faImage, faPaperPlane,faAddressCard } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as faHeartRegular, faImage, faAddressCard } from '@fortawesome/free-regular-svg-icons';
 
 /* import specific icons */
-import { faBackwardStep, faBell, faChevronDown, faCircleChevronDown, faMessage, faPause, faPlay, faUserSecret, faForwardStep, faShuffle, faRepeat, faVolumeXmark, faVolumeHigh, faVolumeLow, faHeart, faXmark, faGrip, faCheck, faPerson, faUserPlus, faChevronLeft, faChevronRight, faPlus, faEllipsis, faUpload, faPencil, faTrash, faCamera, faChartColumn, faTrophy, faLock, faPen, faUnlock, faAnglesRight, faAnglesLeft, faMagnifyingGlass, faCompactDisc, faUser, faMusic, faComment, faUserCheck, faNotesMedical, faComments, faArrowRight, faBars, faInfo,faArrowRightFromBracket,faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faBackwardStep, faBell, faChevronDown, faCircleChevronDown, faMessage, faPause, faPlay, faUserSecret, faForwardStep, faShuffle, faRepeat, faVolumeXmark, faVolumeHigh, faVolumeLow, faHeart, faXmark, faGrip, faCheck, faPerson, faUserPlus, faChevronLeft, faChevronRight, faPlus, faEllipsis, faUpload, faPencil, faTrash, faCamera, faChartColumn, faTrophy, faLock, faPen, faUnlock, faAnglesRight, faAnglesLeft, faMagnifyingGlass, faCompactDisc, faUser, faMusic, faComment, faUserCheck, faNotesMedical, faComments, faArrowRight, faBars, faInfo,faArrowRightFromBracket,faSpinner, faCloudArrowUp, faFaceSmile, faPaperPlane, faHouse, faDownload, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 
 /* add icons to the library */
-library.add(faUserSecret, faCircleChevronDown, faChevronDown, faBell, faMessage, faBackwardStep, faForwardStep, faPlay, faPause, faShuffle, faRepeat, faVolumeXmark, faVolumeHigh, faVolumeLow, faHeart, faXmark, faGrip, faCheck, faPerson, faUserPlus, faChevronLeft, faChevronRight, faPlus, faEllipsis, faHeartRegular, faUpload, faImage, faPencil, faTrash, faCamera, faChartColumn, faTrophy, faLock, faPen, faUnlock, faAnglesRight, faAnglesLeft, faMagnifyingGlass, faCompactDisc, faUser, faMusic, faComment, faUserCheck, faPaperPlane, faNotesMedical, faComments, faArrowRight, faGoogle, faBars, faUserCheck, faInfo,faAddressCard,faArrowRightFromBracket,faSpinner)
+library.add(faUserSecret, faCircleChevronDown, faChevronDown, faBell, faMessage, faBackwardStep, faForwardStep, faPlay, faPause, faShuffle, faRepeat, faVolumeXmark, faVolumeHigh, faVolumeLow, faHeart, faXmark, faGrip, faCheck, faPerson, faUserPlus, faChevronLeft, faChevronRight, faPlus, faEllipsis, faHeartRegular, faUpload, faImage, faPencil, faTrash, faCamera, faChartColumn, faTrophy, faLock, faPen, faUnlock, faAnglesRight, faAnglesLeft, faMagnifyingGlass, faCompactDisc, faUser, faMusic, faComment, faUserCheck, faPaperPlane, faNotesMedical, faComments, faArrowRight, faGoogle, faBars, faUserCheck, faInfo,faAddressCard,faArrowRightFromBracket,faSpinner,faCloudArrowUp,faFaceSmile, faHouse, faDownload, faClockRotateLeft,faPaperPlane)
 
 
 router.afterEach((to) => {
@@ -32,5 +33,6 @@ pinia.use(piniaPluginPersistedState);
 createApp(App)
     .use(pinia)
     .use(router)
+    .use(Antd)
     .component('font-awesome-icon', FontAwesomeIcon)
     .mount('#app')

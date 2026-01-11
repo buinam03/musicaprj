@@ -1,147 +1,167 @@
 <template>
-    <div class="h-16 mx-auto w-full bg-[#222021] fixed z-50 ">
-        <div class=" mx-auto h-full flex items-center justify-center xl:w-[1200px] lg:w-[768px]  md:w-[768px] xl:mx-auto lg:mx-auto md:mx-auto"
+    <div class="h-14 sm:h-16 mx-auto w-full bg-[#222021] fixed z-50 shadow-lg">
+        <div class="mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl"
             :class="{ 'justify-between': playerStore.isLoggedIn === false }">
-            <div class=" flex-shrink-0 font-neutra text-4xl text-white"><router-link to="/home">MUSICA</router-link>
+            <!-- Logo -->
+            <div class="flex-shrink-0 font-neutra text-2xl sm:text-3xl lg:text-4xl text-white">
+                <router-link to="/home" class="hover:opacity-80 transition-opacity">MUSICA</router-link>
             </div>
+
+            <!-- Mobile Menu Button -->
+            <button v-if="playerStore.isLoggedIn === true" @click.stop="toggleMobileMenu" type="button"
+                class="lg:hidden text-white p-2 hover:bg-white/10 rounded-md transition-colors z-[70] relative"
+                aria-label="Toggle mobile menu">
+                <font-awesome-icon :icon="isMobileMenuOpen ? 'fa-solid fa-times' : 'fa-solid fa-bars'" size="lg" />
+            </button>
+
+            <!-- Desktop Navigation -->
             <div v-if="playerStore.isLoggedIn === true"
-                class="flex-grow flex items-center justify-start p-3 xl:w-[1200px] xl:text-[16px] lg:w-[1024px] lg:text-[14px] md:w-[768px] md:text-[12px] ">
-                <div class="flex justify-center items-center" :class="{ 'hidden': playerStore.isLoggedIn === false }">
-                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
-                            to="/home">Home</router-link></div>
-                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
-                            to="/library">Library</router-link>
+                class="hidden lg:flex flex-grow items-center justify-start gap-2 xl:gap-4 ml-6 xl:text-[16px] lg:text-[14px]">
+                <div class="flex justify-center items-center w-full max-w-5xl">
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/home" class="text-sm xl:text-base">Home</router-link>
                     </div>
-                    <div class="px-5 relative xl:px-4 lg:px-3 md:px-2">
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/library" class="text-sm xl:text-base">Library</router-link>
+                    </div>
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/playlists" class="text-sm xl:text-base">Playlists</router-link>
+                    </div>
+                    <div class="px-2 xl:px-4 relative flex-1 max-w-md">
                         <input v-model="querryToSearch" @keydown.enter="search"
-                            class="no-clear w-[500px] p-4 h-10 rounded-[4px] cursor-text text-sm xl:w-[500px] lg:w-96 md:w-52 xl:h-10 lg:h-8 md:h-6  "
-                            type="search" name="search" id="" placeholder="Search">
-                        <div class="absolute inset-y-0 right-0 pr-8 flex items-center ">
-                            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="cursor-pointer text-gray-500"
-                                @click="search" />
-                        </div>
+                            class="no-clear w-full px-4 pr-10 h-8 xl:h-10 rounded-md cursor-text text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
+                            type="search" name="search" id="search-input" placeholder="Search...">
+                        <button @click="search" type="button"
+                            class="absolute right-2 xl:right-6 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
+                            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
+                        </button>
                     </div>
-                    <div class="px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link to="/upload">Upload</router-link>
+                    <div class="px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/upload" class="text-sm xl:text-base">Upload</router-link>
                     </div>
-                    <!-- <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
-                            to="/insights">Insights</router-link>
-                    </div> -->
-                    <div class="nav-left  border-white px-5 text-white xl:px-4 lg:px-3 md:px-2"><router-link
-                            to="/chart">Chart</router-link>
+                    <div
+                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                        <router-link to="/chart" class="text-sm xl:text-base">Chart</router-link>
                     </div>
-                    <div class="nav-left nav-right  border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1">
-                        <div @click="ToggleDropdown('bell')">
-                            <a href="#"><font-awesome-icon icon="fa-solid fa-bell" /></a>
-                        </div>
+                    <div class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative hover:text-orange-400 transition-colors"
+                        ref="bellButtonContainer">
+                        <button @click.stop="ToggleDropdown('bell')" class="focus:outline-none" ref="bellButton">
+                            <font-awesome-icon icon="fa-solid fa-bell" class="text-lg" />
+                        </button>
                     </div>
 
                     <!-- Message Button -->
                     <div @click="getDESCRoom"
-                        class=" nav-left nav-right border-white px-5 text-white relative xl:px-4 lg:px-2 md:px-1 cursor-pointer">
-                        <div>
-                            <font-awesome-icon icon="fa-solid fa-message" />
-                        </div>
+                        class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative cursor-pointer hover:text-orange-400 transition-colors">
+                        <router-link to="/message" class="block">
+                            <font-awesome-icon icon="fa-solid fa-message" class="text-lg" />
+                        </router-link>
                     </div>
                     <!-- Shared Dropdown -->
                     <div v-if="isDropdownOpen" ref="dropdown"
-                        class="cursor-pointer absolute mt-4 h-96 w-noti bg-gray-200 shadow-lg z-50 overflow-y-auto xl:w-[450px] lg:w-[350px]  md:w-[250px] overflow-x-hidden">
+                        class="fixed h-80 lg:h-96 w-[calc(100vw-2rem)] sm:w-96 lg:w-[450px] bg-white lg:bg-gray-50 shadow-xl lg:shadow-lg z-50 overflow-y-auto rounded-lg border border-gray-200 overflow-x-hidden"
+                        :style="dropdownStyle">
                         <template v-if="dropdownContent === 'bell'">
-                            <div class="h-12 sticky top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
-                                <p class="px-4 py-2 text-black  float-left z-50">Notifications</p>
+                            <div class="h-12 sticky top-0 border-b border-gray-300 bg-gray-50 z-50 rounded-t-lg">
+                                <p class="px-4 py-3 text-gray-800 font-semibold">Notifications</p>
                             </div>
                             <div>
-                                <ul v-for="(item, index) in notifications" :key="index"
-                                    class="xl:text-[16px] lg:text-[14px]  md:text-[12px]">
-                                    <li
-                                        class="border-gray-300 border-b-2 xl:text-[16px] lg:text-[14px]  md:text-[12px]">
-                                        <a href="#" class="block py-2 text-black m-auto">
-                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full aspect-square "
+                                <ul v-if="notifications && notifications.length > 0">
+                                    <li v-for="(item, index) in notifications" :key="index"
+                                        class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <a href="#" class="block py-3 px-4">
+                                            <div class="flex items-start gap-3">
+                                                <img class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-gray-300 object-cover"
                                                     :src="item.User.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                                    alt="" srcset="">
-                                                <div class="">
-                                                    <div
-                                                        class="line-clamp-3 w-full ml-5 pr-3 text-sm text-left flex-grow">
-                                                        <span>{{ item.title + ' ' + item.message }}</span>
+                                                    alt="Profile">
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm sm:text-base text-gray-800 line-clamp-2">
+                                                        {{ item.title + ' ' + item.message }}
                                                     </div>
-                                                    <div
-                                                        class="line-clamp-3 w-full ml-5 text-[12px] text-gray-400 text-left flex-grow">
-                                                        <span>{{ formatTime(item.created_at) }}</span>
+                                                    <div class="text-xs sm:text-sm text-gray-500 mt-1">
+                                                        {{ formatTime(item.created_at) }}
                                                     </div>
                                                 </div>
                                             </div>
                                         </a>
                                     </li>
-
                                 </ul>
+                                <div v-else class="px-4 py-8 text-center text-gray-500">
+                                    No notifications
+                                </div>
                             </div>
                         </template>
-                        <!-- <template v-if="dropdownContent === 'message'">
-                            <div class="h-12 sticky w-noti top-0 border-gray-300 border-b-2 bg-gray-200 z-50">
-                                <p class="px-4 py-2 text-black  float-left z-50">Messages</p>
-                            </div>
-                            <div>
-                                <ul>
-                                    <li class="border-gray-300 border-b-2"><a href="#"
-                                            class="block py-2 text-black m-auto">
-                                            <div class="m-auto h-16 w-full flex flex-row justify-center items-center ">
-                                                <img class="ml-3 border-2 border-black border-solid h-12 w-12 rounded-full  "
-                                                    src="@/image/logo/logo.png" alt="" srcset="">
-                                                <div class="line-clamp-3 w-full ml-5 text-sm text-left flex-grow">Lorem
-                                                    ipsum dolor, sit amet consectetur adipisicing
-                                                    elit. Eius, nulla nobis? Reprehenderit quibusdam quos corporis aut
-                                                    numquam architecto esse, quidem ad maxime assumenda tempore, odit
-                                                    deserunt similique alias atque odio.</div>
-
-                                            </div>
-                                        </a></li>
-                                </ul>
-                            </div>
-                        </template> -->
                     </div>
 
-                    <div class=" border-white px-5 text-white relative cursor-pointer xl:px-4 lg:px-2 md:px-1">
+                    <!-- Profile Dropdown -->
+                    <div class="border-l border-white/30 px-3 xl:px-2 text-white relative">
                         <template v-if="playerStore.isLoggedIn === true">
-                            <div @click="ToggleLogoDropdown()" class="logo flex items-center">
+                            <button @click="ToggleLogoDropdown()"
+                                class="logo flex items-center hover:text-orange-400 transition-colors focus:outline-none">
                                 <div>
-                                    <img class="w-8 h-8 max-w-8 opacity-100 rounded-full border-[2px] border-white"
+                                    <img class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white object-cover"
                                         :src="profilePicture" alt="User Profile Picture" />
                                 </div>
-
-                                <span class="ml-3">
-                                    <font-awesome-icon icon="fa-solid fa-chevron-down" />
+                                <span class="ml-2 hidden xl:inline-block">
+                                    <font-awesome-icon icon="fa-solid fa-chevron-down" class="text-xs" />
                                 </span>
-                            </div>
+                            </button>
                             <div v-if="isLogoDropdownOpen"
-                                class="absolute left-0 mt-4 w-40 bg-gray-200 xl:w-40 lg:w-28 md:w-24">
-                                <ul>
-                                    <li class="border-gray-300 border-b-2  hover:scale-110 transition-all duration-300"><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center"
-                                            :to="`/profile/${idUserCurrent}`">
-                                            <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 text-left"/>
-                                            Profile</router-link></li>
-                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300"><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/tracks">
-                                            <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-2"/>
-                                            Tracks</router-link></li>
-                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/likes">
-                                            <font-awesome-icon icon="fa-solid fa-heart" class="mr-2"/>
-                                            Likes</router-link></li>
-                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/following/${playerStore.idUserLogin}`">
-                                            <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2"/>
-                                            Following</router-link>
+                                class="fixed lg:absolute left-4 lg:left-0 mt-2 lg:mt-4 w-48 lg:w-40 xl:w-48 bg-[#222021] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                                <ul class="mb-0">
+                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            :to="`/profile/${getCurrentUserId()}`" @click="isLogoDropdownOpen = false">
+                                            <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 w-4" />
+                                            Profile
+                                        </router-link>
                                     </li>
-                                    <li class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" :to="`/followers/${playerStore.idUserLogin}`">
-                                            <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2"/>
-                                            Followers</router-link>
+                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            to="/tracks" @click="isLogoDropdownOpen = false">
+                                            <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-2 w-4" />
+                                            Tracks
+                                        </router-link>
                                     </li>
-                                    <li @click="signOutClick" class="border-gray-300 border-b-2 hover:scale-110 transition-all duration-300 "><router-link
-                                            class="block px-4 py-2 text-black hover:scale-110 transition-all duration-300 flex items-center" to="/discover">
-                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-2"/>
-                                            Sign Out</router-link>
+                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            :to="`/likes`" @click="isLogoDropdownOpen = false">
+                                            <font-awesome-icon icon="fa-solid fa-heart" class="mr-2 w-4" />
+                                            Likes
+                                        </router-link>
+                                    </li>
+                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            :to="`/following/${getCurrentUserId()}`"
+                                            @click="isLogoDropdownOpen = false">
+                                            <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2 w-4" />
+                                            Following
+                                        </router-link>
+                                    </li>
+                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            :to="`/followers/${getCurrentUserId()}`"
+                                            @click="isLogoDropdownOpen = false">
+                                            <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2 w-4" />
+                                            Followers
+                                        </router-link>
+                                    </li>
+                                    <li class="hover:bg-gray-800 transition-colors">
+                                        <router-link
+                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
+                                            to="/discover" @click="signOutClick">
+                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket"
+                                                class="mr-2 w-4" />
+                                            Sign Out
+                                        </router-link>
                                     </li>
                                 </ul>
                             </div>
@@ -149,170 +169,213 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Mobile Menu Backdrop -->
+            <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
+                class="lg:hidden fixed inset-0 bg-black/50 z-[55] cursor-pointer mobile-menu-backdrop"
+                @click.stop="toggleMobileMenu"></div>
+
+            <!-- Mobile Menu -->
+            <transition name="slide">
+                <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
+                    class="lg:hidden fixed inset-x-0 top-14 sm:top-16 bg-[#222021] border-b border-gray-700 shadow-xl z-[60] max-h-[calc(100vh-3.5rem)] overflow-y-auto mobile-menu-content">
+                    <div class="px-4 py-4 space-y-4">
+                        <!-- Mobile Search -->
+                        <div class="relative">
+                            <input v-model="querryToSearch" @keydown.enter="handleMobileSearch"
+                                class="no-clear w-full px-4 pr-10 h-10 rounded-md text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
+                                type="search" placeholder="Search...">
+                            <button @click="handleMobileSearch" type="button"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
+                                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
+                            </button>
+                        </div>
+
+                        <!-- Mobile Navigation Links -->
+                        <div class="space-y-1 text-white">
+                            <router-link to="/home" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-house" class="mr-3 w-5" />
+                                Home
+                            </router-link>
+                            <router-link to="/library" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-music" class="mr-3 w-5" />
+                                Library
+                            </router-link>
+                            <router-link to="/playlists" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-notes-medical" class="mr-3 w-5" />
+                                Playlists
+                            </router-link>
+                            <router-link to="/upload" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-upload" class="mr-3 w-5" />
+                                Upload
+                            </router-link>
+                            <router-link to="/chart" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-chart-column" class="mr-3 w-5" />
+                                Chart
+                            </router-link>
+                            <router-link to="/message" @click="getDESCRoom; isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-message" class="mr-3 w-5" />
+                                Messages
+                            </router-link>
+                            <router-link :to="`/profile/${getCurrentUserId()}`" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-regular fa-address-card" class="mr-3 w-5" />
+                                Profile
+                            </router-link>
+                            <router-link to="/tracks" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-3 w-5" />
+                                Tracks
+                            </router-link>
+                            <router-link to="/likes" @click="isMobileMenuOpen = false"
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
+                                <font-awesome-icon icon="fa-solid fa-heart" class="mr-3 w-5" />
+                                Likes
+                            </router-link>
+                            <router-link
+                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors"
+                                to="/discover" @click="signOutClick">
+                                <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-3 w-5" />
+                                Sign Out
+                            </router-link>
+                        </div>
+                    </div>
+                </div>
+            </transition>
             <template v-if="playerStore.isLoggedIn === false">
-                <div class="flex gap-4 h-full justify-center items-center">
-                    <div @click="isSignInTemplate" class="h-1/2 text-white px-3 py-1 border border-white rounded text-[12px] flex
-                                justify-center items-center whitespace-nowrap cursor-pointer">Sign
-                        In</div>
-                    <div @click="isCreateTemplate"
-                        class="text-white px-3 py-1 bg-orange-500 rounded text-[12px] whitespace-nowrap cursor-pointer">
-                        Create Account</div>
+                <div class="flex gap-2 sm:gap-4 h-full justify-center items-center">
+                    <button @click="isSignInTemplate"
+                        class="text-white px-3 sm:px-4 py-1.5 sm:py-2 border border-white rounded-md text-xs sm:text-sm flex justify-center items-center whitespace-nowrap cursor-pointer hover:bg-white/10 transition-colors">
+                        Sign In
+                    </button>
+                    <button @click="isCreateTemplate"
+                        class="text-white px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500 hover:bg-orange-600 rounded-md text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-colors">
+                        Create Account
+                    </button>
                 </div>
             </template>
         </div>
     </div>
+    <!-- Sign In Modal -->
     <div v-if="this.currentAction === 0"
-        class="fixed inset-0 flex justify-center items-center bg-white bg-opacity-60 w-full  h-auto m-auto z-40">
-        <div class="w-[1000px] h-[550px] bg-white border-[1px] border-gray-400 ">
-            <div class="w-full h-full grid grid-cols-2 bg-gradient">
-                <div class=" p-4">
-                    <div class="text-center  text-[40px] font-semibold">
-                        Sign In
-                    </div>
-                    <div class="w-full h-16 mt-10">
-                        <input v-model="form.email"
-                            class="w-full h-full border-gray-400 border-[1px] p-4 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Your Email" type="text" name="" id="">
-                    </div>
-                    <div class="w-full h-16 mt-10 relative">
-                        <input v-model="form.password"
-                            class="w-full h-full border-gray-400 border-[1px] p-4 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Password" type="password" name="" id="password">
-                        <img v-if="isShowPass === false" @click="showPassword"
-                            class="opacity-50 h-4 w-6 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                            src="@/image/other/eye-close.png" alt="">
-                        <img v-else @click="showPassword"
-                            class="h-4 w-6 opacity-50 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                            src="@/image/other/eye-open.png" alt="">
-                    </div>
-                    <div class="w-full h-auto mt-5">
-                        <div class="text-right  cursor-pointer hover:underline">
-                            Forgot Password?
-                        </div>
-                    </div>
-                    <div class="w-full h-16 mt-5">
-                        <div @click="signInClick"
-                            class="w-full h-full border-gray-400 border-[1px] cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
-                            Log In
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
-                        </div>
-                    </div>
-                    <span>{{ message }}</span>
-                    <div class="w-full mt-12 h-auto">
-                        <div class="text-center text-gray-600 cursor-pointer">
-                            Don't have an account ? <span @click="isCreateAccount"
-                                class="text-gray-600  underline">Create
-                                Account</span>
-                        </div>
-                    </div>
+        class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
+        @click.self="closeModal">
+        <div
+            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button @click="closeModal"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
+            </button>
+            <div class="p-6 sm:p-8">
+                <div class="text-center text-3xl sm:text-4xl font-semibold text-gray-800 mb-6 sm:mb-8">
+                    Sign In
                 </div>
-                <div class="w-full h-full flex flex-col justify-center items-center p-4 relative">
-                    <div @click="cancelTemplate"
-                        class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
-                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl" />
+                <div class="space-y-4 sm:space-y-6">
+                    <div>
+                        <input v-model="form.email"
+                            class="w-full h-12 sm:h-14 border-gray-400 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Your Email" type="email" name="email" id="signin-email">
                     </div>
-                    <div class="text-center text-[40px] font-semibold">
-                        Sign in with
+                    <div class="relative">
+                        <input v-model="form.password"
+                            class="w-full h-12 sm:h-14 border-gray-400 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Password" type="password" name="password" id="password">
+                        <button @click="showPassword" type="button"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
+                                src="@/image/other/eye-close.png" alt="Show password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
+                        </button>
                     </div>
-                    <div
-                        class="h-16 hover:bg-gray-100 rounded border-[1px] px-8 flex justify-center items-center cursor-pointer m-auto">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-                            <path
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                fill="#4285F4" />
-                            <path
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                fill="#34A853" />
-                            <path
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                fill="#FBBC05" />
-                            <path
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                fill="#EA4335" />
-                            <path d="M1 1h22v22H1z" fill="none" />
-                        </svg>
-                        <span class="pl-2">Google</span>
+                    <div class="text-right">
+                        <a href="#"
+                            class="text-sm text-gray-600 hover:text-orange-500 hover:underline transition-colors">
+                            Forgot Password?
+                        </a>
+                    </div>
+                    <div>
+                        <button @click="signInClick"
+                            class="w-full h-12 sm:h-14 border-2 border-orange-500 cursor-pointer bg-orange-500 hover:bg-orange-600 rounded-lg text-white flex justify-center items-center font-semibold text-lg sm:text-xl transition-colors">
+                            <span>Log In</span>
+                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="ml-2" />
+                        </button>
+                    </div>
+                    <div v-if="message" class="text-center text-red-500 text-sm">
+                        {{ message }}
+                    </div>
+                    <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
+                        Don't have an account? <button @click="isCreateAccount"
+                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Create
+                            Account</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Create Account Modal -->
     <div v-if="this.currentAction === 1"
-        class="fixed inset-0 flex justify-center items-center bg-white bg-opacity-60 w-full  h-auto m-auto z-40">
-        <div class="w-[1000px] h-[550px] bg-white border-[1px] border-gray-400 ">
-            <div class="w-full h-full grid grid-cols-2 bg-gradient">
-                <div class=" p-4">
-                    <div class="text-center text-gray-600  text-[40px] font-semibold">
-                        Create Account
-                    </div>
-                    <div class="w-full h-10 mt-5">
-                        <input v-model="form.username"
-                            class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Username" type="text" name="" id="">
-                    </div>
-                    <div class="w-full h-10 mt-5">
-                        <input v-model="form.email"
-                            class="w-full h-full p-4 border-[1px] border-gray-500 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Your Email" type="text" name="" id="">
-                    </div>
-                    <div class="w-full h-10 mt-5 relative">
-                        <input v-model="form.password"
-                            class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Password" type="password" name="" id="password">
-                        <img v-if="isShowPass === false" @click="showPassword"
-                            class="opacity-50 h-4 w-6 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                            src="@/image/other/eye-close.png" alt="">
-                        <img v-else @click="showPassword"
-                            class="h-4 w-6 opacity-50 object-fill absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                            src="@/image/other/eye-open.png" alt="">
-                    </div>
-                    <div class="w-full h-10 mt-5 relative">
-                        <input
-                            class="w-full h-full border-[1px] border-gray-500 p-4 outline-none rounded focus:outline-none focus:ring focus:ring-gray-300"
-                            placeholder="Re-enter Password" type="password" name="" id="re-en-password">
-                    </div>
-                    <div class="w-full h-16 mt-10">
-                        <div @click="createAccountClick"
-                            class="w-full h-full border-[1px] border-gray-500 cursor-pointer bg-white rounded text-orange-500 flex justify-center items-center font-semibold text-[20px]">
-                            Create Account
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="pl-2" />
-                        </div>
-                    </div>
-                    <div class="w-full mt-12 h-auto">
-                        <div class="text-center text-gray-600 cursor-pointer">
-                            Already an account ? <span @click="isAlreadyAccount" class="text-gray-600 underline">Sign
-                                In</span>
-                        </div>
-                    </div>
+        class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
+        @click.self="closeModal">
+        <div
+            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button @click="closeModal"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
+            </button>
+            <div class="p-6 sm:p-8">
+                <div class="text-center text-3xl sm:text-4xl font-semibold text-gray-800 mb-6 sm:mb-8">
+                    Create Account
                 </div>
-                <div class="w-full h-full flex flex-col justify-center items-center p-4 relative">
-                    <div @click="cancelTemplate"
-                        class="h-auto aspect-square absolute top-0 right-0 p-4 cursor-pointer  ">
-                        <font-awesome-icon icon="fa-solid fa-xmark" size="xl" />
+                <div class="space-y-4 sm:space-y-5">
+                    <div>
+                        <input v-model="form.username"
+                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Username" type="text" name="username" id="create-username">
                     </div>
-                    <div class="text-center text-[40px] font-semibold">
-                        Sign in with
+                    <div>
+                        <input v-model="form.email"
+                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Your Email" type="email" name="email" id="create-email">
                     </div>
-                    <div
-                        class="h-16 hover:bg-gray-100 rounded border-[1px] px-8 flex justify-center items-center cursor-pointer m-auto">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-                            <path
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                fill="#4285F4" />
-                            <path
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                fill="#34A853" />
-                            <path
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                fill="#FBBC05" />
-                            <path
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                fill="#EA4335" />
-                            <path d="M1 1h22v22H1z" fill="none" />
-                        </svg>
-                        <span class="pl-2">Google</span>
+                    <div class="relative">
+                        <input v-model="form.password"
+                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Password" type="password" name="password" id="create-password">
+                        <button @click="showPassword" type="button"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
+                                src="@/image/other/eye-close.png" alt="Show password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input v-model="reEnterPassword"
+                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
+                            placeholder="Re-enter Password" type="password" name="re-password" id="re-en-password">
+                        <button @click="showPassword" type="button"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
+                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
+                                src="@/image/other/eye-close.png" alt="Show password">
+                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
+                        </button>
+                    </div>
+                    <div>
+                        <button @click="createAccountClick"
+                            class="w-full h-12 sm:h-14 border-2 border-orange-500 cursor-pointer bg-orange-500 hover:bg-orange-600 rounded-lg text-white flex justify-center items-center font-semibold text-lg sm:text-xl transition-colors">
+                            <span>Create Account</span>
+                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="ml-2" />
+                        </button>
+                    </div>
+                    <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
+                        Already have an account? <button @click="isAlreadyAccount"
+                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Sign
+                            In</button>
                     </div>
                 </div>
             </div>
@@ -323,7 +386,9 @@
 <script>
 import apiClient from '@/apiService/apiClient';
 import { usePlayerStore } from '@/js/state';
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns';
+import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
+import { notification } from 'ant-design-vue';
 export default {
     name: 'HeaderPage',
     setup() {
@@ -345,9 +410,11 @@ export default {
                 email: "",
                 password: "",
             },
+            reEnterPassword: "",
             isRegisted: false,
             isDropdownOpen: false,
             isLogoDropdownOpen: false,
+            isMobileMenuOpen: false,
             dropdownContent: null,
             isLoggedIn: false,
             isSignInTem: false,
@@ -355,12 +422,37 @@ export default {
             currentAction: null,
             querryToSearch: '',
             descMessage: null,
+            dropdownStyle: {},
         }
     },
     mounted() {
         this.getAllInfoUser();
         this.getNotifications();
-
+        document.addEventListener('click', this.handleClickOutside);
+        window.addEventListener('resize', this.handleResize);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.handleClickOutside);
+        window.removeEventListener('resize', this.handleResize);
+        document.body.style.overflow = '';
+    },
+    watch: {
+        '$route'() {
+            // Refresh user info when route changes, especially after login
+            if (this.playerStore.isLoggedIn) {
+                this.getAllInfoUser();
+            }
+        },
+        'playerStore.isLoggedIn'(newVal) {
+            // Refresh user info when login state changes
+            if (newVal) {
+                this.getAllInfoUser();
+            } else {
+                // Clear user info when logged out
+                this.user = null;
+                this.idUserCurrent = null;
+            }
+        }
     },
     computed: {
         profilePicture() {
@@ -376,6 +468,9 @@ export default {
 
     },
     methods: {
+        getCurrentUserId() {
+            return getUserIdFromJWT();
+        },
         async getDESCRoom() {
             try {
                 const res = await apiClient.get("/message/getASCRoom");
@@ -397,16 +492,15 @@ export default {
                 this.idUserCurrent = this.user.data.id || null;
 
             } catch (error) {
-                console.log("Error :", error);
+                // Error handled
             }
         },
-        async getNotifications() {  
+        async getNotifications() {
             try {
                 const res = await apiClient.get("http://localhost:3000/api/notification/getAllNotification");
                 this.notifications = res.data.data;
-                console.log(this.notifications);
             } catch (error) {
-                console.log("Error :", error);
+                // Error handled
             }
         },
         formatTime(timestamp) {
@@ -418,10 +512,12 @@ export default {
             if (this.dropdownContent === type) {
                 this.dropdownContent = null;
                 this.isDropdownOpen = false;
+                this.dropdownStyle = {};
             }
             else {
                 this.isDropdownOpen = true;
                 this.isLogoDropdownOpen = false;
+                this.isMobileMenuOpen = false;
                 this.dropdownContent = type;
 
                 this.$nextTick(() => this.positionDropdown());
@@ -430,49 +526,89 @@ export default {
 
         positionDropdown() {
             const dropdown = this.$refs.dropdown;
+            if (!dropdown) return;
 
-            const bellTarget = document.querySelector('.nav-right .fa-bell'); // Bell Icon
-            const messageTarget = document.querySelector('.nav-right .fa-message'); // Message Icon
+            // Use ref to find bell button container
+            const bellContainer = this.$refs.bellButtonContainer;
+            if (!bellContainer) return;
 
-            let target = messageTarget; // Default to bell icon if dropdown is for bell
-            if (this.dropdownContent === 'message') {
-                target = messageTarget; // Switch to message icon if dropdown is for messages
+            const rect = bellContainer.getBoundingClientRect();
+
+            // Always use fixed positioning for stability (no scrollY needed)
+            if (window.innerWidth < 1024) {
+                // Mobile: center horizontally, position below button
+                this.dropdownStyle = {
+                    top: `${rect.bottom + 8}px`,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    right: 'auto',
+                };
+            } else {
+                // Desktop: align with button, position below
+                const dropdownWidth = dropdown.offsetWidth || 450;
+                const buttonCenter = rect.left + rect.width / 2;
+                let left = buttonCenter - dropdownWidth / 2;
+
+                // Keep dropdown within viewport
+                const padding = 16;
+                if (left < padding) {
+                    left = padding;
+                } else if (left + dropdownWidth > window.innerWidth - padding) {
+                    left = window.innerWidth - dropdownWidth - padding;
+                }
+
+                this.dropdownStyle = {
+                    top: `${rect.bottom + 8}px`,
+                    left: `${left}px`,
+                    transform: 'none',
+                    right: 'auto',
+                };
             }
-            else {
-                target = bellTarget;
-            }
-
-            if (dropdown && target) {
-                const rect = target.getBoundingClientRect();
-                dropdown.style.top = `${rect.bottom + window.scrollY + 9}px`;
-                dropdown.style.left = `${rect.left + rect.width / 2 - dropdown.offsetWidth / 2}px`;
+        },
+        toggleMobileMenu() {
+            this.isMobileMenuOpen = !this.isMobileMenuOpen;
+            this.isDropdownOpen = false;
+            this.isLogoDropdownOpen = false;
+            if (this.isMobileMenuOpen) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
             }
         },
         ToggleLogoDropdown() {
             this.isLogoDropdownOpen = !this.isLogoDropdownOpen;
             this.isDropdownOpen = false;
+            this.isMobileMenuOpen = false;
         },
         search() {
             if (this.querryToSearch.trim()) {
                 this.$router.push({ path: '/search', query: { q: this.querryToSearch } });
             }
-
+        },
+        handleMobileSearch() {
+            if (this.querryToSearch.trim()) {
+                this.$router.push({ path: '/search', query: { q: this.querryToSearch } });
+                this.isMobileMenuOpen = false;
+                document.body.style.overflow = '';
+            }
         },
         isSignInTemplate() {
             this.currentAction = 0;
-            document.body.style.overflow = this.isEditProfile ? "hidden" : "";
+            this.isMobileMenuOpen = false;
+            document.body.style.overflow = "hidden";
         },
         isCreateTemplate() {
             this.currentAction = 1;
-            document.body.style.overflow = this.isEditProfile ? "hidden" : "";
+            this.isMobileMenuOpen = false;
+            document.body.style.overflow = "hidden";
         },
         isCreateAccount() {
             this.currentAction = 1;
-            document.body.style.overflow = this.isEditProfile ? "hidden" : "";
+            document.body.style.overflow = "hidden";
         },
         isAlreadyAccount() {
             this.currentAction = 0;
-            document.body.style.overflow = this.isEditProfile ? "hidden" : "";
+            document.body.style.overflow = "hidden";
         },
         showPassword() {
             const password = document.getElementById('password');
@@ -498,35 +634,51 @@ export default {
         },
         async signInClick() {
             try {
-                // const res = await axios.post("http://localhost:3000/api/users/login", this.form);
                 const res = await apiClient.post('/users/login', this.form);
                 const accessToken = res.data.accessToken;
                 const refreshToken = res.data.refreshToken;
 
-                
-
-                const userData = res.data.userId; // Assuming the API returns user data
-
-                this.playerStore.idUserLogin = userData;
-
-                console.log('playerStore',this.playerStore.idUserLogin);
-
-                //luu access & refreshtoken
+                // Lưu access & refresh token trước
                 localStorage.setItem('jwt', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
 
+                // Decode JWT token để lấy userId
+                const userId = getUserIdFromJWT();
+
+                this.playerStore.idUserLogin = userId;
+
+                this.playerStore.isLoggedIn = true;
                 
+                // Refresh user info after login
+                await this.getAllInfoUser();
 
                 this.$router.push({ path: '/home' });
-                this.playerStore.isLoggedIn = true;
+                this.closeModal();
             } catch (error) {
-                if (error.response.status === 404) {
-                    this.message = "User not found";
-                }
-                if (error.response.status === 400) {
-                    this.message = "Wrong password";
-                }
                 console.error("Error :", error);
+
+                if (error.response?.status === 404) {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: 'User not found. Please check your email and try again.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                } else if (error.response?.status === 400) {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: 'Wrong password. Please try again.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                } else {
+                    notification.error({
+                        message: 'Login Failed',
+                        description: error.response?.data?.message || 'An error occurred. Please try again later.',
+                        duration: 4,
+                    });
+                    this.message = ""; // Clear message for UI
+                }
             }
 
         },
@@ -534,32 +686,125 @@ export default {
             this.playerStore.isLoggedIn = false
         },
         async createAccountClick() {
-            console.log(this.form);
             try {
-                const res = await apiClient.post('/users/register', this.form);
+                await apiClient.post('/users/register', this.form);
 
-                console.log("Đăng ký thành công:", res.data);
-                window.alert("Register Success!");
-                this.isRegisted = true;
-                window.location.reload();
+                notification.success({
+                    message: 'Registration Successful',
+                    description: 'Your account has been created successfully. Logging you in...',
+                    duration: 3,
+                });
+
+                // Auto-login with the newly created account
+                try {
+                    const loginRes = await apiClient.post('/users/login', {
+                        email: this.form.email,
+                        password: this.form.password
+                    });
+                    
+                    const accessToken = loginRes.data.accessToken;
+                    const refreshToken = loginRes.data.refreshToken;
+
+                    // Clear old tokens first
+                    localStorage.removeItem('jwt');
+                    localStorage.removeItem('refreshToken');
+
+                    // Save new tokens
+                    localStorage.setItem('jwt', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+
+                    // Decode JWT token để lấy userId
+                    const userId = getUserIdFromJWT();
+
+                    this.playerStore.idUserLogin = userId;
+                    this.playerStore.isLoggedIn = true;
+                    
+                    // Refresh user info after login
+                    await this.getAllInfoUser();
+
+                    // Close modal and redirect
+                    this.closeModal();
+                    this.$router.push({ path: '/home' });
+                } catch (loginError) {
+                    console.error("Auto-login failed:", loginError);
+                    notification.warning({
+                        message: 'Registration Successful',
+                        description: 'Please log in manually with your new account.',
+                        duration: 4,
+                    });
+                    this.closeModal();
+                    this.$router.push({ path: '/discover' });
+                }
             } catch (error) {
                 console.error("Error :", error);
+                notification.error({
+                    message: 'Registration Failed',
+                    description: error.response?.data?.message || 'Failed to create account. Please try again.',
+                    duration: 4,
+                });
             }
         },
         cancelTemplate() {
             this.currentAction = null;
             document.body.style.overflow = "";
         },
+        closeModal() {
+            this.currentAction = null;
+            document.body.style.overflow = "";
+        },
+        handleClickOutside(event) {
+            // Check if click is on mobile menu button
+            const mobileMenuButton = event.target.closest('button[aria-label="Toggle mobile menu"]');
+            if (mobileMenuButton) {
+                // Don't close menu if clicking the toggle button itself
+                return;
+            }
+
+            // Close mobile menu if clicked outside
+            if (this.isMobileMenuOpen) {
+                const mobileMenu = event.target.closest('.mobile-menu-content');
+                const mobileMenuBackdrop = event.target.closest('.mobile-menu-backdrop');
+
+                // Don't close if clicking inside menu or backdrop (backdrop click will be handled by its own @click)
+                if (!mobileMenu && !mobileMenuBackdrop) {
+                    this.isMobileMenuOpen = false;
+                    document.body.style.overflow = '';
+                }
+            }
+
+            // Close dropdowns if clicked outside
+            if (this.isDropdownOpen && this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
+                const bellButton = event.target.closest('button');
+                if (!bellButton || !bellButton.querySelector('.fa-bell')) {
+                    this.isDropdownOpen = false;
+                    this.dropdownContent = null;
+                }
+            }
+
+            // Close logo dropdown if clicked outside
+            if (this.isLogoDropdownOpen && !event.target.closest('.logo') && !event.target.closest('button.logo')) {
+                this.isLogoDropdownOpen = false;
+            }
+        },
+        handleResize() {
+            // Close mobile menu on resize to desktop
+            if (window.innerWidth >= 1024 && this.isMobileMenuOpen) {
+                this.isMobileMenuOpen = false;
+                document.body.style.overflow = '';
+            }
+            // Reposition dropdown on resize only if it's open
+            if (this.isDropdownOpen && this.dropdownContent) {
+                this.$nextTick(() => this.positionDropdown());
+            }
+        },
     }
 }
 </script>
 
-<style>
+<style scoped>
 .nav-left {
-    border-left: 1px solid #ffffff;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
-
-
 
 .nav-right {
     border-right: 0px solid #ffffff;
@@ -575,5 +820,78 @@ nav .nav-left .absolute {
 
 input.no-clear::-webkit-search-cancel-button {
     display: none;
+}
+
+/* Smooth transitions */
+button,
+a,
+input {
+    transition: all 0.2s ease;
+}
+
+/* Improve focus states */
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+}
+
+/* Mobile menu backdrop */
+@media (max-width: 1023px) {
+    .mobile-menu-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 35;
+    }
+}
+
+/* Smooth scroll for dropdowns */
+.overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Mobile menu transitions */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s ease-out;
+}
+
+.slide-enter-from {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 </style>
