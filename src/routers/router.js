@@ -1,174 +1,59 @@
-import { createRouter, createWebHistory } from "vue-router";
-import Home from "@/views/Home.vue";
-import Upload from "@/views/Upload.vue";
-import InfoSongUpload from "@/views/InfoSongUpload.vue";
-import Library from "@/views/Library.vue";
-import Chart from "@/views/Chart.vue";
-import Followers from "@/views/Followers.vue";
-import Following from "@/views/Following.vue";
-import Likes from "@/views/Likes.vue";
-import Tracks from "@/views/Tracks.vue";
-import Profile from "@/views/Profile.vue";
-import Insights from "@/views/Insights.vue";
-import Achievements from "@/views/Achievements.vue";
-import SearchResult from "@/views/SearchResult.vue";
-import TracksInfo from "@/views/TracksInfo.vue";
-import Discover from "@/views/Discover.vue";
-import Message from "@/views/Message.vue";
-import Playlists from "@/views/Playlists.vue";
-import PlaylistDetail from "@/views/PlaylistDetail.vue";
-import GenrePlaylists from "@/views/GenrePlaylists.vue";
-// import { usePlayerStore } from "@/js/state";
+import { createRouter, createWebHistory } from 'vue-router';
 
+// Lazy-load từng trang để giảm dung lượng bundle ban đầu.
 const routes = [
-    {
-        path: '/home',
-        name: 'HomePage',
-        component: Home,
-        meta: { title: 'Musica' }
-    },
-    {
-        path: '/upload',
-        name: 'UploadPage',
-        component: Upload,
-        meta: { title: 'Upload', requiresAuth: true },
-
-    },
-    {
-        path: '/library',
-        name: 'LibraryPage',
-        component: Library,
-        meta: { title: 'Library' },
-
-    },
-    {
-        path: '/chart',
-        name: 'ChartPage',
-        component: Chart,
-        meta: { title: 'Chart' },
-
-    },
-    {
-        path: '/search',
-        name: 'SearchResultPage',
-        component: SearchResult,
-        meta: { title: 'Search' },
-
-    },
-    {
-        path: '/followers/:id',
-        name: 'FollowersPage',
-        component: Followers,
-        meta: { title: 'Followers' },
-
-    },
-    {
-        path: '/following/:id',
-        name: 'FollowingPage',
-        component: Following,
-        meta: { title: 'Following' },
-
-    },
-    {
-        path: '/insights',
-        name: 'InsightsPage',
-        component: Insights,
-        meta: { title: 'Insights' },
-
-    },
-    {
-        path: '/likes',
-        name: 'LikesPage',
-        component: Likes,
-        meta: { title: 'Likes' },
-
-    },
-    {
-        path: '/tracks',
-        name: 'TracksPage',
-        component: Tracks,
-        meta: { title: 'Tracks' },
-
-    },
-    {
-        path: '/message/:id?',
-        name: 'MessagePage',
-        component: Message,
-        meta: { title: 'Message' },
-        props: true
-
-    },
-    {
-        path: '/profile/:id',
-        name: 'ProfilePage',
-        component: Profile,
-        meta: { title: 'Profile' },
-
-    },
-    {
-        path: '/trackinfo/:id',
-        name: 'TrackInfoPage',
-        component: TracksInfo,
-        meta: { title: 'TrackInfoPage' },
-
-    },
-    {
-        path: '/achievements',
-        name: 'AchievementsPage',
-        component: Achievements,
-        meta: { title: 'Achievements' },
-
-    },
-    {
-        path: '/playlists',
-        name: 'PlaylistsPage',
-        component: Playlists,
-        meta: { title: 'Playlists' },
-    },
-    {
-        path: '/playlist/:id',
-        name: 'PlaylistDetailPage',
-        component: PlaylistDetail,
-        meta: { title: 'Playlist Detail' },
-    },
-    {
-        path: '/playlists/genre',
-        name: 'GenrePlaylistsPage',
-        component: GenrePlaylists,
-        meta: { title: 'Playlists by Genre' },
-    },
-    {
-        path: '/discover',
-        name: 'DiscoverPage',
-        component: Discover,
-        meta: { title: 'Discover' },
-
-    },
+    { path: '/', redirect: '/discover' },
+    { path: '/discover', name: 'DiscoverPage', component: () => import('@/views/Discover.vue'), meta: { title: 'Discover' } },
+    { path: '/home', name: 'HomePage', component: () => import('@/views/Home.vue'), meta: { title: 'Musica' } },
+    { path: '/upload', name: 'UploadPage', component: () => import('@/views/Upload.vue'), meta: { title: 'Upload', requiresAuth: true } },
     {
         path: '/upload/infomation',
         name: 'InfoSongUpload',
-        component: InfoSongUpload,
+        component: () => import('@/views/InfoSongUpload.vue'),
         meta: { title: 'Upload', requiresAuth: true },
     },
+    { path: '/library', name: 'LibraryPage', component: () => import('@/views/Library.vue'), meta: { title: 'Library' } },
+    { path: '/chart', name: 'ChartPage', component: () => import('@/views/Chart.vue'), meta: { title: 'Chart' } },
+    { path: '/search', name: 'SearchResultPage', component: () => import('@/views/SearchResult.vue'), meta: { title: 'Search' } },
+    { path: '/followers/:id', name: 'FollowersPage', component: () => import('@/views/Followers.vue'), meta: { title: 'Followers' } },
+    { path: '/following/:id', name: 'FollowingPage', component: () => import('@/views/Following.vue'), meta: { title: 'Following' } },
+    { path: '/insights', name: 'InsightsPage', component: () => import('@/views/Insights.vue'), meta: { title: 'Insights' } },
+    { path: '/likes', name: 'LikesPage', component: () => import('@/views/Likes.vue'), meta: { title: 'Likes' } },
+    { path: '/tracks', name: 'TracksPage', component: () => import('@/views/Tracks.vue'), meta: { title: 'Tracks' } },
     {
-        path: '/',
-        redirect: '/discover'
-    }
-
-]
+        path: '/message/:id?',
+        name: 'MessagePage',
+        component: () => import('@/views/Message.vue'),
+        meta: { title: 'Message' },
+        props: true,
+    },
+    { path: '/profile/:id', name: 'ProfilePage', component: () => import('@/views/Profile.vue'), meta: { title: 'Profile' } },
+    { path: '/trackinfo/:id', name: 'TrackInfoPage', component: () => import('@/views/TracksInfo.vue'), meta: { title: 'Track' } },
+    { path: '/achievements', name: 'AchievementsPage', component: () => import('@/views/Achievements.vue'), meta: { title: 'Achievements' } },
+    { path: '/playlists', name: 'PlaylistsPage', component: () => import('@/views/Playlists.vue'), meta: { title: 'Playlists' } },
+    { path: '/playlist/:id', name: 'PlaylistDetailPage', component: () => import('@/views/PlaylistDetail.vue'), meta: { title: 'Playlist Detail' } },
+    {
+        path: '/playlists/genre',
+        name: 'GenrePlaylistsPage',
+        component: () => import('@/views/GenrePlaylists.vue'),
+        meta: { title: 'Playlists by Genre' },
+    },
+];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
 });
 
-router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('jwt');
-    if (to.meta.requiresAuth && !token) {
-        next({ name: "DiscoverPage" });
-    } else {
-        next();
+router.beforeEach((to) => {
+    if (to.meta.requiresAuth && !localStorage.getItem('jwt')) {
+        return { name: 'DiscoverPage' };
     }
-})
+    return true;
+});
+
+router.afterEach((to) => {
+    if (to.meta.title) document.title = to.meta.title;
+});
 
 export default router;

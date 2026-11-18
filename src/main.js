@@ -21,12 +21,6 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 library.add(faUserSecret, faCircleChevronDown, faChevronDown, faBell, faMessage, faBackwardStep, faForwardStep, faPlay, faPause, faShuffle, faRepeat, faVolumeXmark, faVolumeHigh, faVolumeLow, faHeart, faXmark, faGrip, faCheck, faPerson, faUserPlus, faChevronLeft, faChevronRight, faPlus, faEllipsis, faHeartRegular, faUpload, faImage, faPencil, faTrash, faCamera, faChartColumn, faTrophy, faLock, faPen, faUnlock, faAnglesRight, faAnglesLeft, faMagnifyingGlass, faCompactDisc, faUser, faMusic, faComment, faUserCheck, faPaperPlane, faNotesMedical, faComments, faArrowRight, faGoogle, faBars, faUserCheck, faInfo,faAddressCard,faArrowRightFromBracket,faSpinner,faCloudArrowUp,faFaceSmile, faHouse, faDownload, faClockRotateLeft,faPaperPlane)
 
 
-router.afterEach((to) => {
-    if (to.meta.title) {
-        document.title = to.meta.title
-    }
-})
-
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedState);
 

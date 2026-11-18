@@ -1,897 +1,215 @@
 <template>
     <div class="h-14 sm:h-16 mx-auto w-full bg-[#222021] fixed z-50 shadow-lg">
-        <div class="mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl"
-            :class="{ 'justify-between': playerStore.isLoggedIn === false }">
+        <div class="mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8 max-w-7xl">
             <!-- Logo -->
             <div class="flex-shrink-0 font-neutra text-2xl sm:text-3xl lg:text-4xl text-white">
                 <router-link to="/home" class="hover:opacity-80 transition-opacity">MUSICA</router-link>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <button v-if="playerStore.isLoggedIn === true" @click.stop="toggleMobileMenu" type="button"
-                class="lg:hidden text-white p-2 hover:bg-white/10 rounded-md transition-colors z-[70] relative"
-                aria-label="Toggle mobile menu">
-                <font-awesome-icon :icon="isMobileMenuOpen ? 'fa-solid fa-times' : 'fa-solid fa-bars'" size="lg" />
-            </button>
+            <template v-if="playerStore.isLoggedIn">
+                <!-- Mobile Menu Button -->
+                <button @click.stop="toggleMenu('mobile')" type="button"
+                    class="lg:hidden text-white p-2 hover:bg-white/10 rounded-md transition-colors z-[70] relative"
+                    aria-label="Toggle mobile menu">
+                    <font-awesome-icon :icon="openMenu === 'mobile' ? 'fa-solid fa-times' : 'fa-solid fa-bars'" size="lg" />
+                </button>
 
-            <!-- Desktop Navigation -->
-            <div v-if="playerStore.isLoggedIn === true"
-                class="hidden lg:flex flex-grow items-center justify-start gap-2 xl:gap-4 ml-6 xl:text-[16px] lg:text-[14px]">
-                <div class="flex justify-center items-center w-full max-w-5xl">
-                    <div
-                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
-                        <router-link to="/home" class="text-sm xl:text-base">Home</router-link>
-                    </div>
-                    <div
-                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
-                        <router-link to="/library" class="text-sm xl:text-base">Library</router-link>
-                    </div>
-                    <div
-                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
-                        <router-link to="/playlists" class="text-sm xl:text-base">Playlists</router-link>
-                    </div>
-                    <div class="px-2 xl:px-4 relative flex-1 max-w-md">
-                        <input v-model="querryToSearch" @keydown.enter="search"
-                            class="no-clear w-full px-4 pr-10 h-8 xl:h-10 rounded-md cursor-text text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
-                            type="search" name="search" id="search-input" placeholder="Search...">
-                        <button @click="search" type="button"
-                            class="absolute right-2 xl:right-6 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
-                            <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
-                        </button>
-                    </div>
-                    <div class="px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
-                        <router-link to="/upload" class="text-sm xl:text-base">Upload</router-link>
-                    </div>
-                    <div
-                        class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
-                        <router-link to="/chart" class="text-sm xl:text-base">Chart</router-link>
-                    </div>
-                    <div class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative hover:text-orange-400 transition-colors"
-                        ref="bellButtonContainer">
-                        <button @click.stop="ToggleDropdown('bell')" class="focus:outline-none" ref="bellButton">
-                            <font-awesome-icon icon="fa-solid fa-bell" class="text-lg" />
-                        </button>
-                    </div>
-
-                    <!-- Message Button -->
-                    <div @click="getDESCRoom"
-                        class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative cursor-pointer hover:text-orange-400 transition-colors">
-                        <router-link to="/message" class="block">
-                            <font-awesome-icon icon="fa-solid fa-message" class="text-lg" />
-                        </router-link>
-                    </div>
-                    <!-- Shared Dropdown -->
-                    <div v-if="isDropdownOpen" ref="dropdown"
-                        class="fixed h-80 lg:h-96 w-[calc(100vw-2rem)] sm:w-96 lg:w-[450px] bg-white lg:bg-gray-50 shadow-xl lg:shadow-lg z-50 overflow-y-auto rounded-lg border border-gray-200 overflow-x-hidden"
-                        :style="dropdownStyle">
-                        <template v-if="dropdownContent === 'bell'">
-                            <div class="h-12 sticky top-0 border-b border-gray-300 bg-gray-50 z-50 rounded-t-lg">
-                                <p class="px-4 py-3 text-gray-800 font-semibold">Notifications</p>
-                            </div>
-                            <div>
-                                <ul v-if="notifications && notifications.length > 0">
-                                    <li v-for="(item, index) in notifications" :key="index"
-                                        class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                        <a href="#" class="block py-3 px-4">
-                                            <div class="flex items-start gap-3">
-                                                <img class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-gray-300 object-cover"
-                                                    :src="item.User.profile_picture || 'http://localhost:8080/images/other/Unknown_person.jpg'"
-                                                    alt="Profile">
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="text-sm sm:text-base text-gray-800 line-clamp-2">
-                                                        {{ item.title + ' ' + item.message }}
-                                                    </div>
-                                                    <div class="text-xs sm:text-sm text-gray-500 mt-1">
-                                                        {{ formatTime(item.created_at) }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <div v-else class="px-4 py-8 text-center text-gray-500">
-                                    No notifications
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Profile Dropdown -->
-                    <div class="border-l border-white/30 px-3 xl:px-2 text-white relative">
-                        <template v-if="playerStore.isLoggedIn === true">
-                            <button @click="ToggleLogoDropdown()"
-                                class="logo flex items-center hover:text-orange-400 transition-colors focus:outline-none">
-                                <div>
-                                    <img class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white object-cover"
-                                        :src="profilePicture" alt="User Profile Picture" />
-                                </div>
-                                <span class="ml-2 hidden xl:inline-block">
-                                    <font-awesome-icon icon="fa-solid fa-chevron-down" class="text-xs" />
-                                </span>
-                            </button>
-                            <div v-if="isLogoDropdownOpen"
-                                class="fixed lg:absolute left-4 lg:left-0 mt-2 lg:mt-4 w-48 lg:w-40 xl:w-48 bg-[#222021] border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-                                <ul class="mb-0">
-                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/profile/${getCurrentUserId()}`" @click="isLogoDropdownOpen = false">
-                                            <font-awesome-icon icon="fa-regular fa-address-card" class="mr-2 w-4" />
-                                            Profile
-                                        </router-link>
-                                    </li>
-                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            to="/tracks" @click="isLogoDropdownOpen = false">
-                                            <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-2 w-4" />
-                                            Tracks
-                                        </router-link>
-                                    </li>
-                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/likes`" @click="isLogoDropdownOpen = false">
-                                            <font-awesome-icon icon="fa-solid fa-heart" class="mr-2 w-4" />
-                                            Likes
-                                        </router-link>
-                                    </li>
-                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/following/${getCurrentUserId()}`"
-                                            @click="isLogoDropdownOpen = false">
-                                            <font-awesome-icon icon="fa-solid fa-user-check" class="mr-2 w-4" />
-                                            Following
-                                        </router-link>
-                                    </li>
-                                    <li class="border-b border-gray-700 hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            :to="`/followers/${getCurrentUserId()}`"
-                                            @click="isLogoDropdownOpen = false">
-                                            <font-awesome-icon icon="fa-solid fa-user-plus" class="mr-2 w-4" />
-                                            Followers
-                                        </router-link>
-                                    </li>
-                                    <li class="hover:bg-gray-800 transition-colors">
-                                        <router-link
-                                            class="px-4 py-2.5 text-white hover:text-orange-400 transition-colors flex items-center text-sm"
-                                            to="/discover" @click="signOutClick">
-                                            <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket"
-                                                class="mr-2 w-4" />
-                                            Sign Out
-                                        </router-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mobile Menu Backdrop -->
-            <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
-                class="lg:hidden fixed inset-0 bg-black/50 z-[55] cursor-pointer mobile-menu-backdrop"
-                @click.stop="toggleMobileMenu"></div>
-
-            <!-- Mobile Menu -->
-            <transition name="slide">
-                <div v-if="playerStore.isLoggedIn === true && isMobileMenuOpen"
-                    class="lg:hidden fixed inset-x-0 top-14 sm:top-16 bg-[#222021] border-b border-gray-700 shadow-xl z-[60] max-h-[calc(100vh-3.5rem)] overflow-y-auto mobile-menu-content">
-                    <div class="px-4 py-4 space-y-4">
-                        <!-- Mobile Search -->
-                        <div class="relative">
-                            <input v-model="querryToSearch" @keydown.enter="handleMobileSearch"
-                                class="no-clear w-full px-4 pr-10 h-10 rounded-md text-sm bg-white/10 text-white placeholder-gray-400 border border-white/20 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400 transition-all"
-                                type="search" placeholder="Search...">
-                            <button @click="handleMobileSearch" type="button"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center text-gray-400 hover:text-orange-400 transition-colors cursor-pointer focus:outline-none p-1">
-                                <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="text-sm" />
-                            </button>
+                <!-- Desktop Navigation -->
+                <div
+                    class="hidden lg:flex flex-grow items-center justify-start gap-2 xl:gap-4 ml-6 xl:text-[16px] lg:text-[14px]">
+                    <div class="flex justify-center items-center w-full max-w-5xl">
+                        <div v-for="link in leftLinks" :key="link.to"
+                            class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                            <router-link :to="link.to" class="text-sm xl:text-base">{{ link.label }}</router-link>
+                        </div>
+                        <HeaderSearch />
+                        <div class="px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                            <router-link to="/upload" class="text-sm xl:text-base">Upload</router-link>
+                        </div>
+                        <div
+                            class="nav-left border-l border-white/30 px-3 xl:px-4 text-white hover:text-orange-400 transition-colors">
+                            <router-link to="/chart" class="text-sm xl:text-base">Chart</router-link>
                         </div>
 
-                        <!-- Mobile Navigation Links -->
-                        <div class="space-y-1 text-white">
-                            <router-link to="/home" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-house" class="mr-3 w-5" />
-                                Home
-                            </router-link>
-                            <router-link to="/library" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-music" class="mr-3 w-5" />
-                                Library
-                            </router-link>
-                            <router-link to="/playlists" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-notes-medical" class="mr-3 w-5" />
-                                Playlists
-                            </router-link>
-                            <router-link to="/upload" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-upload" class="mr-3 w-5" />
-                                Upload
-                            </router-link>
-                            <router-link to="/chart" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-chart-column" class="mr-3 w-5" />
-                                Chart
-                            </router-link>
-                            <router-link to="/message" @click="getDESCRoom; isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-message" class="mr-3 w-5" />
-                                Messages
-                            </router-link>
-                            <router-link :to="`/profile/${getCurrentUserId()}`" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-regular fa-address-card" class="mr-3 w-5" />
-                                Profile
-                            </router-link>
-                            <router-link to="/tracks" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-compact-disc" class="mr-3 w-5" />
-                                Tracks
-                            </router-link>
-                            <router-link to="/likes" @click="isMobileMenuOpen = false"
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors">
-                                <font-awesome-icon icon="fa-solid fa-heart" class="mr-3 w-5" />
-                                Likes
-                            </router-link>
-                            <router-link
-                                class="flex items-center px-4 py-3 text-white hover:bg-white/10 hover:text-orange-400 rounded-md transition-colors"
-                                to="/discover" @click="signOutClick">
-                                <font-awesome-icon icon="fa-solid fa-arrow-right-from-bracket" class="mr-3 w-5" />
-                                Sign Out
+                        <NotificationDropdown :open="openMenu === 'notifications'"
+                            @toggle="toggleMenu('notifications')" @close="closeMenu('notifications')" />
+
+                        <!-- Message Button -->
+                        <div @click="openLatestRoom"
+                            class="nav-left nav-right border-l border-white/30 px-3 xl:px-2 text-white relative cursor-pointer hover:text-orange-400 transition-colors">
+                            <router-link to="/message" class="block">
+                                <font-awesome-icon icon="fa-solid fa-message" class="text-lg" />
                             </router-link>
                         </div>
+
+                        <UserMenu :open="openMenu === 'user'" :avatar="profilePicture" @toggle="toggleMenu('user')"
+                            @close="closeMenu('user')" @sign-out="signOut" />
                     </div>
                 </div>
-            </transition>
-            <template v-if="playerStore.isLoggedIn === false">
-                <div class="flex gap-2 sm:gap-4 h-full justify-center items-center">
-                    <button @click="isSignInTemplate"
-                        class="text-white px-3 sm:px-4 py-1.5 sm:py-2 border border-white rounded-md text-xs sm:text-sm flex justify-center items-center whitespace-nowrap cursor-pointer hover:bg-white/10 transition-colors">
-                        Sign In
-                    </button>
-                    <button @click="isCreateTemplate"
-                        class="text-white px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500 hover:bg-orange-600 rounded-md text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-colors">
-                        Create Account
-                    </button>
-                </div>
+
+                <MobileMenu :open="openMenu === 'mobile'" @close="closeMenu('mobile')"
+                    @open-messages="openLatestRoom" @sign-out="signOut" />
             </template>
-        </div>
-    </div>
-    <!-- Sign In Modal -->
-    <div v-if="this.currentAction === 0"
-        class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
-        @click.self="closeModal">
-        <div
-            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button @click="closeModal"
-                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-                <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
-            </button>
-            <div class="p-6 sm:p-8">
-                <div class="text-center text-3xl sm:text-4xl font-semibold text-gray-800 mb-6 sm:mb-8">
+
+            <div v-else class="flex gap-2 sm:gap-4 h-full justify-center items-center">
+                <button @click="openAuth('login')"
+                    class="text-white px-3 sm:px-4 py-1.5 sm:py-2 border border-white rounded-md text-xs sm:text-sm flex justify-center items-center whitespace-nowrap cursor-pointer hover:bg-white/10 transition-colors">
                     Sign In
-                </div>
-                <div class="space-y-4 sm:space-y-6">
-                    <div>
-                        <input v-model="form.email"
-                            class="w-full h-12 sm:h-14 border-gray-400 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Your Email" type="email" name="email" id="signin-email">
-                    </div>
-                    <div class="relative">
-                        <input v-model="form.password"
-                            class="w-full h-12 sm:h-14 border-gray-400 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Password" type="password" name="password" id="password">
-                        <button @click="showPassword" type="button"
-                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
-                        </button>
-                    </div>
-                    <div class="text-right">
-                        <a href="#"
-                            class="text-sm text-gray-600 hover:text-orange-500 hover:underline transition-colors">
-                            Forgot Password?
-                        </a>
-                    </div>
-                    <div>
-                        <button @click="signInClick"
-                            class="w-full h-12 sm:h-14 border-2 border-orange-500 cursor-pointer bg-orange-500 hover:bg-orange-600 rounded-lg text-white flex justify-center items-center font-semibold text-lg sm:text-xl transition-colors">
-                            <span>Log In</span>
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="ml-2" />
-                        </button>
-                    </div>
-                    <div v-if="message" class="text-center text-red-500 text-sm">
-                        {{ message }}
-                    </div>
-                    <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
-                        Don't have an account? <button @click="isCreateAccount"
-                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Create
-                            Account</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Create Account Modal -->
-    <div v-if="this.currentAction === 1"
-        class="fixed inset-0 flex justify-center items-center bg-black/60 backdrop-blur-sm w-full h-full m-auto z-40 p-4"
-        @click.self="closeModal">
-        <div
-            class="w-full max-w-md bg-white border border-gray-300 rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button @click="closeModal"
-                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
-                <font-awesome-icon icon="fa-solid fa-times" class="text-xl" />
-            </button>
-            <div class="p-6 sm:p-8">
-                <div class="text-center text-3xl sm:text-4xl font-semibold text-gray-800 mb-6 sm:mb-8">
+                </button>
+                <button @click="openAuth('register')"
+                    class="text-white px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500 hover:bg-orange-600 rounded-md text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-colors">
                     Create Account
-                </div>
-                <div class="space-y-4 sm:space-y-5">
-                    <div>
-                        <input v-model="form.username"
-                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Username" type="text" name="username" id="create-username">
-                    </div>
-                    <div>
-                        <input v-model="form.email"
-                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Your Email" type="email" name="email" id="create-email">
-                    </div>
-                    <div class="relative">
-                        <input v-model="form.password"
-                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Password" type="password" name="password" id="create-password">
-                        <button @click="showPassword" type="button"
-                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
-                        </button>
-                    </div>
-                    <div class="relative">
-                        <input v-model="reEnterPassword"
-                            class="w-full h-12 sm:h-14 border-gray-500 border px-4 pr-12 outline-none rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-base"
-                            placeholder="Re-enter Password" type="password" name="re-password" id="re-en-password">
-                        <button @click="showPassword" type="button"
-                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                            <img v-if="isShowPass === false" class="h-5 w-5 opacity-70"
-                                src="@/image/other/eye-close.png" alt="Show password">
-                            <img v-else class="h-5 w-5 opacity-70" src="@/image/other/eye-open.png" alt="Hide password">
-                        </button>
-                    </div>
-                    <div>
-                        <button @click="createAccountClick"
-                            class="w-full h-12 sm:h-14 border-2 border-orange-500 cursor-pointer bg-orange-500 hover:bg-orange-600 rounded-lg text-white flex justify-center items-center font-semibold text-lg sm:text-xl transition-colors">
-                            <span>Create Account</span>
-                            <font-awesome-icon icon="fa-solid fa-arrow-right" class="ml-2" />
-                        </button>
-                    </div>
-                    <div class="text-center text-gray-600 text-sm sm:text-base pt-2">
-                        Already have an account? <button @click="isAlreadyAccount"
-                            class="text-orange-500 hover:text-orange-600 underline font-semibold transition-colors">Sign
-                            In</button>
-                    </div>
-                </div>
+                </button>
             </div>
         </div>
     </div>
+
+    <AuthModal v-model:mode="authMode" />
 </template>
 
-<script>
-import apiClient from '@/apiService/apiClient';
-import { usePlayerStore } from '@/js/state';
-import { formatDistanceToNow } from 'date-fns';
-import { getUserIdFromJWT } from '@/utils/getUserIdFromJWT';
-import { notification } from 'ant-design-vue';
-export default {
-    name: 'HeaderPage',
-    setup() {
-        const playerStore = usePlayerStore();
-        return {
-            playerStore,
-        }
-    },
-    data() {
-        return {
-            message: "",
-            apiUrl: process.env.VUE_APP_API_BASE_URL,
-            imgPath: "",
-            idUserCurrent: null,
-            user: null,
-            notifications: null,
-            form: {
-                username: "",
-                email: "",
-                password: "",
-            },
-            reEnterPassword: "",
-            isRegisted: false,
-            isDropdownOpen: false,
-            isLogoDropdownOpen: false,
-            isMobileMenuOpen: false,
-            dropdownContent: null,
-            isLoggedIn: false,
-            isSignInTem: false,
-            isShowPass: false,
-            currentAction: null,
-            querryToSearch: '',
-            descMessage: null,
-            dropdownStyle: {},
-        }
-    },
-    mounted() {
-        this.getAllInfoUser();
-        this.getNotifications();
-        document.addEventListener('click', this.handleClickOutside);
-        window.addEventListener('resize', this.handleResize);
-    },
-    beforeUnmount() {
-        document.removeEventListener('click', this.handleClickOutside);
-        window.removeEventListener('resize', this.handleResize);
-        document.body.style.overflow = '';
-    },
-    watch: {
-        '$route'() {
-            // Refresh user info when route changes, especially after login
-            if (this.playerStore.isLoggedIn) {
-                this.getAllInfoUser();
-            }
-        },
-        'playerStore.isLoggedIn'(newVal) {
-            // Refresh user info when login state changes
-            if (newVal) {
-                this.getAllInfoUser();
-            } else {
-                // Clear user info when logged out
-                this.user = null;
-                this.idUserCurrent = null;
-            }
-        }
-    },
-    computed: {
-        profilePicture() {
-            // const baseUrl = process.env.VUE_APP_API_BASE_URL || ''; // Fallback nếu base URL chưa được thiết lập
-            const profilePicture = this.user?.data?.profile_picture; // Truy cập chính xác vào profile_picture
+<script setup>
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { handleLogout, messageApi, userApi } from '@/api';
+import { usePlayerStore } from '@/stores/player';
+import HeaderSearch from '@/components/layout/HeaderSearch.vue';
+import NotificationDropdown from '@/components/layout/NotificationDropdown.vue';
+import UserMenu from '@/components/layout/UserMenu.vue';
+import MobileMenu from '@/components/layout/MobileMenu.vue';
+import AuthModal from '@/components/layout/AuthModal.vue';
 
-            if (profilePicture) {
-                return `${profilePicture}`; // Kết hợp base URL với profile_picture
-            }
+const DEFAULT_PROFILE_PICTURE = '/images/profile/Unknown_person.jpg';
+const DESKTOP_BREAKPOINT = 1024;
 
-            return '/images/profile/Unknown_person.jpg'; // Đường dẫn ảnh mặc định
-        },
+const leftLinks = [
+    { label: 'Home', to: '/home' },
+    { label: 'Library', to: '/library' },
+    { label: 'Playlists', to: '/playlists' },
+];
 
-    },
-    methods: {
-        getCurrentUserId() {
-            return getUserIdFromJWT();
-        },
-        async getDESCRoom() {
-            try {
-                const res = await apiClient.get("/message/getASCRoom");
-                this.descMessage = res.data.data;
-                const newId = this.descMessage.room_id;
-                // Chỉ navigate nếu khác route hiện tại
-                if (this.$route.params.id !== newId) {
-                    this.$router.push({ name: 'MessagePage', params: { id: newId } });
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        },
-        async getAllInfoUser() {
-            try {
-                const res = await apiClient.get("/users/getCurrentUser");
-                this.user = res.data;
+const route = useRoute();
+const router = useRouter();
+const playerStore = usePlayerStore();
 
-                this.idUserCurrent = this.user.data.id || null;
+const user = ref(null);
+/** Menu đang mở: 'notifications' | 'user' | 'mobile' | null — chỉ mở một menu tại một thời điểm. */
+const openMenu = ref(null);
+/** Modal đăng nhập/đăng ký: 'login' | 'register' | null. */
+const authMode = ref(null);
 
-            } catch (error) {
-                // Error handled
-            }
-        },
-        async getNotifications() {
-            try {
-                const res = await apiClient.get("http://localhost:3000/api/notification/getAllNotification");
-                this.notifications = res.data.data;
-            } catch (error) {
-                // Error handled
-            }
-        },
-        formatTime(timestamp) {
-            return formatDistanceToNow(new Date(timestamp), {
-                addSuffix: true,
-            })
-        },
-        ToggleDropdown(type) {
-            if (this.dropdownContent === type) {
-                this.dropdownContent = null;
-                this.isDropdownOpen = false;
-                this.dropdownStyle = {};
-            }
-            else {
-                this.isDropdownOpen = true;
-                this.isLogoDropdownOpen = false;
-                this.isMobileMenuOpen = false;
-                this.dropdownContent = type;
+const profilePicture = computed(() => user.value?.profile_picture || DEFAULT_PROFILE_PICTURE);
 
-                this.$nextTick(() => this.positionDropdown());
-            }
-        },
+const toggleMenu = (name) => {
+    openMenu.value = openMenu.value === name ? null : name;
+};
 
-        positionDropdown() {
-            const dropdown = this.$refs.dropdown;
-            if (!dropdown) return;
+// Chỉ đóng nếu menu đó vẫn đang mở (tránh click-outside của menu cũ đóng menu vừa mở)
+const closeMenu = (name) => {
+    if (openMenu.value === name) openMenu.value = null;
+};
 
-            // Use ref to find bell button container
-            const bellContainer = this.$refs.bellButtonContainer;
-            if (!bellContainer) return;
+const openAuth = (mode) => {
+    openMenu.value = null;
+    authMode.value = mode;
+};
 
-            const rect = bellContainer.getBoundingClientRect();
+// Khoá cuộn trang khi mobile menu hoặc modal đăng nhập đang mở
+watchEffect(() => {
+    document.body.style.overflow = openMenu.value === 'mobile' || authMode.value ? 'hidden' : '';
+});
 
-            // Always use fixed positioning for stability (no scrollY needed)
-            if (window.innerWidth < 1024) {
-                // Mobile: center horizontally, position below button
-                this.dropdownStyle = {
-                    top: `${rect.bottom + 8}px`,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    right: 'auto',
-                };
-            } else {
-                // Desktop: align with button, position below
-                const dropdownWidth = dropdown.offsetWidth || 450;
-                const buttonCenter = rect.left + rect.width / 2;
-                let left = buttonCenter - dropdownWidth / 2;
-
-                // Keep dropdown within viewport
-                const padding = 16;
-                if (left < padding) {
-                    left = padding;
-                } else if (left + dropdownWidth > window.innerWidth - padding) {
-                    left = window.innerWidth - dropdownWidth - padding;
-                }
-
-                this.dropdownStyle = {
-                    top: `${rect.bottom + 8}px`,
-                    left: `${left}px`,
-                    transform: 'none',
-                    right: 'auto',
-                };
-            }
-        },
-        toggleMobileMenu() {
-            this.isMobileMenuOpen = !this.isMobileMenuOpen;
-            this.isDropdownOpen = false;
-            this.isLogoDropdownOpen = false;
-            if (this.isMobileMenuOpen) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        },
-        ToggleLogoDropdown() {
-            this.isLogoDropdownOpen = !this.isLogoDropdownOpen;
-            this.isDropdownOpen = false;
-            this.isMobileMenuOpen = false;
-        },
-        search() {
-            if (this.querryToSearch.trim()) {
-                this.$router.push({ path: '/search', query: { q: this.querryToSearch } });
-            }
-        },
-        handleMobileSearch() {
-            if (this.querryToSearch.trim()) {
-                this.$router.push({ path: '/search', query: { q: this.querryToSearch } });
-                this.isMobileMenuOpen = false;
-                document.body.style.overflow = '';
-            }
-        },
-        isSignInTemplate() {
-            this.currentAction = 0;
-            this.isMobileMenuOpen = false;
-            document.body.style.overflow = "hidden";
-        },
-        isCreateTemplate() {
-            this.currentAction = 1;
-            this.isMobileMenuOpen = false;
-            document.body.style.overflow = "hidden";
-        },
-        isCreateAccount() {
-            this.currentAction = 1;
-            document.body.style.overflow = "hidden";
-        },
-        isAlreadyAccount() {
-            this.currentAction = 0;
-            document.body.style.overflow = "hidden";
-        },
-        showPassword() {
-            const password = document.getElementById('password');
-            const reenterpassword = document.getElementById('re-en-password');
-            if (password.type === 'password' && this.currentAction == 0) {
-                password.type = 'text';
-                this.isShowPass = true;
-            }
-            else if (password.type === 'password' && this.currentAction == 1 && reenterpassword.type === 'password') {
-                password.type = 'text';
-                reenterpassword.type = 'text'
-                this.isShowPass = true;
-            }
-            else if (password.type === 'text' && this.currentAction == 1 && reenterpassword.type === 'text') {
-                password.type = 'password';
-                reenterpassword.type = 'password'
-                this.isShowPass = false;
-            }
-            else if (password.type === 'text' && this.currentAction == 0) {
-                password.type = 'password'
-                this.isShowPass = false;
-            }
-        },
-        async signInClick() {
-            try {
-                const res = await apiClient.post('/users/login', this.form);
-                const accessToken = res.data.accessToken;
-                const refreshToken = res.data.refreshToken;
-
-                // Lưu access & refresh token trước
-                localStorage.setItem('jwt', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-
-                // Decode JWT token để lấy userId
-                const userId = getUserIdFromJWT();
-
-                this.playerStore.idUserLogin = userId;
-
-                this.playerStore.isLoggedIn = true;
-                
-                // Refresh user info after login
-                await this.getAllInfoUser();
-
-                this.$router.push({ path: '/home' });
-                this.closeModal();
-            } catch (error) {
-                console.error("Error :", error);
-
-                if (error.response?.status === 404) {
-                    notification.error({
-                        message: 'Login Failed',
-                        description: 'User not found. Please check your email and try again.',
-                        duration: 4,
-                    });
-                    this.message = ""; // Clear message for UI
-                } else if (error.response?.status === 400) {
-                    notification.error({
-                        message: 'Login Failed',
-                        description: 'Wrong password. Please try again.',
-                        duration: 4,
-                    });
-                    this.message = ""; // Clear message for UI
-                } else {
-                    notification.error({
-                        message: 'Login Failed',
-                        description: error.response?.data?.message || 'An error occurred. Please try again later.',
-                        duration: 4,
-                    });
-                    this.message = ""; // Clear message for UI
-                }
-            }
-
-        },
-        signOutClick() {
-            this.playerStore.isLoggedIn = false
-        },
-        async createAccountClick() {
-            try {
-                await apiClient.post('/users/register', this.form);
-
-                notification.success({
-                    message: 'Registration Successful',
-                    description: 'Your account has been created successfully. Logging you in...',
-                    duration: 3,
-                });
-
-                // Auto-login with the newly created account
-                try {
-                    const loginRes = await apiClient.post('/users/login', {
-                        email: this.form.email,
-                        password: this.form.password
-                    });
-                    
-                    const accessToken = loginRes.data.accessToken;
-                    const refreshToken = loginRes.data.refreshToken;
-
-                    // Clear old tokens first
-                    localStorage.removeItem('jwt');
-                    localStorage.removeItem('refreshToken');
-
-                    // Save new tokens
-                    localStorage.setItem('jwt', accessToken);
-                    localStorage.setItem('refreshToken', refreshToken);
-
-                    // Decode JWT token để lấy userId
-                    const userId = getUserIdFromJWT();
-
-                    this.playerStore.idUserLogin = userId;
-                    this.playerStore.isLoggedIn = true;
-                    
-                    // Refresh user info after login
-                    await this.getAllInfoUser();
-
-                    // Close modal and redirect
-                    this.closeModal();
-                    this.$router.push({ path: '/home' });
-                } catch (loginError) {
-                    console.error("Auto-login failed:", loginError);
-                    notification.warning({
-                        message: 'Registration Successful',
-                        description: 'Please log in manually with your new account.',
-                        duration: 4,
-                    });
-                    this.closeModal();
-                    this.$router.push({ path: '/discover' });
-                }
-            } catch (error) {
-                console.error("Error :", error);
-                notification.error({
-                    message: 'Registration Failed',
-                    description: error.response?.data?.message || 'Failed to create account. Please try again.',
-                    duration: 4,
-                });
-            }
-        },
-        cancelTemplate() {
-            this.currentAction = null;
-            document.body.style.overflow = "";
-        },
-        closeModal() {
-            this.currentAction = null;
-            document.body.style.overflow = "";
-        },
-        handleClickOutside(event) {
-            // Check if click is on mobile menu button
-            const mobileMenuButton = event.target.closest('button[aria-label="Toggle mobile menu"]');
-            if (mobileMenuButton) {
-                // Don't close menu if clicking the toggle button itself
-                return;
-            }
-
-            // Close mobile menu if clicked outside
-            if (this.isMobileMenuOpen) {
-                const mobileMenu = event.target.closest('.mobile-menu-content');
-                const mobileMenuBackdrop = event.target.closest('.mobile-menu-backdrop');
-
-                // Don't close if clicking inside menu or backdrop (backdrop click will be handled by its own @click)
-                if (!mobileMenu && !mobileMenuBackdrop) {
-                    this.isMobileMenuOpen = false;
-                    document.body.style.overflow = '';
-                }
-            }
-
-            // Close dropdowns if clicked outside
-            if (this.isDropdownOpen && this.$refs.dropdown && !this.$refs.dropdown.contains(event.target)) {
-                const bellButton = event.target.closest('button');
-                if (!bellButton || !bellButton.querySelector('.fa-bell')) {
-                    this.isDropdownOpen = false;
-                    this.dropdownContent = null;
-                }
-            }
-
-            // Close logo dropdown if clicked outside
-            if (this.isLogoDropdownOpen && !event.target.closest('.logo') && !event.target.closest('button.logo')) {
-                this.isLogoDropdownOpen = false;
-            }
-        },
-        handleResize() {
-            // Close mobile menu on resize to desktop
-            if (window.innerWidth >= 1024 && this.isMobileMenuOpen) {
-                this.isMobileMenuOpen = false;
-                document.body.style.overflow = '';
-            }
-            // Reposition dropdown on resize only if it's open
-            if (this.isDropdownOpen && this.dropdownContent) {
-                this.$nextTick(() => this.positionDropdown());
-            }
-        },
+const loadCurrentUser = async () => {
+    try {
+        user.value = await userApi.getCurrentUser();
+    } catch (error) {
+        console.error('Error loading current user:', error);
     }
-}
+};
+
+/** Mở phòng chat gần nhất của user (nếu có). */
+const openLatestRoom = async () => {
+    try {
+        const room = await messageApi.getFirstSentMessage();
+        const roomId = room?.room_id;
+        if (roomId && String(route.params.id) !== String(roomId)) {
+            router.push({ name: 'MessagePage', params: { id: roomId } });
+        }
+    } catch (error) {
+        // 404: user chưa có cuộc trò chuyện nào -> giữ trang /message
+        if (error.response?.status !== 404) console.error('Error opening latest room:', error);
+    }
+};
+
+const signOut = () => {
+    openMenu.value = null;
+    handleLogout();
+};
+
+// Làm mới thông tin user khi đổi trang (vd: sau khi đổi ảnh đại diện)
+watch(
+    () => route.fullPath,
+    () => {
+        if (playerStore.isLoggedIn) loadCurrentUser();
+    },
+);
+
+watch(
+    () => playerStore.isLoggedIn,
+    (loggedIn) => {
+        openMenu.value = null;
+        if (loggedIn) loadCurrentUser();
+        else user.value = null;
+    },
+);
+
+const handleResize = () => {
+    if (window.innerWidth >= DESKTOP_BREAKPOINT) closeMenu('mobile');
+};
+
+onMounted(() => {
+    if (playerStore.isLoggedIn) loadCurrentUser();
+    window.addEventListener('resize', handleResize);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', handleResize);
+    document.body.style.overflow = '';
+});
 </script>
 
 <style scoped>
-.nav-left {
-    border-left: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.nav-right {
-    border-right: 0px solid #ffffff;
-}
-
-nav .nav-right .absolute {
-    width: auto;
-}
-
-nav .nav-left .absolute {
-    width: auto;
-}
-
-input.no-clear::-webkit-search-cancel-button {
-    display: none;
-}
-
-/* Smooth transitions */
-button,
-a,
-input {
+/* Áp dụng cho cả các component con của header */
+:deep(button),
+:deep(a),
+:deep(input) {
     transition: all 0.2s ease;
 }
 
-/* Improve focus states */
-button:focus-visible,
-a:focus-visible {
+:deep(button:focus-visible),
+:deep(a:focus-visible) {
     outline: 2px solid #f97316;
     outline-offset: 2px;
 }
 
-/* Mobile menu backdrop */
-@media (max-width: 1023px) {
-    .mobile-menu-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 35;
-    }
-}
-
-/* Smooth scroll for dropdowns */
-.overflow-y-auto {
+:deep(.overflow-y-auto) {
     scrollbar-width: thin;
     scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
 
-.overflow-y-auto::-webkit-scrollbar {
+:deep(.overflow-y-auto::-webkit-scrollbar) {
     width: 6px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
+:deep(.overflow-y-auto::-webkit-scrollbar-track) {
     background: transparent;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
+:deep(.overflow-y-auto::-webkit-scrollbar-thumb) {
     background-color: rgba(156, 163, 175, 0.5);
     border-radius: 3px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+:deep(.overflow-y-auto::-webkit-scrollbar-thumb:hover) {
     background-color: rgba(156, 163, 175, 0.7);
-}
-
-/* Mobile menu transitions */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-    transition: all 0.3s ease-out;
-}
-
-.slide-enter-from {
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
-.slide-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
 }
 </style>

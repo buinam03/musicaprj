@@ -63,10 +63,9 @@
                             <input 
                                 type="file" 
                                 @change="handleFileUpload" 
-                                accept=".wav,.mp3,.flac,.alac,.aiff,.m4a,.ogg"
+                                :accept="ACCEPTED_EXTENSIONS.join(',')"
                                 :disabled="uploadStore.isUploading"
                                 class="file-input"
-                                ref="fileInput"
                             />
                         </button>
                     </div>
@@ -85,26 +84,12 @@
                                     For the highest audio quality, we recommend uploading in lossless formats:
                                 </p>
                                 <div class="flex flex-wrap gap-2">
-                                    <span class="px-3 py-1 bg-white rounded-full text-xs sm:text-sm font-medium text-orange-600 border border-orange-200">
-                                        FLAC
-                                    </span>
-                                    <span class="px-3 py-1 bg-white rounded-full text-xs sm:text-sm font-medium text-orange-600 border border-orange-200">
-                                        WAV
-                                    </span>
-                                    <span class="px-3 py-1 bg-white rounded-full text-xs sm:text-sm font-medium text-orange-600 border border-orange-200">
-                                        ALAC
-                                    </span>
-                                    <span class="px-3 py-1 bg-white rounded-full text-xs sm:text-sm font-medium text-orange-600 border border-orange-200">
-                                        AIFF
-                                    </span>
-                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs sm:text-sm font-medium text-gray-600 border border-gray-200">
-                                        MP3
-                                    </span>
-                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs sm:text-sm font-medium text-gray-600 border border-gray-200">
-                                        M4A
-                                    </span>
-                                    <span class="px-3 py-1 bg-gray-100 rounded-full text-xs sm:text-sm font-medium text-gray-600 border border-gray-200">
-                                        OGG
+                                    <span v-for="format in FORMATS" :key="format.label"
+                                        class="px-3 py-1 rounded-full text-xs sm:text-sm font-medium border"
+                                        :class="format.lossless
+                                            ? 'bg-white text-orange-600 border-orange-200'
+                                            : 'bg-gray-100 text-gray-600 border-gray-200'">
+                                        {{ format.label }}
                                     </span>
                                 </div>
                             </div>
@@ -124,138 +109,129 @@
     </div>
 </template>
 
-<script>
-import { useUploadStore } from '@/js/uploadState.js';
+<script setup>
 import { useRouter } from 'vue-router';
 import { notification } from 'ant-design-vue';
+import { useUploadStore } from '@/stores/upload';
 
-export default {
-    name: 'UploadPage',
-    setup() {
-        const router = useRouter();
-        const uploadStore = useUploadStore();
+const ACCEPTED_EXTENSIONS = ['.wav', '.mp3', '.flac', '.alac', '.aiff', '.m4a', '.ogg'];
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const METADATA_TIMEOUT = 10000;
+const FORMATS = [
+    { label: 'FLAC', lossless: true },
+    { label: 'WAV', lossless: true },
+    { label: 'ALAC', lossless: true },
+    { label: 'AIFF', lossless: true },
+    { label: 'MP3', lossless: false },
+    { label: 'M4A', lossless: false },
+    { label: 'OGG', lossless: false },
+];
 
-        const getAudioDuration = (file) => {
-            return new Promise((resolve, reject) => {
-                const audio = new Audio();
-                const objectUrl = URL.createObjectURL(file);
-                audio.src = objectUrl;
+const router = useRouter();
+const uploadStore = useUploadStore();
 
-                const cleanup = () => {
-                    URL.revokeObjectURL(objectUrl);
-                };
+/** Đọc thời lượng (giây) của file audio từ metadata. */
+const getAudioDuration = (file) =>
+    new Promise((resolve, reject) => {
+        const audio = new Audio();
+        const objectUrl = URL.createObjectURL(file);
+        let timer = null;
 
-                audio.addEventListener('loadedmetadata', () => {
-                    const duration = audio.duration;
-                    cleanup();
-                    if (isNaN(duration) || duration <= 0) {
-                        reject(new Error('Invalid audio file duration.'));
-                    } else {
-                        resolve(duration);
-                    }
-                });
+        const finish = (callback) => {
+            clearTimeout(timer);
+            URL.revokeObjectURL(objectUrl);
+            callback();
+        };
 
-                audio.addEventListener('error', () => {
-                    cleanup();
-                    reject(new Error('Cannot load audio file. Please make sure it is a valid audio file.'));
-                });
-
-                // Timeout after 10 seconds
-                setTimeout(() => {
-                    if (!audio.duration) {
-                        cleanup();
-                        reject(new Error('Failed to load audio metadata. The file may be corrupted.'));
-                    }
-                }, 10000);
+        audio.addEventListener('loadedmetadata', () => {
+            const { duration } = audio;
+            finish(() => {
+                if (Number.isNaN(duration) || duration <= 0) reject(new Error('Invalid audio file duration.'));
+                else resolve(duration);
             });
-        };
+        });
 
-        const handleFileUpload = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
+        audio.addEventListener('error', () => {
+            finish(() => reject(new Error('Cannot load audio file. Please make sure it is a valid audio file.')));
+        });
 
-            // Validate file type
-            const validExtensions = ['.wav', '.mp3', '.flac', '.alac', '.aiff', '.m4a', '.ogg'];
-            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-            
-            if (!validExtensions.includes(fileExtension)) {
-                notification.error({
-                    message: 'Invalid File Format',
-                    description: 'Please select a valid audio file (WAV, MP3, FLAC, ALAC, AIFF, M4A, or OGG).',
-                    duration: 4,
-                });
-                event.target.value = '';
-                return;
-            }
+        timer = setTimeout(() => {
+            finish(() => reject(new Error('Failed to load audio metadata. The file may be corrupted.')));
+        }, METADATA_TIMEOUT);
 
-            // Validate file size (max 100MB)
-            const maxSize = 100 * 1024 * 1024; // 100MB
-            if (file.size > maxSize) {
-                notification.error({
-                    message: 'File Too Large',
-                    description: 'The file size exceeds 100MB. Please select a smaller file.',
-                    duration: 4,
-                });
-                event.target.value = '';
-                return;
-            }
+        audio.src = objectUrl;
+    });
 
-            try {
-                // Show loading notification
-                notification.info({
-                    message: 'Reading Audio File',
-                    description: 'Please wait while we process your audio file...',
-                    duration: 2,
-                });
+const validateFile = (file) => {
+    const extension = `.${file.name.split('.').pop().toLowerCase()}`;
+    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+        notification.error({
+            message: 'Invalid File Format',
+            description: 'Please select a valid audio file (WAV, MP3, FLAC, ALAC, AIFF, M4A, or OGG).',
+            duration: 4,
+        });
+        return false;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+        notification.error({
+            message: 'File Too Large',
+            description: 'The file size exceeds 100MB. Please select a smaller file.',
+            duration: 4,
+        });
+        return false;
+    }
+    return true;
+};
 
-                const duration = await getAudioDuration(file);
-                
-                // Show upload notification
-                notification.info({
-                    message: 'Upload Started',
-                    description: `Uploading "${file.name}"... This may take a few moments.`,
-                    duration: 3,
-                });
+const handleFileUpload = async (event) => {
+    const input = event.target;
+    const file = input.files[0];
+    if (!file) return;
 
-                const result = await uploadStore.uploadFile(file, duration);
+    if (!validateFile(file)) {
+        input.value = '';
+        return;
+    }
 
-                // Success notification
-                notification.success({
-                    message: 'Upload Successful!',
-                    description: `"${file.name}" has been uploaded successfully. Redirecting to add details...`,
-                    duration: 3,
-                });
+    try {
+        notification.info({
+            message: 'Reading Audio File',
+            description: 'Please wait while we process your audio file...',
+            duration: 2,
+        });
 
-                // Reset input
-                event.target.value = '';
+        const duration = await getAudioDuration(file);
 
-                // Navigate to info page after a short delay
-                setTimeout(() => {
-                    router.push({
-                        name: 'InfoSongUpload',
-                        query: {
-                            fileUrl: result.url,
-                            fileName: result.name,
-                            duration: result.duration
-                        }
-                    });
-                }, 500);
+        notification.info({
+            message: 'Upload Started',
+            description: `Uploading "${file.name}"... This may take a few moments.`,
+            duration: 3,
+        });
 
-            } catch (err) {
-                console.error('Upload error:', err);
-                
-                notification.error({
-                    message: 'Upload Failed',
-                    description: err.message || 'An error occurred while uploading your file. Please try again.',
-                    duration: 5,
-                });
+        const result = await uploadStore.uploadFile(file, duration);
 
-                // Reset input
-                event.target.value = '';
-            }
-        };
+        notification.success({
+            message: 'Upload Successful!',
+            description: `"${file.name}" has been uploaded successfully. Redirecting to add details...`,
+            duration: 3,
+        });
 
-        return { uploadStore, handleFileUpload };
+        // Thông tin file được chuyển sang trang InfoSongUpload qua query params.
+        setTimeout(() => {
+            router.push({
+                name: 'InfoSongUpload',
+                query: { fileUrl: result.url, fileName: result.name, duration: result.duration },
+            });
+        }, 500);
+    } catch (error) {
+        console.error('Upload error:', error);
+        notification.error({
+            message: 'Upload Failed',
+            description: error.message || 'An error occurred while uploading your file. Please try again.',
+            duration: 5,
+        });
+    } finally {
+        input.value = '';
     }
 };
 </script>
